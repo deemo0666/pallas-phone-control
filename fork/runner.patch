@@ -2300,7 +2300,7 @@ index a51a8ae..336ddfe 100644
  [profile.release]
  # Runs under emulation inside Minis, so speed matters as much as size: signing
 diff --git a/minis/src/account.rs b/minis/src/account.rs
-index b778e40..6ab3d13 100644
+index b778e40..229adf8 100644
 --- a/minis/src/account.rs
 +++ b/minis/src/account.rs
 @@ -1,9 +1,7 @@
@@ -2449,6 +2449,22 @@ index b778e40..6ab3d13 100644
  /// `pick` alone when given; otherwise the last server that worked, then the
  /// rest of `SERVERS`.
  fn candidates(pick: Option<&str>, last: Option<&str>) -> Vec<String> {
+@@ -199,13 +236,13 @@ fn stops_sign_in(error: &str) -> Option<&'static str> {
+         .any(|c| error.contains(c))
+     {
+         return Some(
+-            "Apple rejected the Apple Account or password. Check them and run siboot again. If \
++            "Apple rejected the Apple Account or password. Check them and run PallasBoot again. If \
+              you're sure they're right, Apple may be limiting sign-ins: wait a while first.",
+         );
+     }
+     if error.contains("429") || error.to_ascii_lowercase().contains("too many") {
+         return Some(
+-            "Apple is limiting sign-in attempts for now. Wait a while, then run siboot again.",
++            "Apple is limiting sign-in attempts for now. Wait a while, then run PallasBoot again.",
+         );
+     }
+     if error.contains("No 2FA") {
 @@ -222,8 +259,8 @@ fn adopt_folder_typed_as(storage: &Path, typed: &str, apple_id: &str) {
      if typed == apple_id {
          return;
@@ -2514,6 +2530,24 @@ index b778e40..6ab3d13 100644
  fn choose_certificates_to_revoke(certs: &Vec<DevelopmentCertificate>) -> Option<Vec<String>> {
      tokio::task::block_in_place(|| {
          if !ui::interactive() {
+@@ -463,7 +494,7 @@ fn choose_certificates_to_revoke(certs: &Vec<DevelopmentCertificate>) -> Option<
+         }
+         ui::warn(
+             "This Apple Account already has as many signing certificates as Apple allows, so one \
+-             must be revoked to make siboot's. Apps signed with a revoked certificate stop \
++             must be revoked to make PallasBoot's. Apps signed with a revoked certificate stop \
+              opening, on every device, until they're signed again. This can't be undone.",
+         );
+         let mut labels: Vec<String> = certs
+@@ -491,7 +522,7 @@ fn choose_certificates_to_revoke(certs: &Vec<DevelopmentCertificate>) -> Option<
+ fn choose_certificates_plain(certs: &[DevelopmentCertificate]) -> Option<Vec<String>> {
+     println!();
+     ui::warn("This Apple Account already has as many signing certificates as Apple allows,");
+-    ui::warn("so one must be revoked to make siboot's. Apps signed with a revoked certificate");
++    ui::warn("so one must be revoked to make PallasBoot's. Apps signed with a revoked certificate");
+     ui::warn("stop opening, on every device, until they're signed again. This can't be undone.");
+     for (i, cert) in certs.iter().enumerate() {
+         ui::status(&format!(
 @@ -532,7 +563,6 @@ mod tests {
              "Some(SubmitCode(\"123456\"))"
          ));
@@ -2522,7 +2556,7 @@ index b778e40..6ab3d13 100644
          assert!(is(parse_two_factor("d"), "Some(SendToDevices)"));
          assert!(is(parse_two_factor("r"), "Some(ResendCode)"));
          assert!(is(parse_two_factor("q"), "Some(Abort)"));
-@@ -566,7 +596,7 @@ mod tests {
+@@ -566,17 +596,17 @@ mod tests {
          assert!(stops_sign_in("login failed: HTTP 429").is_some());
          assert!(stops_sign_in("login failed: No 2FA code provided, aborting").is_some());
          assert!(stops_sign_in("anisette provider: error sending request").is_none());
@@ -2531,7 +2565,9 @@ index b778e40..6ab3d13 100644
      }
  
      #[test]
-@@ -575,8 +605,8 @@ mod tests {
+     fn a_folder_made_under_a_capitalized_email_is_kept() {
+-        let storage = std::env::temp_dir().join(format!("siboot-adopt-{}", std::process::id()));
++        let storage = std::env::temp_dir().join(format!("PallasBoot-adopt-{}", std::process::id()));
          let _ = std::fs::remove_dir_all(&storage);
          let typed = "Someone@Example.com";
          let apple_id = typed.to_lowercase();
@@ -2543,9 +2579,18 @@ index b778e40..6ab3d13 100644
          std::fs::create_dir_all(&old).unwrap();
          std::fs::write(old.join("key"), "old key").unwrap();
 diff --git a/minis/src/bridge.rs b/minis/src/bridge.rs
-index 35466db..091ffe3 100644
+index 35466db..61364bf 100644
 --- a/minis/src/bridge.rs
 +++ b/minis/src/bridge.rs
+@@ -77,7 +77,7 @@ pub struct Advert {
+     pub id: String,
+     pub service_type: String,
+     /// The name the OS registered, which can differ from the requested one
+-    /// after a conflict ("siboot (2)").
++    /// after a conflict ("PallasBoot (2)").
+     pub name: String,
+     /// `starting`, `ready`, `failed` or `stopped`.
+     pub state: String,
 @@ -143,7 +143,7 @@ impl Bridge {
      /// with stand-ins); otherwise they come from `$PATH`.
      pub fn from_env() -> Self {
@@ -2618,10 +2663,37 @@ index 35466db..091ffe3 100644
              Err(BridgeError::Refused { code, message }) => {
                  assert_eq!(code, "not_declared");
 diff --git a/minis/src/devmode.rs b/minis/src/devmode.rs
-index b2d7a75..2aaf0ac 100644
+index b2d7a75..c8f2b3d 100644
 --- a/minis/src/devmode.rs
 +++ b/minis/src/devmode.rs
-@@ -121,7 +121,7 @@ pub async fn run(
+@@ -72,7 +72,7 @@ impl Services for Connection {
+ /// the iPhone.
+ pub fn unreachable_note(f: Fail) -> Fail {
+     let mut advice = format!(
+-        "{} siboot changes Developer Mode through this same pairing and tunnel, so it can't \
++        "{} PallasBoot changes Developer Mode through this same pairing and tunnel, so it can't \
+          until they work.",
+         f.advice
+     );
+@@ -93,7 +93,7 @@ pub async fn run(
+     let on = match read_status(device).await {
+         Ok(on) => on,
+         Err(f) => {
+-            ui::warn("Couldn't read whether Developer Mode is on, so siboot asks anyway.");
++            ui::warn("Couldn't read whether Developer Mode is on, so PallasBoot asks anyway.");
+             ui::detail(&f.raw);
+             None
+         }
+@@ -109,7 +109,7 @@ pub async fn run(
+             Sent::Done => Ok(Outcome::Shown),
+             Sent::HungUp(raw) => Err(Fail::new(
+                 "The iPhone stopped answering before it said whether it shows Developer Mode. \
+-                 Look under Settings › Privacy & Security; if it isn't there, run siboot \
++                 Look under Settings › Privacy & Security; if it isn't there, run PallasBoot \
+                  developer-mode again.",
+                 raw,
+             )),
+@@ -121,13 +121,13 @@ pub async fn run(
      }
  
      ui::warn(
@@ -2629,9 +2701,44 @@ index b2d7a75..2aaf0ac 100644
 +        "Without a passcode, this iPhone restarts right away to turn Developer Mode on, and Pallas \
           stops with it. Once you unlock it, tap Turn On in the alert iOS shows.",
      );
-     ui::note("With a passcode, iOS refuses, and siboot shows the switch in Settings instead.");
+-    ui::note("With a passcode, iOS refuses, and siboot shows the switch in Settings instead.");
++    ui::note("With a passcode, iOS refuses, and PallasBoot shows the switch in Settings instead.");
+     if !confirm() {
+         return Err(Fail::new(
+-            "Nothing was sent, so Developer Mode stays off. `siboot developer-mode` without \
++            "Nothing was sent, so Developer Mode stays off. `PallasBoot developer-mode` without \
+              --turn-on only shows it in Settings, and restarts nothing.",
+             "",
+         ));
+@@ -146,7 +146,7 @@ pub async fn run(
+                 Sent::Done => Ok(Outcome::ShownForPasscode),
+                 Sent::HungUp(raw) | Sent::Refused(raw) => Err(Fail::new(
+                     "iOS turns Developer Mode on from here only while the iPhone has no passcode, \
+-                     and it didn't take the request to show it in Settings either. Run siboot \
++                     and it didn't take the request to show it in Settings either. Run PallasBoot \
+                      developer-mode (without --turn-on) again.",
+                     raw,
+                 )),
+@@ -281,7 +281,7 @@ mod tests {
+         }
+ 
+         async fn amfi(&mut self) -> std::result::Result<AmfiClient, IdeviceError> {
+-            let answer = self.answers.pop().expect("siboot opened more AMFI connections than expected");
++            let answer = self.answers.pop().expect("PallasBoot opened more AMFI connections than expected");
+             let (ours, mut theirs) = tokio::io::duplex(64 * 1024);
+             let sent = self.sent.clone();
+             tokio::spawn(async move {
+@@ -387,7 +387,7 @@ mod tests {
+     #[test]
+     fn the_note_keeps_the_original_advice_and_cause() {
+         let f = unreachable_note(Fail::new("Couldn't reach 10.7.0.1:49152.", "refused"));
+-        assert!(f.advice.starts_with("Couldn't reach 10.7.0.1:49152. siboot changes"));
++        assert!(f.advice.starts_with("Couldn't reach 10.7.0.1:49152. PallasBoot changes"));
+         assert!(f.advice.ends_with("turn it on there instead."), "{}", f.advice);
+         assert_eq!(f.raw, "refused");
+ 
 diff --git a/minis/src/fake_iphone.rs b/minis/src/fake_iphone.rs
-index aec2460..df01a93 100644
+index aec2460..0496319 100644
 --- a/minis/src/fake_iphone.rs
 +++ b/minis/src/fake_iphone.rs
 @@ -370,24 +370,24 @@ pub fn minis_stub(home: &Path) -> PathBuf {
@@ -2667,8 +2774,12 @@ index aec2460..df01a93 100644
  esac"#,
          ),
          (
-@@ -443,7 +443,7 @@ mod tests {
-     #[ignore = "needs a siboot waiting to pair"]
+@@ -440,14 +440,14 @@ mod tests {
+     /// the notification it posts, as a person would read it:
+     /// `SIBOOT_FAKE_LOG=… cargo test dial_a_running_siboot -- --ignored`.
+     #[tokio::test(flavor = "multi_thread", worker_threads = 2)]
+-    #[ignore = "needs a siboot waiting to pair"]
++    #[ignore = "needs a PallasBoot waiting to pair"]
      async fn dial_a_running_siboot() {
          let log = PathBuf::from(std::env::var("SIBOOT_FAKE_LOG").expect("set SIBOOT_FAKE_LOG"));
 -        let advertised = wait_for_line(&log, "minis-bonjour advertise").await;
@@ -2676,6 +2787,45 @@ index aec2460..df01a93 100644
          let port: u16 = advertised.split(' ').nth(4).unwrap().parse().unwrap();
          let pin = async {
              let posted =
+-                wait_for_line(&log, "apple-notification schedule --title siboot pairing code").await;
++                wait_for_line(&log, "apple-notification schedule --title PallasBoot pairing code").await;
+             let body = posted.split("--body ").nth(1).unwrap();
+             body.chars()
+                 .filter(char::is_ascii_digit)
+diff --git a/minis/src/install.rs b/minis/src/install.rs
+index 904e836..4bdae74 100644
+--- a/minis/src/install.rs
++++ b/minis/src/install.rs
+@@ -125,7 +125,7 @@ pub async fn install(connection: &mut Connection, app_dir: &Path) -> Result<Stri
+     if !missing.is_empty() {
+         return Err(Fail::new(
+             format!(
+-                "{} files didn't arrive whole on the iPhone. Run siboot again.",
++                "{} files didn't arrive whole on the iPhone. Run PallasBoot again.",
+                 missing.len()
+             ),
+             missing.join(", "),
+@@ -172,9 +172,9 @@ fn install_advice(raw: &str) -> String {
+     if lower.contains("maximum number of installed apps")
+         || lower.contains("maximum number of apps for free development profiles")
+     {
+-        "This iPhone already has 3 apps signed with a free Apple Account. Delete one, then run siboot again.".into()
++        "This iPhone already has 3 apps signed with a free Apple Account. Delete one, then run PallasBoot again.".into()
+     } else if lower.contains("0xe8008015") || lower.contains("provisioning") {
+-        "installd refused the provisioning profile. Run siboot again; if it keeps failing, the \
++        "installd refused the provisioning profile. Run PallasBoot again; if it keeps failing, the \
+          profile may not include this iPhone."
+             .into()
+     } else {
+@@ -228,7 +228,7 @@ mod tests {
+     #[test]
+     fn folders_come_before_their_files_and_sizes_add_up() {
+         let root =
+-            std::env::temp_dir().join(format!("siboot-bundle-{}/Demo.app", std::process::id()));
++            std::env::temp_dir().join(format!("PallasBoot-bundle-{}/Demo.app", std::process::id()));
+         let _ = std::fs::remove_dir_all(&root);
+         std::fs::create_dir_all(root.join("Frameworks/Core.framework")).unwrap();
+         std::fs::write(root.join("Info.plist"), b"1234").unwrap();
 diff --git a/minis/src/keepalive.rs b/minis/src/keepalive.rs
 index 0118469..6c9a1d5 100644
 --- a/minis/src/keepalive.rs
@@ -2690,7 +2840,7 @@ index 0118469..6c9a1d5 100644
          })?;
          Ok(Self {
 diff --git a/minis/src/main.rs b/minis/src/main.rs
-index f1adef7..bb67228 100644
+index f1adef7..1b05162 100644
 --- a/minis/src/main.rs
 +++ b/minis/src/main.rs
 @@ -23,6 +23,7 @@
@@ -2765,7 +2915,7 @@ index f1adef7..bb67228 100644
      };
      let mut argv = argv.into_iter();
      let mut command_seen = false;
-@@ -164,18 +177,32 @@ fn parse_args(argv: impl IntoIterator<Item = String>) -> std::result::Result<Par
+@@ -164,138 +177,61 @@ fn parse_args(argv: impl IntoIterator<Item = String>) -> std::result::Result<Par
              "--apple-id" => args.apple_id = Some(value("--apple-id")?),
              "--ipa" => args.ipa = Some(value("--ipa")?),
              "--anisette" => args.anisette = Some(value("--anisette")?),
@@ -2790,16 +2940,18 @@ index f1adef7..bb67228 100644
 +    if args.command == Command::Reveal {
 +        let udid = args.udid.as_deref().unwrap_or("");
 +        if udid.len() < 20 || !udid.chars().all(|c| c.is_ascii_alphanumeric() || c == '-') {
-+            return Err("`siboot reveal` needs --udid with the device's UDID".into());
++            return Err("`PallasBoot reveal` needs --udid with the device's UDID".into());
 +        }
 +        if args.ipa.is_none() || args.out.is_none() {
-+            return Err("`siboot reveal` needs --ipa and --out".into());
++            return Err("`PallasBoot reveal` needs --ipa and --out".into());
 +        }
 +    }
      if args.turn_on && args.command != Command::DeveloperMode {
-         return Err("--turn-on goes with `siboot developer-mode`".into());
+-        return Err("--turn-on goes with `siboot developer-mode`".into());
++        return Err("--turn-on goes with `PallasBoot developer-mode`".into());
      }
-@@ -184,113 +211,22 @@ fn parse_args(argv: impl IntoIterator<Item = String>) -> std::result::Result<Par
+     Ok(Parsed::Run(args))
+ }
  
  /// Kept narrow: Minis's terminal is an iPhone's, about 45 columns upright.
  fn usage() {
@@ -2907,7 +3059,7 @@ index f1adef7..bb67228 100644
 -        ip = DEFAULT_DEVICE_IP,
 -        rp = DEFAULT_RP_PORT,
 -    );
-+    println!("siboot · Pallas Phone Control
++    println!("PallasBoot · Pallas Phone Control
 +  connect --port PORT
 +  runner --ipa PATH --port PORT
 +  reveal --ipa PATH --udid UDID --out DIR
@@ -2926,6 +3078,31 @@ index f1adef7..bb67228 100644
      let parsed = match parse_args(std::env::args().skip(1)) {
          Ok(p) => p,
          Err(problem) => {
+-            eprintln!("siboot: {problem}");
+-            eprintln!("try `siboot --help`");
++            eprintln!("PallasBoot: {problem}");
++            eprintln!("try `PallasBoot --help`");
+             return ExitCode::from(2);
+         }
+     };
+@@ -305,7 +241,7 @@ fn main() -> ExitCode {
+             return ExitCode::SUCCESS;
+         }
+         Parsed::Version => {
+-            println!("siboot {VERSION}");
++            println!("PallasBoot {VERSION}");
+             return ExitCode::SUCCESS;
+         }
+         Parsed::Run(args) => args,
+@@ -316,7 +252,7 @@ fn main() -> ExitCode {
+         match web::start() {
+             Ok(url) => Some(url),
+             Err(e) => {
+-                eprintln!("siboot: couldn't serve the page ({e}), so it runs here instead");
++                eprintln!("PallasBoot: couldn't serve the page ({e}), so it runs here instead");
+                 None
+             }
+         }
 @@ -327,10 +263,16 @@ fn main() -> ExitCode {
      init_logging(args.verbose);
      ui::header(
@@ -2954,7 +3131,7 @@ index f1adef7..bb67228 100644
              ExitCode::FAILURE
          }
      };
-@@ -385,7 +327,7 @@ fn main() -> ExitCode {
+@@ -385,10 +327,10 @@ fn main() -> ExitCode {
  fn show_page(url: &str) {
      web::on_stop(|| ui::stop_now("Stopped from the page."));
      if web::show(url) {
@@ -2962,7 +3139,11 @@ index f1adef7..bb67228 100644
 +        println!("      The page is open in Pallas's browser. Closed it?");
          println!("      Press return here to open it again.");
          println!("      To type here instead, stop with Ctrl-C");
-         println!("      and run siboot --terminal.");
+-        println!("      and run siboot --terminal.");
++        println!("      and run PallasBoot --terminal.");
+         let url = url.to_string();
+         std::thread::spawn(move || {
+             use std::io::BufRead;
 @@ -463,11 +405,16 @@ async fn pipeline(args: &Args) -> Result<()> {
      std::fs::create_dir_all(&args.home)
          .map_err(|e| Fail::new(format!("Couldn't create {}.", args.home.display()), e.to_string()))?;
@@ -2982,7 +3163,7 @@ index f1adef7..bb67228 100644
          Command::DeveloperMode => {
              let mut names = STEP_NAMES[..3].to_vec();
              names.push(DEVMODE_NAME);
-@@ -483,7 +430,18 @@ async fn pipeline(args: &Args) -> Result<()> {
+@@ -483,20 +430,42 @@ async fn pipeline(args: &Args) -> Result<()> {
      } else {
          ui::step(1, "Checking LocalDevVPN, this iPhone and the internet");
      }
@@ -3001,13 +3182,15 @@ index f1adef7..bb67228 100644
 +    };
      ui::done(if online { "online, and the iPhone answers" } else { "the iPhone answers" });
      if args.command == Command::Check {
-         ui::finish("Ready", &["Run siboot to install SideInstaller."]);
-@@ -491,12 +449,23 @@ async fn pipeline(args: &Args) -> Result<()> {
+-        ui::finish("Ready", &["Run siboot to install SideInstaller."]);
++        ui::finish("Ready", &["Run PallasBoot to install SideInstaller."]);
+         return Ok(());
      }
  
-     ui::step(2, "Pairing this iPhone with siboot");
+-    ui::step(2, "Pairing this iPhone with siboot");
 -    let pairing_path = args.pairing_path();
 -    let source = pairing::ensure(args, &pairing_path).await.map_err(note)?;
++    ui::step(2, "Pairing this iPhone with PallasBoot");
 +    let (source, reached) = if runner::renewing() && args.command == Command::Runner {
 +        (pairing::Source::Saved, args.device) // tunnel::open authenticates this exact record below
 +    } else {
@@ -3048,6 +3231,15 @@ index f1adef7..bb67228 100644
      // The connection is closed here: iOS drops an idle tunnel during sign-in and
      // signing anyway, so a fresh one is opened to install (as Side by Side does).
      drop(connection);
+@@ -583,7 +560,7 @@ async fn developer_mode(args: &Args, connection: &mut tunnel::Connection) -> Res
+                 "Developer Mode is in Settings",
+                 &[
+                     "iOS turns Developer Mode on from here only while the iPhone has no passcode, \
+-                     so siboot showed it under Settings › Privacy & Security instead. Turn it on \
++                     so PallasBoot showed it under Settings › Privacy & Security instead. Turn it on \
+                      there; iOS restarts to finish.",
+                     unlock,
+                 ],
 @@ -593,7 +570,7 @@ async fn developer_mode(args: &Args, connection: &mut tunnel::Connection) -> Res
              ui::done("set to turn on");
              ui::finish(
@@ -3057,10 +3249,28 @@ index f1adef7..bb67228 100644
              );
          }
          devmode::Outcome::HungUp => {
+@@ -604,7 +581,7 @@ async fn developer_mode(args: &Args, connection: &mut tunnel::Connection) -> Res
+                     "It hung up right after the request, as it does when it restarts to turn \
+                      Developer Mode on.",
+                     unlock,
+-                    "If it doesn't restart, run siboot developer-mode again.",
++                    "If it doesn't restart, run PallasBoot developer-mode again.",
+                 ],
+             );
+         }
 diff --git a/minis/src/pairing.rs b/minis/src/pairing.rs
-index 048e534..a7a8d0e 100644
+index 048e534..0b0a0f6 100644
 --- a/minis/src/pairing.rs
 +++ b/minis/src/pairing.rs
+@@ -53,7 +53,7 @@ const MAX_FILE: usize = 64 * 1024;
+ const ANSWER_WAIT: Duration = Duration::from_secs(20);
+ 
+ /// "Pair with siboot" in Settings, as siboot-pair calls itself too.
+-pub const HOST_NAME: &str = "siboot";
++pub const HOST_NAME: &str = "PallasBoot";
+ /// What the iPhone reads off the host. iOS treats a pairable host as a
+ /// computer, so the model stays a Mac's, as rust-core and StikPair send.
+ const HOST_MODEL: &str = "Mac17,7";
 @@ -85,12 +85,7 @@ const MAX_ATTEMPTS: u32 = 3;
  const RETURN_WAIT: Duration = Duration::from_secs(10 * 60);
  
@@ -3075,7 +3285,7 @@ index 048e534..a7a8d0e 100644
  
  /// Where the pairing that works came from.
  pub enum Source {
-@@ -99,17 +94,17 @@ pub enum Source {
+@@ -99,20 +94,20 @@ pub enum Source {
      /// siboot-pair's offer in rootshell.
      Rootshell,
      /// A new pairing, made here.
@@ -3095,7 +3305,11 @@ index 048e534..a7a8d0e 100644
 +                return Ok((Source::Saved, args.device));
              }
              Err(f) => {
-                 ui::note("This iPhone doesn't accept the saved pairing file, so siboot pairs again.");
+-                ui::note("This iPhone doesn't accept the saved pairing file, so siboot pairs again.");
++                ui::note("This iPhone doesn't accept the saved pairing file, so PallasBoot pairs again.");
+                 ui::detail(&f.raw);
+                 saved_refused = Some(f);
+             }
 @@ -120,12 +115,12 @@ pub async fn ensure(args: &Args, path: &Path) -> Result<Source> {
      }
  
@@ -3198,7 +3412,7 @@ index 048e534..a7a8d0e 100644
              false
          }
      };
-@@ -362,12 +376,12 @@ pub async fn run_host(
+@@ -362,13 +376,13 @@ pub async fn run_host(
      let mut keepalive = match &setup.keepalive_dir {
          Some(dir) => match KeepAlive::start(&setup.bridge, dir, keepalive::PAIRING_SECONDS).await {
              Ok(k) => {
@@ -3209,37 +3423,58 @@ index 048e534..a7a8d0e 100644
              Err(e) => {
                  ui::warn(
 -                    "Couldn't start the silence that keeps Minis running behind Settings, so iOS \
+-                     may pause it there before Pair with siboot shows.",
 +                    "Couldn't start the silence that keeps Pallas running behind Settings, so iOS \
-                      may pause it there before Pair with siboot shows.",
++                     may pause it there before Pair with PallasBoot shows.",
                  );
                  ui::detail(&e);
-@@ -413,7 +427,7 @@ pub async fn run_host(
+                 None
+@@ -413,9 +427,9 @@ pub async fn run_host(
                  return Err(Fail::new(
                      format!(
                          "Nobody tapped Pair with {} within {}. If it never showed in Settings, \
 -                         keep Wi-Fi on, check Open Minis has Local Network access (Settings › \
 +                         keep Wi-Fi on, check Pallas has Local Network access (Settings › \
                           Privacy & Security › Local Network), leave the player open, and run \
-                          siboot again.",
+-                         siboot again.",
++                         PallasBoot again.",
                          setup.name,
-@@ -518,8 +532,8 @@ pub async fn run_host(
+                         spoken(setup.limits.device)
+                     ),
+@@ -445,7 +459,7 @@ pub async fn run_host(
+                 if posts {
+                     notify(
+                         &bridge,
+-                        "siboot pairing code",
++                        "PallasBoot pairing code",
+                         &format!("{} — type it into Settings", ui::spaced(&pin)),
+                     );
+                 }
+@@ -517,9 +531,9 @@ pub async fn run_host(
+     })
  }
  
- const READY_TITLE: &str = "Pair this iPhone with siboot";
+-const READY_TITLE: &str = "Pair this iPhone with siboot";
 -const PLAYER_NOTE: &str = "When you start, a player opens over Minis. It plays silence, which \
 -     keeps Minis running while you're in Settings: leave it open. siboot closes it once you're \
++const READY_TITLE: &str = "Pair this iPhone with PallasBoot";
 +const PLAYER_NOTE: &str = "When you start, a player opens over Pallas. It plays silence, which \
-+     keeps Pallas running while you're in Settings: leave it open. siboot closes it once you're \
++     keeps Pallas running while you're in Settings: leave it open. PallasBoot closes it once you're \
       back.";
  
  /// What the user does in Settings, in order.
-@@ -535,11 +549,11 @@ fn ready_steps(setup: &HostSetup) -> Vec<String> {
+@@ -531,15 +545,15 @@ fn ready_steps(setup: &HostSetup) -> Vec<String> {
+             setup.name
+         ),
+         if setup.notify {
+-            "Enter your iPhone passcode, then the 6-digit code siboot shows. It comes as a \
++            "Enter your iPhone passcode, then the 6-digit code PallasBoot shows. It comes as a \
               notification too."
                  .into()
          } else {
 -            "Enter your iPhone passcode, then the 6-digit code siboot shows. Minis's \
 -             notifications are off, so come back to Minis to read it."
-+            "Enter your iPhone passcode, then the 6-digit code siboot shows. Pallas's \
++            "Enter your iPhone passcode, then the 6-digit code PallasBoot shows. Pallas's \
 +             notifications are off, so come back to Pallas to read it."
                  .into()
          },
@@ -3270,7 +3505,7 @@ index 048e534..a7a8d0e 100644
          Ok(false) => {}
          Ok(true) => ui::warn(
 -            "The player was closed. It keeps Minis running while you're in Settings, so siboot \
-+            "The player was closed. It keeps Pallas running while you're in Settings, so siboot \
++            "The player was closed. It keeps Pallas running while you're in Settings, so PallasBoot \
               opened it again: leave it open.",
          ),
          Err(e) => ui::detail(&format!("couldn't start the silence again: {e}")),
@@ -3288,7 +3523,7 @@ index 048e534..a7a8d0e 100644
      match e.code() {
          Some("authorization_denied") => Some(
 -            "Open Minis needs Local Network access to show Pair with siboot. Allow it when iOS \
-+            "Pallas needs Local Network access to show Pair with siboot. Allow it when iOS \
++            "Pallas needs Local Network access to show Pair with PallasBoot. Allow it when iOS \
               asks, or turn it on in Settings › Privacy & Security › Local Network, then start \
               again.",
          ),
@@ -3306,11 +3541,12 @@ index 048e534..a7a8d0e 100644
 +            format!("This Pallas can't advertise a pairing host. {UPDATE_OR_ROOTSHELL}")
          }
 -        Some("renamed") => "Minis put Pair with siboot up under another name, which Settings \
-+        Some("renamed") => "Pallas put Pair with siboot up under another name, which Settings \
-                             won't pair with. Run siboot again."
+-                            won't pair with. Run siboot again."
++        Some("renamed") => "Pallas put Pair with PallasBoot up under another name, which Settings \
++                            won't pair with. Run PallasBoot again."
              .to_string(),
 -        _ => "Open Minis couldn't put Pair with siboot up in Settings. Run siboot again.".to_string(),
-+        _ => "Pallas couldn't put Pair with siboot up in Settings. Run siboot again.".to_string(),
++        _ => "Pallas couldn't put Pair with PallasBoot up in Settings. Run PallasBoot again.".to_string(),
      };
      Fail::new(advice, e.to_string())
  }
@@ -3323,12 +3559,95 @@ index 048e534..a7a8d0e 100644
      if setup.notify {
          notify(
              &setup.bridge,
-             "siboot paired this iPhone",
+-            "siboot paired this iPhone",
 -            "Go back to Minis: siboot carries on there.",
-+            "Go back to Pallas: siboot carries on there.",
++            "PallasBoot paired this iPhone",
++            "Go back to Pallas: PallasBoot carries on there.",
          );
      }
      let deadline = tokio::time::Instant::now() + RETURN_WAIT;
+@@ -697,9 +711,9 @@ async fn wait_for_return(setup: &HostSetup) {
+ 
+ fn pairing_failed(e: &idevice::IdeviceError) -> Fail {
+     let advice = if is_wrong_code(e) {
+-        "The code didn't match. Run siboot again and type the new code exactly."
++        "The code didn't match. Run PallasBoot again and type the new code exactly."
+     } else {
+-        "Pairing didn't finish. Run siboot again, and tap the entry again in Settings."
++        "Pairing didn't finish. Run PallasBoot again, and tap the entry again in Settings."
+     };
+     Fail::new(advice, chain(e))
+ }
+@@ -726,7 +740,7 @@ async fn within_limits<T>(
+         () = tokio::time::sleep(limits.code_request) => {
+             return Err(Fail::new(
+                 "The iPhone connected but stopped before asking for a code. Tap the entry in \
+-                 Settings again, or run siboot again.",
++                 Settings again, or run PallasBoot again.",
+                 format!("no code request within {}", spoken(limits.code_request)),
+             ));
+         }
+@@ -736,7 +750,7 @@ async fn within_limits<T>(
+         .map_err(|_| {
+             Fail::new(
+                 format!(
+-                    "The code wasn't entered within {}. Run siboot again for a new one.",
++                    "The code wasn't entered within {}. Run PallasBoot again for a new one.",
+                     spoken(limits.code_entry)
+                 ),
+                 "code entry timed out",
+@@ -835,7 +849,7 @@ async fn take(
+                 _ => {
+                     return Err(Fail::new(
+                         "rootshell stopped offering the pairing file. Run `./siboot-pair.wasm` in \
+-                         rootshell again, then siboot here.",
++                         rootshell again, then PallasBoot here.",
+                         "",
+                     ))
+                 }
+@@ -846,13 +860,13 @@ async fn take(
+                 return Err(Fail::new(
+                     "rootshell didn't answer: iOS has probably paused it. Check its Settings › \
+                      Location Diary Mode is on Session Only, open rootshell for a moment, then \
+-                     come back here and run siboot again.",
++                     come back here and run PallasBoot again.",
+                     format!("no answer on {offer} within {} s", wait.as_secs()),
+                 ))
+             }
+             Ok(Err(e)) => {
+                 return Err(Fail::new(
+-                    "The hand-over from rootshell broke off. Run siboot again.",
++                    "The hand-over from rootshell broke off. Run PallasBoot again.",
+                     e.to_string(),
+                 ))
+             }
+@@ -880,7 +894,7 @@ async fn take(
+         return Ok(Taken::File);
+     }
+     Err(Fail::new(
+-        "The transfer code didn't match. Run siboot again and type the code rootshell shows.",
++        "The transfer code didn't match. Run PallasBoot again and type the code rootshell shows.",
+         "",
+     ))
+ }
+@@ -914,7 +928,7 @@ mod tests {
+     };
+ 
+     fn temp_home(tag: &str) -> PathBuf {
+-        let dir = std::env::temp_dir().join(format!("siboot-test-{tag}-{}", std::process::id()));
++        let dir = std::env::temp_dir().join(format!("PallasBoot-test-{tag}-{}", std::process::id()));
+         let _ = std::fs::remove_dir_all(&dir);
+         std::fs::create_dir_all(&dir).unwrap();
+         dir
+@@ -930,7 +944,7 @@ mod tests {
+         HostSetup {
+             bridge,
+             advertise,
+-            name: "siboot test".into(),
++            name: "PallasBoot test".into(),
+             keepalive_dir: None,
+             notify: false,
+             limits: QUICK_LIMITS,
 @@ -1004,7 +1018,7 @@ mod tests {
          let lines: Vec<&str> = calls.lines().collect();
          let advertise = lines
@@ -3385,15 +3704,22 @@ index 048e534..a7a8d0e 100644
              );
              std::fs::remove_file(&marker).unwrap();
              paired
-@@ -1097,7 +1111,7 @@ mod tests {
+@@ -1096,12 +1110,12 @@ mod tests {
+         phone.expect("phone paired");
          let calls = std::fs::read_to_string(&log).unwrap();
          let played = calls.find("apple-player play").expect("the silence played");
-         let code = calls.find("--title siboot pairing code").expect("the code was posted");
+-        let code = calls.find("--title siboot pairing code").expect("the code was posted");
 -        let asked_back = calls.find("--title siboot paired this iPhone").expect("asked back to Minis");
-+        let asked_back = calls.find("--title siboot paired this iPhone").expect("asked back to Pallas");
++        let code = calls.find("--title PallasBoot pairing code").expect("the code was posted");
++        let asked_back = calls.find("--title PallasBoot paired this iPhone").expect("asked back to Pallas");
          let stopped = calls.find("apple-player stop").expect("the silence was stopped");
          assert!(played < code && code < asked_back && asked_back < stopped, "{calls}");
          // The first notification went out while Minis was still in front.
+-        let ready = calls.find("--title Pair with siboot test is ready").expect("said it's ready");
++        let ready = calls.find("--title Pair with PallasBoot test is ready").expect("said it's ready");
+         assert!(ready < code, "{calls}");
+     }
+ 
 @@ -1227,7 +1241,7 @@ mod tests {
          let empty = home.join("no-commands");
          std::fs::create_dir_all(&empty).unwrap();
@@ -3403,6 +3729,15 @@ index 048e534..a7a8d0e 100644
  
          let stub = fake_iphone::minis_stub(&home);
          assert_eq!(can_pair_here(&Bridge::in_dir(&stub)).await, Ok(true));
+@@ -1249,7 +1263,7 @@ mod tests {
+     // ------------------------------------------------------------ rootshell
+ 
+     fn a_pairing_file() -> Vec<u8> {
+-        RpPairingFile::generate("siboot test").to_bytes()
++        RpPairingFile::generate("PallasBoot test").to_bytes()
+     }
+ 
+     /// siboot-pair's side of the hand-off (rootshell/src/main.rs, `offer`):
 diff --git a/minis/src/preflight.rs b/minis/src/preflight.rs
 index e13b5e8..12d8ee5 100644
 --- a/minis/src/preflight.rs
@@ -3488,10 +3823,10 @@ index e13b5e8..12d8ee5 100644
          ),
          _ => match e.kind() {
 diff --git a/minis/src/report.rs b/minis/src/report.rs
-index d3c01d8..d29f8f1 100644
+index d3c01d8..079eb9b 100644
 --- a/minis/src/report.rs
 +++ b/minis/src/report.rs
-@@ -62,6 +62,9 @@ fn compose(args: &Args) -> String {
+@@ -62,8 +62,11 @@ fn compose(args: &Args) -> String {
          Command::Check => "check",
          Command::Connect => "connect",
          Command::DeveloperMode => "developer-mode",
@@ -3499,8 +3834,11 @@ index d3c01d8..d29f8f1 100644
 +        Command::Reveal => "reveal",
 +        Command::Ddi => "ddi",
      };
-     let mut out = format!("siboot {VERSION} log · {command}");
+-    let mut out = format!("siboot {VERSION} log · {command}");
++    let mut out = format!("PallasBoot {VERSION} log · {command}");
      let flags = flags_given(std::env::args().skip(1));
+     if !flags.is_empty() {
+         out.push_str(&format!(" · {}", flags.join(" ")));
 @@ -114,7 +117,7 @@ fn copy(text: &str) -> Result<(), String> {
          Err(e) if e.kind() == std::io::ErrorKind::NotFound => {
              pipe_to("pbcopy", &[], text).map_err(|e| {
@@ -3533,7 +3871,7 @@ index 0f190dc..9d725fd 100644
          .open(path, AfcFopenMode::WrOnly)
          .await
 diff --git a/minis/src/sign.rs b/minis/src/sign.rs
-index a3ef7e5..bedd7ff 100644
+index a3ef7e5..1f5b061 100644
 --- a/minis/src/sign.rs
 +++ b/minis/src/sign.rs
 @@ -5,8 +5,6 @@
@@ -3545,6 +3883,15 @@ index a3ef7e5..bedd7ff 100644
  use crate::account::Session;
  use crate::fail::{Fail, Result};
  use crate::tunnel::DeviceInfo;
+@@ -80,7 +78,7 @@ async fn download(url: &str, dest: &Path) -> Result<PathBuf> {
+     loop {
+         let chunk = response.chunk().await.map_err(|e| {
+             Fail::new(
+-                "The SideInstaller download broke off. Run siboot again.",
++                "The SideInstaller download broke off. Run PallasBoot again.",
+                 e.to_string(),
+             )
+         })?;
 @@ -137,10 +135,10 @@ pub async fn sign(session: &mut Session, ipa: &Path, device: &DeviceInfo) -> Res
          .sign_app(
              ipa.to_path_buf(),
@@ -3559,57 +3906,210 @@ index a3ef7e5..bedd7ff 100644
          )
          .await
          .map_err(|e| {
+@@ -207,7 +205,7 @@ mod tests {
+ 
+     #[test]
+     fn only_a_zip_passes_as_an_ipa() {
+-        let dir = std::env::temp_dir().join(format!("siboot-ipa-{}", std::process::id()));
++        let dir = std::env::temp_dir().join(format!("PallasBoot-ipa-{}", std::process::id()));
+         std::fs::create_dir_all(&dir).unwrap();
+         let good = dir.join("good.ipa");
+         std::fs::write(&good, b"PK\x03\x04rest").unwrap();
+@@ -224,7 +222,7 @@ mod tests {
+     #[test]
+     fn the_bundle_id_and_name_come_from_info_plist() {
+         let dir = std::env::temp_dir().join(format!(
+-            "siboot-app-{}/SideInstaller.app",
++            "PallasBoot-app-{}/SideInstaller.app",
+             std::process::id()
+         ));
+         std::fs::create_dir_all(&dir).unwrap();
+diff --git a/minis/src/tunnel.rs b/minis/src/tunnel.rs
+index 273443f..d12d7db 100644
+--- a/minis/src/tunnel.rs
++++ b/minis/src/tunnel.rs
+@@ -97,13 +97,13 @@ pub async fn open(addr: SocketAddr, path: &Path) -> Result<Connection> {
+     .await?;
+     let client_ip: IpAddr = tunnel.info.client_address.parse().map_err(|e| {
+         Fail::new(
+-            "The tunnel reported an address siboot can't read.",
++            "The tunnel reported an address PallasBoot can't read.",
+             format!("{e}"),
+         )
+     })?;
+     let server_ip: IpAddr = tunnel.info.server_address.parse().map_err(|e| {
+         Fail::new(
+-            "The tunnel reported an address siboot can't read.",
++            "The tunnel reported an address PallasBoot can't read.",
+             format!("{e}"),
+         )
+     })?;
+@@ -190,7 +190,7 @@ async fn read_pairing(path: &Path) -> Result<RpPairingFile> {
+     RpPairingFile::read_from_file(path).await.map_err(|e| {
+         Fail::new(
+             format!(
+-                "Couldn't read the pairing file at {}. Pair again in rootshell (`./siboot-pair.wasm`), then run siboot again.",
++                "Couldn't read the pairing file at {}. Pair again in rootshell (`./siboot-pair.wasm`), then run PallasBoot again.",
+                 path.display()
+             ),
+             chain(&e),
+@@ -227,7 +227,7 @@ async fn pair_verified(
+         Ok(Ok(())) => Ok(rpc),
+         Ok(Err(e)) => Err(Fail::new(
+             "This iPhone doesn't accept the pairing file (it was removed in Settings, or the \
+-             iPhone was reset). Pair again in rootshell (`./siboot-pair.wasm`), then run siboot again.",
++             iPhone was reset). Pair again in rootshell (`./siboot-pair.wasm`), then run PallasBoot again.",
+             chain(&e),
+         )),
+         Err(_) => Err(Fail::new(
 diff --git a/minis/src/ui.rs b/minis/src/ui.rs
-index ea02e9d..f1248d4 100644
+index ea02e9d..a41ae5c 100644
 --- a/minis/src/ui.rs
 +++ b/minis/src/ui.rs
-@@ -276,7 +276,7 @@ fn tick() {
+@@ -275,15 +275,15 @@ fn tick() {
+ /// The name, version and what this run does, with the one thing to keep in
  /// mind while it runs.
  pub fn header(version: &str, tagline: &str) {
-     record(&format!("siboot {version} — {tagline}"));
+-    record(&format!("siboot {version} — {tagline}"));
 -    let note = "Keep Minis open until siboot is done: iOS pauses it in the background.";
-+    let note = "Keep Pallas open until siboot is done: iOS pauses it in the background.";
++    record(&format!("PallasBoot {version} — {tagline}"));
++    let note = "Keep Pallas open until PallasBoot is done: iOS pauses it in the background.";
      web::send(json!({"t": "header", "version": version, "tagline": tagline, "note": note}));
      let mut ui = ui();
      if ui.mode != Mode::Live {
+         println!();
+         println!(
+             "{} {}",
+-            ui.style(STRONG, "siboot"),
++            ui.style(STRONG, "PallasBoot"),
+             ui.style(DIM, &format!("{version} · {CREDIT}"))
+         );
+         println!("{}", ui.style(DIM, tagline));
+@@ -297,7 +297,7 @@ pub fn header(version: &str, tagline: &str) {
+     above.push(
+         Line::new()
+             .add(NONE, "  ")
+-            .add(BADGE, " siboot ")
++            .add(BADGE, " PallasBoot ")
+             .add(DIM, format!(" {version}"))
+             .render(max, ui.color),
+     );
+@@ -1521,7 +1521,7 @@ impl Ui {
+             term::size().0,
+         ));
+         if more {
+-            let hint = "Run siboot again with --verbose to see the underlying error.";
++            let hint = "Run PallasBoot again with --verbose to see the underlying error.";
+             above.extend(hanging(
+                 &Line::new().add(NONE, "  "),
+                 DIM,
 @@ -2271,8 +2271,8 @@ mod tests {
      #[test]
      fn words_wrap_and_long_ones_are_cut() {
          assert_eq!(
 -            wrap("Keep Minis open until siboot is done", 16),
 -            ["Keep Minis open", "until siboot is", "done"]
-+            wrap("Keep Pallas open until siboot is done", 16),
-+            ["Keep Pallas open", "until siboot is", "done"]
++            wrap("Keep Pallas open until PallasBoot is done", 16),
++            ["Keep Pallas open", "until PallasBoot", "is done"]
          );
          assert_eq!(wrap("", 10), [""]);
          assert_eq!(
 diff --git a/minis/src/web.html b/minis/src/web.html
-index 744c328..f3642a4 100644
+index 744c328..5553183 100644
 --- a/minis/src/web.html
 +++ b/minis/src/web.html
-@@ -8,7 +8,7 @@
- <title>siboot</title>
+@@ -5,16 +5,16 @@
+ <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+ <meta name="referrer" content="no-referrer">
+ <meta name="color-scheme" content="dark">
+-<title>siboot</title>
++<title>PallasBoot</title>
  <!--
-   siboot's run, served by siboot itself on this iPhone's loopback (src/web.rs)
+-  siboot's run, served by siboot itself on this iPhone's loopback (src/web.rs)
 -  and shown in Open Minis's browser. It reads the run as server-sent events
+-  from `events`, answers siboot's questions by POSTing to `answer`, and stops
++  PallasBoot's run, served by PallasBoot itself on this iPhone's loopback (src/web.rs)
 +  and shown in Pallas's browser. It reads the run as server-sent events
-   from `events`, answers siboot's questions by POSTing to `answer`, and stops
++  from `events`, answers PallasBoot's questions by POSTing to `answer`, and stops
    it with `stop`. Every URL is relative: the page's own path carries the key
    that lets it in.
+ 
+   The palette, radii and type are SideInstaller's (ios-app/Theme.swift), as on
+-  sideinstaller.net. Text from siboot only ever goes in through textContent.
++  sideinstaller.net. Text from PallasBoot only ever goes in through textContent.
+ -->
+ <style>
+ :root{
+@@ -161,10 +161,10 @@ footer{display:flex; align-items:center; justify-content:space-between; gap:12px
+ <body>
+ <main>
+   <header class="top">
+-    <div class="brand"><span class="badge">siboot</span><span class="version" id="version"></span></div>
++    <div class="brand"><span class="badge">PallasBoot</span><span class="version" id="version"></span></div>
+     <button type="button" class="stop" id="stop" hidden>Stop</button>
+   </header>
+-  <h1 class="tagline" id="tagline">Connecting to siboot…</h1>
++  <h1 class="tagline" id="tagline">Connecting to PallasBoot…</h1>
+   <p class="keep" id="keep" hidden></p>
+   <p class="banner" id="banner" role="status" hidden></p>
+   <ol class="steps" id="steps" aria-live="polite"></ol>
+@@ -194,7 +194,7 @@ footer{display:flex; align-items:center; justify-content:space-between; gap:12px
+   let steps = [];        // one per step of the plan
+   let active = -1;       // index of the running step
+   let status = "";       // what it's doing now
+-  let skew = 0;          // this clock minus siboot's
++  let skew = 0;          // this clock minus PallasBoot's
+   let lastHeard = Date.now();
+   let heard = false, ended = false;
+   let asking = null;     // the question on screen
+@@ -207,10 +207,10 @@ footer{display:flex; align-items:center; justify-content:space-between; gap:12px
+     const s = Math.max(0, Math.floor(ms / 1000));
+     return Math.floor(s / 60) + ":" + String(s % 60).padStart(2, "0");
+   };
+-  // siboot writes its lines in lower case to go after a name; a line on its
++  // PallasBoot writes its lines in lower case to go after a name; a line on its
+   // own starts with a capital, but names stay as they're spelled: the apps',
+-  // and a host or a file (new.ani.sidestore.io, siboot.log).
+-  const cap = (s) => (/^(rootshell|siboot|iOS)\b|^[^\s.]+\.[^\s.]/.test(s) ? s : s.charAt(0).toUpperCase() + s.slice(1));
++  // and a host or a file (new.ani.sidestore.io, PallasBoot.log).
++  const cap = (s) => (/^(rootshell|PallasBoot|iOS)\b|^[^\s.]+\.[^\s.]/.test(s) ? s : s.charAt(0).toUpperCase() + s.slice(1));
+   const mb = (bytes) => (bytes / 1048576).toFixed(1);
+ 
+   function heardAt(at) {
+@@ -220,7 +220,7 @@ footer{display:flex; align-items:center; justify-content:space-between; gap:12px
+   }
+ 
+   // One line over the steps, and why it's there: "quiet" (no word from
+-  // siboot), "unsent" (an answer that didn't reach it) or "done". Each goes
++  // PallasBoot), "unsent" (an answer that didn't reach it) or "done". Each goes
+   // when what put it there does.
+   let bannerWhy = "";
+   function banner(text, tone, why) {
+@@ -405,7 +405,7 @@ footer{display:flex; align-items:center; justify-content:space-between; gap:12px
+     pinEnd();
+     stopEl.hidden = true;
+     if (source) source.close();
+-    banner("siboot is done. You can close this page.", "", "done");
++    banner("PallasBoot is done. You can close this page.", "", "done");
+   }
+ 
+   // ---------------------------------------------------------- questions
 @@ -560,7 +560,7 @@ footer{display:flex; align-items:center; justify-content:space-between; gap:12px
      } catch (err) {
        if (asking && asking.id === id) {
          busy(false);
 -        banner("Couldn't reach siboot. It runs in Minis's terminal: is Minis still open?", "warn", "unsent");
-+        banner("Couldn't reach siboot. It runs in Pallas's terminal: is Pallas still open?", "warn", "unsent");
++        banner("Couldn't reach PallasBoot. It runs in Pallas's terminal: is Pallas still open?", "warn", "unsent");
        }
      }
    }
-@@ -609,15 +609,15 @@ footer{display:flex; align-items:center; justify-content:space-between; gap:12px
+@@ -608,16 +608,16 @@ footer{display:flex; align-items:center; justify-content:space-between; gap:12px
+     };
    }
  
-   // A quiet run still pings every 5 s. Three missed: siboot isn't there,
+-  // A quiet run still pings every 5 s. Three missed: siboot isn't there,
 -  // most likely because iOS paused Minis behind another app.
++  // A quiet run still pings every 5 s. Three missed: PallasBoot isn't there,
 +  // most likely because iOS paused Pallas behind another app.
    setInterval(() => {
      const s = steps[active];
@@ -3619,15 +4119,24 @@ index 744c328..f3642a4 100644
        banner(heard
 -        ? "siboot isn't answering. It runs in Minis's terminal, and iOS pauses Minis when you leave it: go back to Minis to carry on."
 -        : "Can't reach siboot. Open this page from siboot in Minis's terminal.", "warn", "quiet");
-+        ? "siboot isn't answering. It runs in Pallas's terminal, and iOS pauses Pallas when you leave it: go back to Pallas to carry on."
-+        : "Can't reach siboot. Open this page from siboot in Pallas's terminal.", "warn", "quiet");
++        ? "PallasBoot isn't answering. It runs in Pallas's terminal, and iOS pauses Pallas when you leave it: go back to Pallas to carry on."
++        : "Can't reach PallasBoot. Open this page from PallasBoot in Pallas's terminal.", "warn", "quiet");
      } else if (bannerWhy === "quiet") {
        banner("");
      }
 diff --git a/minis/src/web.rs b/minis/src/web.rs
-index 9066841..773f163 100644
+index 9066841..108fcaf 100644
 --- a/minis/src/web.rs
 +++ b/minis/src/web.rs
+@@ -115,7 +115,7 @@ pub fn close() {
+ 
+ /// Waits until a browser has the page open, for at most `longest`; whether
+ /// one does. The screens example plays its made-up run only once it's seen.
+-#[allow(dead_code)] // siboot itself doesn't wait: the page replays the run
++#[allow(dead_code)] // PallasBoot itself doesn't wait: the page replays the run
+ pub fn wait_for_page(longest: Duration) -> bool {
+     let Some(server) = page() else { return false };
+     let shared = &server.shared;
 @@ -140,7 +140,7 @@ pub fn available() -> bool {
      std::env::var_os("PATH").is_some_and(|path| {
          std::env::split_paths(&path).any(|dir| {
@@ -3656,3 +4165,49 @@ index 9066841..773f163 100644
          let port = listener.local_addr()?.port();
          let shared = Arc::new(Shared {
              key: random_key()?,
+@@ -212,7 +213,7 @@ impl Server {
+         });
+         let serving = Arc::clone(&shared);
+         std::thread::Builder::new()
+-            .name("siboot-web".into())
++            .name("PallasBoot-web".into())
+             .spawn(move || accept(serving, listener))?;
+         Ok(Server { shared })
+     }
+@@ -473,7 +474,7 @@ fn accept(shared: Arc<Shared>, listener: TcpListener) {
+         }
+         let serving = Arc::clone(&shared);
+         let spawned = std::thread::Builder::new()
+-            .name("siboot-web-request".into())
++            .name("PallasBoot-web-request".into())
+             .spawn(move || {
+                 let _ = handle(&serving, stream);
+                 serving.connections.fetch_sub(1, Ordering::SeqCst);
+@@ -921,7 +922,7 @@ mod tests {
+         assert_eq!(get(&server, &wrong).0, 404);
+         let (status, headers, body) = get(&server, &format!("{}/", base(&server)));
+         assert_eq!(status, 200);
+-        assert!(body.contains("<title>siboot</title>"));
++        assert!(body.contains("<title>PallasBoot</title>"));
+         assert_eq!(header(&headers, "content-security-policy"), Some(CSP));
+         assert_eq!(header(&headers, "referrer-policy"), Some("no-referrer"));
+         assert_eq!(header(&headers, "cache-control"), Some("no-store"));
+@@ -1218,15 +1219,15 @@ mod tests {
+         let mut reader = subscribe(server, None);
+         let started = asked(server, |s| {
+             s.ready(
+-                "Pair this iPhone with siboot",
+-                &["Open Settings.", "Tap Pair with siboot."],
++                "Pair this iPhone with PallasBoot",
++                &["Open Settings.", "Tap Pair with PallasBoot."],
+                 &["A player opens."],
+                 "Start pairing",
+             )
+         });
+         let question = until(&mut reader, "ask");
+         assert_eq!(question["kind"], "ready");
+-        assert_eq!(question["steps"][1], "Tap Pair with siboot.");
++        assert_eq!(question["steps"][1], "Tap Pair with PallasBoot.");
+         assert_eq!(question["notes"][0], "A player opens.");
+         assert_eq!(question["button"], "Start pairing");
+         reply(server, question["id"].as_u64().unwrap(), json!({"go": true}));

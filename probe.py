@@ -6,24 +6,38 @@ import os
 from pathlib import Path
 import re
 import sys
+import time
+import urllib.error
 import urllib.request
 
-CONFIG = json.loads(Path('/root/workspace/.siboot-probe.json').read_text())
+CONFIG_FILE = Path('/root/workspace/.pallasboot-probe.json')
+CONFIG = json.loads(CONFIG_FILE.read_text())
 ROOT = Path(os.environ['SIBOOT_PALLAS_BIN'])
 
 
+def open_bridge(payload, timeout):
+    """POST to the plugin. Its port can move while Pallas is suspended (listen-again.cjs), and it
+    refuses for a moment after a resume, so read the port each time and retry a refusal briefly."""
+    for attempt in range(12):
+        port = json.loads(CONFIG_FILE.read_text())['port']
+        request = urllib.request.Request(f"http://10.0.2.2:{port}/", json.dumps(payload).encode(),
+                                         {'Authorization': 'Bearer ' + CONFIG['key']})
+        try:
+            return urllib.request.urlopen(request, timeout=timeout)
+        except urllib.error.URLError as e:
+            if not isinstance(e.reason, ConnectionRefusedError) or attempt == 11:
+                raise
+        time.sleep(1)
+
+
 def bridge(**args):
-    req = urllib.request.Request(f"http://10.0.2.2:{CONFIG['port']}/", json.dumps(args).encode(),
-                                 {'Authorization': 'Bearer ' + CONFIG['key']})
-    with urllib.request.urlopen(req, timeout=80) as response:
+    with open_bridge(args, 80) as response:
         return json.load(response)
 
 
 def tunnel():
-    payload = {'action': 'tunnel', 'interactive': os.environ.get('PALLAS_SIBOOT_AUTOMATIC') != '1'}
-    request = urllib.request.Request(f"http://10.0.2.2:{CONFIG['port']}/", json.dumps(payload).encode(),
-                                     {'Authorization': 'Bearer ' + CONFIG['key']})
-    response = urllib.request.urlopen(request, timeout=135)
+    payload = {'action': 'tunnel', 'interactive': os.environ.get('PALLASBOOT_AUTOMATIC') != '1'}
+    response = open_bridge(payload, 135)
     try:
         reply = json.loads(response.readline(8192))
         if not reply.get('ok'):
@@ -34,12 +48,29 @@ def tunnel():
         raise
 
 
+def plugin(**args):
+    reply = bridge(**args)
+    if not reply['ok']:
+        raise RuntimeError(reply['error']['message'])
+    return reply.get('data') or {}
+
+
+def keychain(step, home):
+    """Restore or keep the signer's files in the keychain (vault.py); never fails the job."""
+    from importlib.util import spec_from_file_location, module_from_spec
+    spec = spec_from_file_location('vault', Path(__file__).with_name('vault.py'))
+    vault = module_from_spec(spec)
+    spec.loader.exec_module(vault)
+    return vault.quietly(getattr(vault, step), plugin, home)
+
+
 def record_install(home, port):
     receipt = json.loads((home / 'runner-receipt.json').read_text())
     reply = bridge(action='renewal', op='installed', expires=receipt['expires'], port=port)
     if not reply['ok']:
         raise RuntimeError('无法保存续期计划')
     print('描述文件到期时间（Unix 秒）', receipt['expires'], flush=True)
+    keychain('backup', home)
 
 
 async def copy_stream(reader, writer):
@@ -68,7 +99,7 @@ async def run(port, ipa=None):
     if not 0 < port < 65536:
         raise ValueError('invalid device port')
     if os.environ.get('PALLAS_DDI_ONLY') == '1':
-        proc = await asyncio.create_subprocess_exec(str(ROOT/'siboot'), 'ddi', '--plain', '--terminal',
+        proc = await asyncio.create_subprocess_exec(str(ROOT/'pallasboot'), 'ddi', '--plain', '--terminal',
             '--home', str(home), '--port', str(port),
             stdin=asyncio.subprocess.DEVNULL, stdout=asyncio.subprocess.PIPE, stderr=asyncio.subprocess.STDOUT)
         async for raw in proc.stdout:
@@ -76,8 +107,10 @@ async def run(port, ipa=None):
             if line.startswith(('OK Developer image', 'Stopped:')):
                 print(line, flush=True)
         return await proc.wait()
+    # After a reinstall: bring back the pairing and sign-in kept in the keychain before using them.
+    keychain('restore', home)
     if ipa and os.environ.get('PALLAS_RENEWAL') == '1':
-        proc = await asyncio.create_subprocess_exec(str(ROOT/'siboot'), 'runner', '--plain', '--terminal',
+        proc = await asyncio.create_subprocess_exec(str(ROOT/'pallasboot'), 'runner', '--plain', '--terminal',
             '--home', str(home), '--ipa', ipa, '--port', str(port), '--anisette', 'https://ani.iloader.app',
             stdin=asyncio.subprocess.DEVNULL, stdout=asyncio.subprocess.PIPE, stderr=asyncio.subprocess.STDOUT)
         async for raw in proc.stdout:
@@ -108,7 +141,7 @@ async def run(port, ipa=None):
     control = await asyncio.start_unix_server(forward, path=sock)
     bridge(action='stage', value='正在连接')
     print('配对状态页（在本机浏览器打开）', CONFIG['view'], flush=True)
-    proc = await asyncio.create_subprocess_exec(str(ROOT/'siboot'), 'connect', '--plain', '--terminal',
+    proc = await asyncio.create_subprocess_exec(str(ROOT/'pallasboot'), 'connect', '--plain', '--terminal',
         '--home', str(home), '--port', str(port),
         stdout=asyncio.subprocess.PIPE, stderr=asyncio.subprocess.STDOUT)
     async def heartbeat():
@@ -143,6 +176,8 @@ async def run(port, ipa=None):
         result = await proc.wait()
         passed = result == 0 and tunnel_verified
         bridge(action='stage', value='配对隧道已验证' if passed else '验证未完成')
+        if passed:
+            keychain('backup', home)
         if passed and ipa:
             from importlib.util import spec_from_file_location, module_from_spec
             spec = spec_from_file_location('runner_ui', Path(__file__).with_name('runner-ui.py'))
@@ -203,7 +238,7 @@ if __name__ == '__main__':
                     detection = bridge(action='detect')
                     port = detection['data'].get('port') if detection.get('ok') else None
                     if not port:
-                        raise RuntimeError('SiBoot pairing port unavailable')
+                        raise RuntimeError('PallasBoot pairing port unavailable')
                 sys.exit(asyncio.run(run(port, sys.argv[3] if len(sys.argv) > 3 else None)))
         except (OSError, ValueError, RuntimeError) as error:
             sys.exit('Stopped: ' + str(error))

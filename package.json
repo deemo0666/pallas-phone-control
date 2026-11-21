@@ -1,6 +1,6 @@
 {
   "name": "pallas-phone-control",
-  "version": "0.6.1",
+  "version": "0.7.0",
   "description": "手机操控 Phone Control：让 Pallas Agent 操作这台设备上的其他 App。安装后在本机对话里说「开通手机操控」。",
   "keywords": [
     "dsh-plugin",
@@ -23,6 +23,7 @@
     "index.cjs",
     "renewal.cjs",
     "web-relay.cjs",
+    "listen-again.cjs",
     "cordis.patch.yml",
     "SKILL.md",
     "README.md",
@@ -34,9 +35,10 @@
     "reveal.sh",
     "reveal.py",
     "ddi.py",
+    "vault.py",
     "probe.py",
     "runner-ui.py",
-    "siboot-runner-aarch64",
+    "pallasboot-runner-aarch64",
     "runner.sha256",
     "ScreenRunner.ipa",
     "validation-2026-11-14.json",

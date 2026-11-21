@@ -7,6 +7,8 @@ sh /root/workspace/{{DIR}}/setup.sh status      # 检查每一步，已满足的
 sh /root/workspace/{{DIR}}/setup.sh start       # 自动找端口，后台开始配对和安装，输出 link
 sh /root/workspace/{{DIR}}/setup.sh wait        # 跟踪进行中的任务，阶段变化或 45 秒后输出状态
 sh /root/workspace/{{DIR}}/setup.sh reveal      # 设置里没有「开发者模式」时，让开关出现
+sh /root/workspace/{{DIR}}/setup.sh trusted     # 用户已在设置里信任开发者之后执行，进入验证
+sh /root/workspace/{{DIR}}/setup.sh reset       # 清除配对、Apple 登录和钥匙串里的备份，从头开通
 ```
 
 ## 规则
@@ -26,18 +28,22 @@ sh /root/workspace/{{DIR}}/setup.sh reveal      # 设置里没有「开发者模
 - `allow_local_network`：请用户到「设置 → 隐私与安全性 → 本地网络」打开 Pallas Agent，再回来。
 - `port_unknown`：VPN 通了，但设备没有应答配对端口。最常见原因是开发者模式没开。请用户确认「设置 → 隐私与安全性 → 开发者模式」已打开（打开后系统会要求重启并确认）。如果已开，在 Pallas 前台重试 `setup.sh start`。如果设置里根本没有「开发者模式」，执行 `setup.sh reveal`，按它的 `next` 处理（不用电脑就能让开关出现）。
 - `sign_in`：请用户打开状态页链接，用 Apple 账号登录；双重认证码也在页面里填。页面若提示开发证书名额已满（Apple 7460），说明撤销旧证书会让用它签名的其他 App 失效，建议保留现有证书并退出，除非用户确定要撤销。用户说好了以后跑 `wait`。
-- `pair_in_settings`、`enter_code`：请用户打开「设置 → 隐私与安全性 → 开发者模式」，在「其他设备」点「Pair with siboot」，输入锁屏密码，再输入状态页上显示的六位码，然后回到 Pallas。
+- `pair_in_settings`、`enter_code`：请用户打开「设置 → 隐私与安全性 → 开发者模式」，在「其他设备」点「Pair with PallasBoot」，输入锁屏密码，再输入状态页上显示的六位码，然后回到 Pallas。
 - `identify_device`：开关被隐藏时的第一步。请用户点输入框上方卡片里的「在 Safari 打开」，在 Safari 下载「Pallas 识别本机」，再打开「设置」，点顶部的「已下载描述文件」安装（要输锁屏密码），然后回到 Pallas。这个描述文件只读取设备标识，不会留下任何设置。卡片不见了就把 `link:` 做成链接，请用户长按选「在 Safari 中打开」。用户回来后跑 `setup.sh wait`。
 - `install_in_safari`：请用户点卡片里的「在 Safari 打开」，在页面上点「安装」，系统再问时点「安装」。系统提示「无法安装」是正常的，开关正是因此出现，不要重试；接着跑 `setup.sh wait`。
-- `turn_on_developer_mode`：请用户打开「设置 → 隐私与安全性 → 开发者模式」，打开开关，按提示重启，重启后确认打开。告诉用户重启后回到 Pallas 说「继续开通手机操控」。用户回来后先跑 `status`，按新的 `next` 继续（通常是 `start`）。如果用户说开关还是没出现，请用户等一两分钟再看一次；仍没有就把 `last_result` 告诉用户。
+- `turn_on_developer_mode`：请用户打开「设置 → 隐私与安全性 → 开发者模式」，打开开关，按提示重启，重启后确认打开。告诉用户重启后回到 Pallas 说「继续开通手机操控」。用户回来后先跑 `status`，按新的 `next` 继续（通常是 `start`）。重启会结束正在跑的签装任务，这是正常的，重新 `start` 即可，已有配对和登录会复用。如果用户说开关还是没出现，请用户等一两分钟再看一次；仍没有就把 `last_result` 告诉用户。
 - `wait`：任务在跑但还没到需要用户的步骤。执行 `setup.sh wait`，最多连续两次，然后按结果处理。
 - `full_access`：本机签装目录不可写。请用户在 Pallas「设置 → 权限」把当前对话设为「完全权限」，回来后你再执行 `setup.sh start`。全部完成后提醒用户可以改回原来的权限。
 - `host_unsupported`：当前 Pallas 版本缺少所需接口，或这版插件不支持当前 Pallas 版本（`last_result` 含 `Expected Pallas`）。告诉用户需要更新 Pallas 或换用匹配的插件包，不要反复重试。
 - `failed`：用一两句话说明 `last_result` 的原因和对应做法，然后问用户是否重试；重试就执行 `setup.sh start`。常见原因：`won't let Pallas reach` 是 VPN 没连；网络错误是访问 Apple 失败，检查网络后重试；页面里取消或超时直接重试。要换 Apple 账号时执行 `setup.sh start --new-login`（开关被隐藏、正在跑 reveal 时是 `setup.sh reveal --new-login`）。`last_result` 说是付费开发者账号时，请用户改用免费 Apple 账号，再用 `--new-login` 重来。
+- 用户要求清除手机操控的数据、从头开通，或彻底换一个 Apple 账号时，先确认用户知道之后要重新配对和登录，再执行 `setup.sh reset`，然后按输出的 `next` 继续。它不会删掉已装的组件，也不会关闭开发者模式。
+- 用户说「手机操控续期没成功」（点了续期失败的通知，或设置里有效期一行显示「续期没成功」「已过期」）：跑 `status`，用一两句话说明 `auto_renewal` 里的出错原因，然后执行 `setup.sh start` 重新签装；需要重新登录 Apple 账号时，`next` 会是 `sign_in`，照常处理。
 - `enable_plugin`：插件没有启用，请用户在插件列表里启用它。
 - 用户明确要求用新版插件更新 ScreenRunner 时，运行一次 `setup.sh start` 安装随包执行器，即使首次 `status` 因旧组件签名仍有效而返回 `verify`。本轮安装完成后按正常流程验证。
-- 验证时若报 `runner_launch_refused`（「系统没有让手机操控启动」）：先执行 `setup.sh ddi`（重启后要重新挂载组件需要的开发者运行环境，约半分钟），看到 `next: verify` 再验证一次。仍被拒时，请用户到「设置 → 通用 → VPN 与设备管理」，在开发者 App 里点自己的 Apple 账号并选「信任」，再验证。
-- `verify`：组件已安装。如果你有 `iphone_screen` 工具，自己验证：打开计算器（`{"bundleParts":["com","apple","calculator"],"action":"open"}`），按 3、7、×、1、9、=，观察结果是 703。如果没有 `iphone_screen` 工具，请用户打开「设置 → 手机操控」把开关打开（若已打开，切到别的 App 再回来），然后说「继续」，你再验证。用户也可以在「设置 → 手机操控」点「试一下手机操控」，看到「试过了，手机操控可以用。」即成功。验证时若报 `runner_group_unavailable`（「手机操控和这个版本的 Pallas Agent 对不上」），说明组件还没连上当前这个 Pallas：不要让用户更新 Pallas，直接执行 `setup.sh start` 重新签装，组件会加上当前这个 Pallas，原来连着的也保留，已有配对和登录会复用；装好后再验证一次。
+- 验证或使用时若报 `runner_launch_refused`（「系统没有让手机操控启动」）：先跑 `status`。`installed_until` 显示已过期，或 `next` 是 `renew`，就是组件过期了：直接执行 `setup.sh start` 重新签装，不要挂运行环境，也不要让用户去信任。没过期时，先执行 `setup.sh ddi`（重启后要重新挂载组件需要的开发者运行环境，约半分钟），看到 `next: verify` 再验证一次。仍被拒，或用户说屏幕上弹出了「未受信任的开发者」，就是还没信任开发者：按 `trust_developer` 带用户去信任，再验证。不要让用户自己去设置里试手机操控。
+- `trust_developer`：组件刚装好，iOS 要用户先信任它的开发者才让它启动，否则会弹「未受信任的开发者」。请用户打开「设置 → 通用 → VPN 与设备管理」，在「开发者 App」下点以「Apple Development」开头、后面是自己 Apple 账号的那一行，点「信任“Apple Development: …”」，弹窗里再点「信任」，然后回到 Pallas 点卡片上的「信任好了，验证」或说「好了」。说完就结束这一轮。用户说已经信任后，先执行 `setup.sh trusted`，再按 `verify` 验证。页面上只剩「删除 App」说明早就信任过，同样执行 `setup.sh trusted`。
+- 状态里有 `runner: missing`，或验证时报 `runner_not_installed`（「手机操控还没有开通」），或用户说把手机操控组件删了：组件已不在这台设备上，直接执行 `setup.sh start` 重新签装，已有配对和登录会复用，装好后照常带用户信任开发者、再验证。
+- `verify`：组件已安装并已信任。如果你有 `iphone_screen` 工具，自己验证：打开计算器（`{"bundleParts":["com","apple","calculator"],"action":"open"}`），按 3、7、×、1、9、=，观察结果是 703。如果没有 `iphone_screen` 工具，请用户打开「设置 → 手机操控」把开关打开（若已打开，切到别的 App 再回来），然后说「继续」，你再验证。用户也可以在「设置 → 手机操控」点「试一下手机操控」，看到「试过了，手机操控可以用。」即成功。验证时若报 `runner_group_unavailable`（「手机操控和这个版本的 Pallas Agent 对不上」），说明组件还没连上当前这个 Pallas：不要让用户更新 Pallas，直接执行 `setup.sh start` 重新签装，组件会加上当前这个 Pallas，原来连着的也保留，已有配对和登录会复用；装好后再验证一次。
 
 ## 完成后
 

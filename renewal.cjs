@@ -3,10 +3,12 @@ const fs = require('node:fs');
 const path = require('node:path');
 const {randomUUID} = require('node:crypto');
 const HOUR = 3600000;
-const DIR = `siboot-runner-${require('./package.json').version}`;
+const DIR = `pallasboot-runner-${require('./package.json').version}`;
 
 function create(workspace, run = runOnDevice, windowMs = 48 * HOUR, mountRun = mountOnDevice) {
-  const file = path.join(path.dirname(workspace), '.pallas-siboot-renewal.json');
+  const file = path.join(path.dirname(workspace), '.pallasboot-renewal.json');
+  // From before the PallasBoot rename (plugin 0.6.x).
+  try { const before = path.join(path.dirname(workspace), '.pallas-siboot-renewal.json'); if (!fs.existsSync(file)) fs.renameSync(before, file); } catch {}
   let busy = false, timer, mounting;
   function read() {
     try { return JSON.parse(fs.readFileSync(file, 'utf8')); }
@@ -30,6 +32,11 @@ function create(workspace, run = runOnDevice, windowMs = 48 * HOUR, mountRun = m
       case 'disable':
         if (!state.expires) throw Error('请先完成一次签装');
         save({...state, enabled:op === 'enable'});
+        break;
+      case 'reset':
+        // Starting over (setup.sh reset): no plan left to renew.
+        if (busy) throw Error('自动续期正在进行，请稍后再试');
+        fs.rmSync(file, {force:true});
         break;
       case 'status': break;
       default: throw Error('Unknown renewal operation');
@@ -63,9 +70,9 @@ function create(workspace, run = runOnDevice, windowMs = 48 * HOUR, mountRun = m
   return {
     action, check, ddi,
     start() {
-      const tick = () => check().catch(e => console.error('siboot renewal:', e.message));
+      const tick = () => check().catch(e => console.error('pallasboot renewal:', e.message));
       tick();
-      ddi().catch(e => console.error('siboot developer image:', e.message));
+      ddi().catch(e => console.error('pallasboot developer image:', e.message));
       timer = setInterval(tick, 15 * 60000);
       timer.unref?.();
     },
@@ -83,7 +90,7 @@ function hostEnv(workspace = process.cwd()) {
 
 async function runOnDevice(port) {
   const shell = await import(process.env.DSH_IOS_SHELL_MODULE);
-  const job = shell.execute({command:hostEnv() + 'PALLAS_SIBOOT_AUTOMATIC=1 sh ./' + DIR + '/renew.sh now ' + port, workdir:'/root/workspace',
+  const job = shell.execute({command:hostEnv() + 'PALLASBOOT_AUTOMATIC=1 sh ./' + DIR + '/renew.sh now ' + port, workdir:'/root/workspace',
     timeoutMs:600000,stdoutMaxBytes:2048,stderrMaxBytes:1024,
     sandboxPolicy:{mode:'danger-full-access',workspaceRoot:'/root/workspace'}});
   const result = await job.result();
@@ -95,7 +102,7 @@ async function runOnDevice(port) {
 }
 async function mountOnDevice(port) {
   const shell = await import(process.env.DSH_IOS_SHELL_MODULE);
-  const job = shell.execute({command:hostEnv() + 'PALLAS_SIBOOT_AUTOMATIC=1 sh ./' + DIR + '/renew.sh ddi ' + port, workdir:'/root/workspace',
+  const job = shell.execute({command:hostEnv() + 'PALLASBOOT_AUTOMATIC=1 sh ./' + DIR + '/renew.sh ddi ' + port, workdir:'/root/workspace',
     timeoutMs:600000,stdoutMaxBytes:2048,stderrMaxBytes:1024,
     sandboxPolicy:{mode:'danger-full-access',workspaceRoot:'/root/workspace'}});
   const result = await job.result();

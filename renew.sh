@@ -1,5 +1,7 @@
 #!/bin/sh
 set -eu
+# Signer home from before the PallasBoot rename (plugin 0.6.x).
+[ -d /root/.pallas-siboot ] && [ ! -e /root/.pallasboot ] && mv /root/.pallas-siboot /root/.pallasboot || true
 case ${1:-status} in
     now)
         base=$(CDPATH= cd -- "$(dirname -- "$0")" && pwd)
@@ -27,7 +29,7 @@ case ${1:-status} in
 import json, sys, urllib.request
 from datetime import datetime, timezone
 from pathlib import Path
-cfg = json.loads(Path('/root/workspace/.siboot-probe.json').read_text())
+cfg = json.loads(Path('/root/workspace/.pallasboot-probe.json').read_text())
 op = sys.argv[1]
 payload = {'action':'renewal', 'op':'status' if op == 'port' else op}
 req = urllib.request.Request(f"http://10.0.2.2:{cfg['port']}/", json.dumps(payload).encode(),

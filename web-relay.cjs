@@ -1,7 +1,8 @@
 // The app and guest have separate loopbacks. Browsers reach an iOS loopback
-// listener; authenticated connections from the guest carry bytes to siboot's
+// listener; authenticated connections from the guest carry bytes to pallasboot's
 // own HTTP server. Its secret URL, Host/Origin checks and SSE remain intact.
 const net = require('node:net');
+const {listenAgain} = require('./listen-again.cjs');
 
 exports.start = async function start(key) {
   const idle = new Set();
@@ -42,6 +43,12 @@ exports.start = async function start(key) {
   });
   try { await listen(front); await listen(back); }
   catch(e) { front.close();back.close();throw e; }
-  return {port:front.address().port, reverse:back.address().port,
+  const relay = {port:front.address().port, reverse:back.address().port,
+    // Both listeners go with the plugin's own when iOS suspends Pallas (listen-again.cjs).
+    async listenAgain() {
+      relay.port = await listenAgain(front, relay.port);
+      relay.reverse = await listenAgain(back, relay.reverse);
+    },
     close() { for (const s of sockets) s.destroy(); front.close(); back.close(); }};
+  return relay;
 };

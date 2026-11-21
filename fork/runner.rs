@@ -468,7 +468,8 @@ pub async fn install(args: &Args, mut conn: Connection, device: &DeviceInfo) -> 
             let mut url = Dictionary::new();
             url.insert(
                 "CFBundleURLSchemes".into(),
-                Value::Array(vec!["dsh-screen-runner".into()]),
+                // Pallas before 0.5.5 opens only the old scheme.
+                Value::Array(vec!["pallas-screen-runner".into(), "dsh-screen-runner".into()]),
             );
             info.insert("CFBundleURLTypes".into(), Value::Array(vec![url.into()]));
         }

@@ -33,7 +33,7 @@ from importlib.util import module_from_spec, spec_from_file_location
 from urllib.parse import quote
 
 BASE = Path(__file__).resolve().parent
-HOME = Path(os.environ.get('PALLAS_SIGN_HOME', '/root/.pallas-siboot'))
+HOME = Path(os.environ.get('PALLAS_SIGN_HOME', '/root/.pallasboot'))
 ROOT = Path(os.environ['SIBOOT_PALLAS_BIN'])
 CLOUDFLARED = ('https://github.com/cloudflare/cloudflared/releases/download/2026.11.1/cloudflared-linux-arm64',
                'b155cec3e48e489cfb8e5c602769fb8c771083018d8881d68b4d18a791567c5a')

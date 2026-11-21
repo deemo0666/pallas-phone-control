@@ -5,10 +5,13 @@ const http = require('node:http');
 const net = require('node:net');
 const {randomBytes} = require('node:crypto');
 const renewal = require('./renewal.cjs');
+const listener = require('./listen-again.cjs');
 const TYPE = '_remotepairing-pairable-host._tcp';
-// The native SiBoot provider or LocalDevVPN carries this address back to the device.
+// The native PallasBoot provider or LocalDevVPN carries this address back to the device.
 const DEVICE = '10.7.0.1';
 const SKILL = 'phone-control-setup';
+// The stage an install job ends on when the runner is in (runner-ui.py DONE).
+const INSTALLED = '手机操控已安装并已连接 Pallas';
 
 function knock(port, ms = 1500, host = DEVICE) {
   return new Promise(resolve => {
@@ -22,7 +25,7 @@ function knock(port, ms = 1500, host = DEVICE) {
 
 // An open port is not proof: other devices on the network advertise _remotepairing._tcp too, and this
 // device may have something else listening on their port (49152 on a reset iPad, 2026-11-21). Only a
-// port that answers the RPPairing handshake, as siboot's own preflight sends it, is the pairing port.
+// port that answers the RPPairing handshake, as pallasboot's own preflight sends it, is the pairing port.
 function speaksRemotePairing(port, ms = 3000, host = DEVICE) {
   return new Promise(resolve => {
     const socket = net.connect({host, port});
@@ -98,7 +101,11 @@ const REVEAL_LINK = /^https:\/\/[a-z0-9-]+\.trycloudflare\.com\/[A-Za-z0-9_-]{16
 // The agent's bash runs each command in its own bwrap (private PID namespace and /tmp), which
 // ends every process it started, setsid or not, when the command returns. The install job runs
 // from here instead, like renewal, and logs into the workspace where later commands can read it.
-const INSTALL_LOG = '.siboot-install.log';
+// Pallas before 0.5.5 names its engine hooks after siboot; the plugin is updated apart from the app.
+const hostHook = (name, old) => globalThis[Symbol.for('dsh.ios.' + name)] ?? globalThis[Symbol.for('dsh.ios.' + old)];
+// Workspace files from before the PallasBoot rename (plugin 0.6.x).
+const OLD_FILES = {'.siboot-trust-pending':'.pallasboot-trust-pending', '.siboot-install.log':'.pallasboot-install.log', '.siboot-listener.log':'.pallasboot-listener.log'};
+const INSTALL_LOG = '.pallasboot-install.log';
 
 async function runInstall(port, newLogin, reveal = false) {
   const shell = await import(process.env.DSH_IOS_SHELL_MODULE);
@@ -111,18 +118,42 @@ async function runInstall(port, newLogin, reveal = false) {
   return (await job.result()).exitCode;
 }
 
-exports.start = function start(workspace, call, scheduler = renewal.create(workspace), install = runInstall) {
+// Starting over (setup.sh reset): the signer's home holds the pairing record, the Apple session and the
+// certificate key, and only a full-access shell may remove it.
+async function runReset() {
+  const shell = await import(process.env.DSH_IOS_SHELL_MODULE);
+  const job = shell.execute({
+    command:'rm -rf /root/.pallasboot /root/.pallas-siboot /tmp/pallasboot-* /tmp/pallas-siboot-* && rm -f ' + INSTALL_LOG + ' .pallasboot-listener.log',
+    workdir:'/root/workspace', timeoutMs:60000, stdoutMaxBytes:1024, stderrMaxBytes:1024,
+    sandboxPolicy:{mode:'danger-full-access', workspaceRoot:'/root/workspace'}});
+  const {exitCode} = await job.result();
+  if (exitCode !== 0) throw Error('没能清除本机签装数据（退出码 ' + exitCode + '）');
+}
+
+exports.start = function start(workspace, call, scheduler = renewal.create(workspace), install = runInstall, reset = runReset) {
   const key = randomBytes(32).toString('hex');
   const viewKey = randomBytes(20).toString('hex');
-  const config = path.join(workspace, '.siboot-probe.json');
-  let webRelay, signerPage;
+  const config = path.join(workspace, '.pallasboot-probe.json');
+  // Pallas 0.5.4 and older read the config under its old name.
+  const oldConfig = path.join(workspace, '.siboot-probe.json');
+  for (const [from, to] of Object.entries(OLD_FILES)) {
+    try { if (!fs.existsSync(path.join(workspace, to))) fs.renameSync(path.join(workspace, from), path.join(workspace, to)); } catch {}
+  }
+  let webRelay, signerPath;
+  // The relay's port can move when it listens again (listen-again.cjs).
+  const signerPage = () => webRelay && signerPath ? 'http://127.0.0.1:' + webRelay.port + signerPath : undefined;
   let owned, advertising = false, closed = false, stage = 'waiting', pin = '', expires = 0;
   let installing = false, reveal, link;
+  // A runner signed by a free account starts only after the person trusts its developer in Settings;
+  // until they say so, setup's next step is that (setup.sh trusted clears it). A file, because iOS
+  // may end Pallas while the person is in Settings.
+  const trustFile = path.join(workspace, '.pallasboot-trust-pending');
+  const trust = pending => { try { pending ? fs.writeFileSync(trustFile, '') : fs.rmSync(trustFile, {force:true}); } catch {} };
   const escapeHTML = s => s.replaceAll('&', '&amp;').replaceAll('<', '&lt;').replaceAll('>', '&gt;');
   const server = http.createServer(async (req, res) => {
     res.setHeader('Cache-Control', 'no-store');
     if (req.method === 'GET' && req.url === '/' + viewKey) {
-      if (signerPage) { res.writeHead(303,{Location:signerPage}).end(); return; }
+      if (signerPage()) { res.writeHead(303,{Location:signerPage()}).end(); return; }
       res.setHeader('Content-Type', 'text/html; charset=utf-8');
       res.setHeader('Referrer-Policy', 'no-referrer');
       return res.end('<meta name="viewport" content="width=device-width"><meta http-equiv="refresh" content="2"><h1>' +
@@ -135,7 +166,8 @@ exports.start = function start(workspace, call, scheduler = renewal.create(works
       let body = '';
       for await (const chunk of req) {
         body += chunk;
-        if (body.length > 8192) throw Error('oversized request');
+        // Only authenticated requests get here; the keychain copy (vault-save) is the largest.
+        if (body.length > (1 << 21)) throw Error('oversized request');
       }
       const args = JSON.parse(body);
       let reply;
@@ -144,14 +176,36 @@ exports.start = function start(workspace, call, scheduler = renewal.create(works
       } else if (args.action === 'ddi') {
         reply = {ok:true,data:await scheduler.ddi()};
       } else if (args.action === 'detect') {
-        const withTunnel = globalThis[Symbol.for('dsh.ios.withSiBootTunnel')];
+        const withTunnel = hostHook('withPallasBootTunnel', 'withSiBootTunnel');
         const detect = () => detectPort(call, scheduler.action('status').port);
         const data = withTunnel && args.startTunnel === true
           ? await withTunnel(detect).catch(error => ({vpn:false, tunnelError:error.message}))
           : await detect();
         reply = {ok:true, data:{...data, builtinTunnel:!!withTunnel}};
+      } else if (args.action === 'vault-read' || args.action === 'vault-save') {
+        // A copy of the signer's files in the keychain (vault.py packs it), for after a reinstall.
+        const vault = hostHook('pallasBootVault', 'siBootVault');
+        if (!vault) reply = {ok:true, data:{supported:false}};
+        else if (args.action === 'vault-read') reply = {ok:true, data:{supported:true, value:await vault.read()}};
+        else if (typeof args.value === 'string' && args.value.length <= 1 << 20) {
+          await vault.save(args.value);
+          reply = {ok:true, data:{supported:true}};
+        } else throw Error('invalid vault copy');
+      } else if (args.action === 'trusted') {
+        trust(false);
+        reply = {ok:true,data:{}};
+      } else if (args.action === 'reset') {
+        if (installing) throw Error('签装正在进行，等它结束后再清除');
+        scheduler.action('reset');
+        await reset();
+        trust(false);
+        // The keychain copy would bring everything back at the next install.
+        await hostHook('pallasBootVault', 'siBootVault')?.save('');
+        webRelay?.close(); webRelay = undefined; signerPath = undefined;
+        stage = 'waiting'; pin = ''; expires = 0; reveal = undefined; link = undefined;
+        reply = {ok:true,data:{}};
       } else if (args.action === 'tunnel') {
-        const withTunnel = globalThis[Symbol.for('dsh.ios.withSiBootTunnel')];
+        const withTunnel = hostHook('withPallasBootTunnel', 'withSiBootTunnel');
         if (withTunnel) {
           // Keep the lease for the lifetime of the guest's HTTP connection. A killed guest
           // also closes its socket, even if its Python finally block cannot run.
@@ -165,7 +219,7 @@ exports.start = function start(workspace, call, scheduler = renewal.create(works
         }
         reply = {ok:true};
       } else if (args.action === 'state') {
-        reply = {ok:true,data:{stage, code:Date.now() < expires, signerPage:!!signerPage, installing, reveal, link,
+        reply = {ok:true,data:{stage, code:Date.now() < expires, signerPage:!!signerPage(), installing, reveal, link, trustPending:fs.existsSync(trustFile),
                                view:'http://127.0.0.1:' + server.address().port + '/' + viewKey}};
       } else if (args.action === 'install' && (args.mode === 'reveal' ||
                  Number.isInteger(args.port) && args.port > 0 && args.port < 65536)) {
@@ -173,7 +227,10 @@ exports.start = function start(workspace, call, scheduler = renewal.create(works
           installing = true;
           stage = 'waiting'; pin = ''; expires = 0; reveal = undefined; link = undefined;
           install(args.port, args.newLogin === true, args.mode === 'reveal')
-            .then(code => { if (code !== 0 && stage === 'waiting') stage = '签装中断（退出码 ' + code + '）'; })
+            .then(code => {
+              if (code !== 0 && stage === 'waiting') stage = '签装中断（退出码 ' + code + '）';
+              if (code === 0 && stage === INSTALLED) trust(true);
+            })
             .catch(e => { stage = '签装中断：' + String(e.message).slice(0, 160); })
             .finally(() => { installing = false; reveal = undefined; link = undefined; });
         }
@@ -184,13 +241,13 @@ exports.start = function start(workspace, call, scheduler = renewal.create(works
         if (typeof args.stage === 'string' && args.stage) stage = args.stage.slice(0, 180);
       } else if (args.action === 'web-relay') {
         webRelay?.close();
-        signerPage = undefined;
+        signerPath = undefined;
         webRelay = await require('./web-relay.cjs').start(key);
         reply = {ok:true,data:{port:webRelay.port,reverse:webRelay.reverse}};
       } else if (args.action === 'signer-page' && webRelay && /^\/[a-f0-9]{24,128}\/$/.test(args.path)) {
-        signerPage = 'http://127.0.0.1:' + webRelay.port + args.path;
+        signerPath = args.path;
       } else if (args.action === 'end-web') {
-        webRelay?.close(); webRelay = undefined; signerPage = undefined;
+        webRelay?.close(); webRelay = undefined; signerPath = undefined;
         stage = typeof args.outcome === 'string' ? args.outcome.slice(0, 180) : '签装已结束';
       } else if (args.action === 'pin' && /^\d{6}$/.test(args.code)) {
         pin = args.code; expires = Date.now() + 300000; stage = '请输入配对码';
@@ -222,17 +279,33 @@ exports.start = function start(workspace, call, scheduler = renewal.create(works
       res.end(JSON.stringify(reply || {ok:true,data:{}}));
     } catch (err) { res.end(JSON.stringify({ok:false,error:{code:'probe_error',message:err.message}})); }
   });
-  server.listen(0, '127.0.0.1', () => {
-    const port = server.address().port;
+  // The guest reads the port from here before every request.
+  const publish = port => {
     const tmp = config + '.' + key;
     fs.writeFileSync(tmp, JSON.stringify({port,key,view:'http://127.0.0.1:' + port + '/' + viewKey}), {mode:0o600,flag:'wx'});
+    fs.copyFileSync(tmp, oldConfig + '.' + key);
+    fs.renameSync(oldConfig + '.' + key, oldConfig);
     fs.renameSync(tmp, config);
+  };
+  // Pairing, Apple's two-factor code and the Developer Mode restart all take the person out of
+  // Pallas; when iOS has taken the listeners meanwhile, listen again so the job and page carry on.
+  const unwatch = listener.watch(server, async port => {
+    const now = await listener.listenAgain(server, port);
+    await webRelay?.listenAgain().catch(() => {});
+    // The engine drops the plugin's stdout and stderr; this one line is for diagnosis.
+    try { fs.appendFileSync(path.join(workspace, '.pallasboot-listener.log'), `${new Date().toISOString()} listening again: ${port} -> ${now}\n`); } catch {}
+    if (now !== port && !closed) publish(now);
+  });
+  server.listen(0, '127.0.0.1', () => {
+    publish(server.address().port);
     scheduler.start();
   });
   return () => {
-    closed = true; scheduler.stop(); webRelay?.close(); server.close(); server.closeAllConnections();
+    closed = true; unwatch(); scheduler.stop(); webRelay?.close(); server.close(); server.closeAllConnections();
     if (owned) call({action:'stop', id:owned}).catch(() => {});
-    try { if (JSON.parse(fs.readFileSync(config)).key === key) fs.unlinkSync(config); } catch {}
+    for (const file of [config, oldConfig]) {
+      try { if (JSON.parse(fs.readFileSync(file)).key === key) fs.unlinkSync(file); } catch {}
+    }
   };
 };
 
@@ -243,8 +316,8 @@ exports.stage = workspace => {
   const dir = path.join(workspace, renewal.DIR);
   // Never replace an unrelated workspace file.
   if (!fs.existsSync(dir)) fs.mkdirSync(dir, {mode:0o700});
-  if (!fs.lstatSync(dir).isDirectory()) throw Error('Invalid siboot-probe folder');
-  for (const file of ['run.sh', 'renew.sh', 'setup.sh', 'setup.py', 'probe.py', 'runner-ui.py', 'install.sh', 'reveal.sh', 'reveal.py', 'ddi.py', 'siboot-runner-aarch64', 'runner.sha256', 'ScreenRunner.ipa']) {
+  if (!fs.lstatSync(dir).isDirectory()) throw Error('Invalid pallasboot-probe folder');
+  for (const file of ['run.sh', 'renew.sh', 'setup.sh', 'setup.py', 'probe.py', 'runner-ui.py', 'install.sh', 'reveal.sh', 'reveal.py', 'ddi.py', 'vault.py', 'pallasboot-runner-aarch64', 'runner.sha256', 'ScreenRunner.ipa']) {
     const src = fs.readFileSync(path.join(__dirname, file));
     const dest = path.join(dir, file);
     try { fs.writeFileSync(dest, src, {mode:0o600, flag:'wx'}); }

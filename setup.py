@@ -8,6 +8,8 @@
   reveal [--new-login]
                     Developer Mode is missing from Settings: start the job that brings the switch back
   ddi               mount the developer image the runner needs (a restart unmounts it)
+  trusted           the person has trusted the runner's developer in Settings: go on to verify
+  reset             remove the pairing, Apple sign-in and their keychain copy, to set up from scratch
 """
 import fcntl
 import json
@@ -16,14 +18,15 @@ from pathlib import Path
 import subprocess
 import sys
 import time
+import urllib.error
 import urllib.request
 
 BASE = Path(__file__).resolve().parent
-CONFIG = Path('/root/workspace/.siboot-probe.json')
-HOME = Path('/root/.pallas-siboot')
-RUN = Path(f'/tmp/pallas-siboot-{os.getuid()}')
+CONFIG = Path('/root/workspace/.pallasboot-probe.json')
+HOME = Path('/root/.pallasboot')
+RUN = Path(f'/tmp/pallasboot-{os.getuid()}')
 # Written by the install job the plugin runs (index.cjs runInstall).
-LOG = Path('/root/workspace/.siboot-install.log')
+LOG = Path('/root/workspace/.pallasboot-install.log')
 WINDOW = 48 * 3600
 BRIDGE = '10.0.2.2'
 DONE = '手机操控已安装并已连接 Pallas'
@@ -38,11 +41,20 @@ def say(key, value):
 
 
 def bridge(timeout=20, **args):
-    cfg = json.loads(CONFIG.read_text())
-    req = urllib.request.Request(f"http://{BRIDGE}:{cfg['port']}/", json.dumps(args).encode(),
-                                 {'Authorization': 'Bearer ' + cfg['key']})
-    with urllib.request.urlopen(req, timeout=timeout) as res:
-        reply = json.load(res)
+    # Right after Pallas comes back to the front the plugin may still be taking its listener
+    # back (listen-again.cjs): retry a refusal for a few seconds, reading the port each time.
+    for attempt in range(8):
+        cfg = json.loads(CONFIG.read_text())
+        req = urllib.request.Request(f"http://{BRIDGE}:{cfg['port']}/", json.dumps(args).encode(),
+                                     {'Authorization': 'Bearer ' + cfg['key']})
+        try:
+            with urllib.request.urlopen(req, timeout=timeout) as res:
+                reply = json.load(res)
+            break
+        except urllib.error.URLError as e:
+            if not isinstance(e.reason, ConnectionRefusedError) or attempt == 7:
+                raise
+        time.sleep(1)
     if not reply['ok']:
         raise RuntimeError(reply['error']['message'])
     return reply.get('data') or {}
@@ -140,6 +152,15 @@ def status(detect=True):
         return 'enable_plugin'
     state = bridge(action='state')
     renewal = bridge(action='renewal', op='status')
+    if not running():
+        # After a reinstall, put back the pairing and sign-in kept in the keychain (vault.py). This
+        # command may not be allowed to write the signer's home; the install job restores it then.
+        from importlib.util import spec_from_file_location, module_from_spec
+        spec = spec_from_file_location('vault', BASE / 'vault.py')
+        vault = module_from_spec(spec)
+        spec.loader.exec_module(vault)
+        if HOME.is_dir() and sign_home() == 'writable':
+            vault.quietly(vault.restore, lambda **args: bridge(**args), HOME)
     files = saved()
     job = running()
     lines = log_lines()
@@ -157,6 +178,13 @@ def status(detect=True):
             (f"（上次续期出错：{renewal['lastError']}）" if renewal.get('lastError') else ''))
     else:
         say('auto_renewal', 'none')
+    # Pallas 0.5.5+ writes whether the runner is on this iPhone; the receipt stays when it is deleted.
+    try:
+        missing = json.loads(Path('/root/workspace/.phone-control.json').read_text()).get('runner') == 'missing'
+    except (OSError, ValueError):
+        missing = False
+    if missing:
+        say('runner', 'missing')
     if job:
         step = ('enter_code' if state['code'] else 'pair_in_settings' if state['stage'] == '等待系统配对'
                 else 'sign_in' if state['signerPage'] else REVEAL_NEXT.get(state.get('reveal'), 'wait'))
@@ -171,7 +199,11 @@ def status(detect=True):
     reason = failure_of(state['stage'], lines)
     if reason:
         say('last_result', reason)
-    if state['stage'] == DONE or (expires and expires - time.time() > WINDOW):
+    if state.get('trustPending') and not missing:
+        # Just installed: iOS will not start it until the person trusts its developer.
+        say('next', 'trust_developer')
+        return 'trust_developer'
+    if not missing and (state['stage'] == DONE or (expires and expires - time.time() > WINDOW)):
         say('next', 'verify')
         return 'verify'
     if reason and classify(reason) != 'failed':
@@ -233,7 +265,7 @@ def start(args):
             return
         if not port:
             # A device that never paired has no pairing service on the network until it pairs:
-            # siboot pairs first and finds the port after (any port here is only a first guess).
+            # pallasboot pairs first and finds the port after (any port here is only a first guess).
             say('port', 'unknown（这台设备还没配对过，先配对）')
             port = 49152
         else:
@@ -304,6 +336,13 @@ if __name__ == '__main__':
             if result.get('detail'):
                 say('developer_image', result['detail'])
             say('next', 'verify' if result.get('ok') else 'failed')
+        elif cmd == 'trusted':
+            bridge(action='trusted')
+            status(detect=False)
+        elif cmd == 'reset':
+            bridge(timeout=120, action='reset')
+            say('reset', 'done')
+            status(detect=False)
         elif cmd == 'wait':
             follow(min(int(rest[0]) if rest else 45, 100), initial=None)
         else:

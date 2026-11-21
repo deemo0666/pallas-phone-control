@@ -27,7 +27,7 @@ def digest(path):
 
 
 def main():
-    home = Path(os.environ.get('PALLAS_SIGN_HOME', '/root/.pallas-siboot')) / 'ddi'
+    home = Path(os.environ.get('PALLAS_SIGN_HOME', '/root/.pallasboot')) / 'ddi'
     home.mkdir(mode=0o700, parents=True, exist_ok=True)
     for name, want in FILES.items():
         path = home / name

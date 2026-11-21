@@ -35,7 +35,7 @@ async def run(root, home, ipa, port, config, bridge, relay, command=None, stages
     try:
         argv = command or ['runner', '--web', '--home', str(home), '--ipa', str(ipa), '--port', str(port),
                            '--anisette', 'https://ani.iloader.app']
-        process = await asyncio.create_subprocess_exec(str(root/'siboot'), *argv,
+        process = await asyncio.create_subprocess_exec(str(root/'pallasboot'), *argv,
             env=env, stdin=asyncio.subprocess.DEVNULL, stdout=asyncio.subprocess.PIPE, stderr=asyncio.subprocess.STDOUT)
         seen = set()
         async for raw in process.stdout:

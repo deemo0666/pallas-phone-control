@@ -4,14 +4,14 @@
 
 ## 在 Pallas 安装
 
-在带 SiBoot 隧道扩展的 Pallas 中，导入 0.6.1 插件，在本机对话里说「开通手机操控」。首次使用时允许 iOS 添加「Pallas · SiBoot」VPN 配置即可。旧版宿主可沿用 LocalDevVPN。插件注册技能 `phone-control-setup`，agent 加载后按 `setup.sh` 报告的状态一步一步带用户完成，已满足的步骤自动跳过。
+在带 PallasBoot 隧道扩展的 Pallas 中，导入 0.7.0 插件，在本机对话里说「开通手机操控」。首次使用时允许 iOS 添加「PallasBoot」VPN 配置即可。旧版宿主可沿用 LocalDevVPN。插件注册技能 `phone-control-setup`，agent 加载后按 `setup.sh` 报告的状态一步一步带用户完成，已满足的步骤自动跳过。
 
 1. **安装。** 按对应入口操作：
    - 插件市场（发布后）：Pallas 切到本机引擎，「全部功能 → 插件 → 插件市场」搜「手机操控」，安装。
-   - 离线导入：把插件 ZIP 存到「文件」（WodeiPad 用 `pallas-siboot-runner-wodeipad.zip`，其他设备用 `pallas-siboot-runner.zip`），在 0.4.0（8）中，切到本机引擎，打开「全部功能 → 插件 → 导入 → 离线插件包 → 选择插件包文件」，选择 ZIP 后点「导入并启用」。在 0.3.4（7）中，先在「文件」里点 ZIP 解压。Pallas 切到本机引擎，打开「全部功能 → 插件 → 已安装 → 导入桌面插件目录」，选择解压后直接包含 `package.json` 的文件夹，点「导入并启用」。
+   - 离线导入：把插件 ZIP 存到「文件」（WodeiPad 用 `pallasboot-runner-wodeipad.zip`，其他设备用 `pallasboot-runner.zip`），在 0.4.0（8）中，切到本机引擎，打开「全部功能 → 插件 → 导入 → 离线插件包 → 选择插件包文件」，选择 ZIP 后点「导入并启用」。在 0.3.4（7）中，先在「文件」里点 ZIP 解压。Pallas 切到本机引擎，打开「全部功能 → 插件 → 已安装 → 导入桌面插件目录」，选择解压后直接包含 `package.json` 的文件夹，点「导入并启用」。
 
-   若已装旧版同名插件，请先卸载，再导入 0.6.1。0.5.0 起包名由 `pallas-siboot-probe` 改为 `pallas-phone-control`。装新包前必须先在插件详情卸载旧的 `pallas-siboot-probe`，否则两个插件会同时写状态页配置、同时排续期。签装状态和续期计划保存在插件目录之外，卸载不会丢。
-2. **开通。** 在本机对话里说「开通手机操控」。agent 自己执行检查、探测端口、启动签装、跟踪进度和最后的验证，只在系统要求本人操作时交给用户，每次一步。首次在系统提示中允许本机隧道、允许「本地网络」、在本机签装页登录 Apple 账号、到「设置 → 隐私与安全性 → 开发者模式 → 其他设备」点「Pair with siboot」并输入锁屏密码和状态页上的六位码、打开「设置 → 手机操控」的开关。Apple 账号、密码和双重认证码只在签装页填写，技能要求 agent 不在聊天里索要或复述。
+   若已装旧版同名插件，请先卸载，再导入 0.7.0。0.5.0 起包名由 `pallas-siboot-probe` 改为 `pallas-phone-control`。装新包前必须先在插件详情卸载旧的 `pallas-siboot-probe`，否则两个插件会同时写状态页配置、同时排续期。签装状态和续期计划保存在插件目录之外，卸载不会丢。
+2. **开通。** 在本机对话里说「开通手机操控」。agent 自己执行检查、探测端口、启动签装、跟踪进度和最后的验证，只在系统要求本人操作时交给用户，每次一步。首次在系统提示中允许本机隧道、允许「本地网络」、在本机签装页登录 Apple 账号、到「设置 → 隐私与安全性 → 开发者模式 → 其他设备」点「Pair with PallasBoot」并输入锁屏密码和状态页上的六位码、打开「设置 → 手机操控」的开关。Apple 账号、密码和双重认证码只在签装页填写，技能要求 agent 不在聊天里索要或复述。
 3. **验收。** 组件装好后，agent 用 `iphone_screen` 打开计算器按 37 × 19，读到 703 即完成，再报告组件到期时间和自动续期状态。也可以在「设置 → 手机操控」点「试一下手机操控」。
 
 如果刚从 0.3.1 更新，执行器仍可直接使用；要让 0.3.4 自己负责续期，仍需在 0.3.4 内完成一次签装，以便它保存自己的配对记录、Apple 会话和签装回执。说「开通手机操控」即可，agent 看到没有本机续期记录会重新签装。
@@ -21,9 +21,9 @@
 技能的内容在 `SKILL.md`，加载时把 `{{DIR}}` 换成当前版本的目录。`setup.sh` 是 agent 用的入口，每条命令最后一行是 `next: <步骤>`：
 
 ```sh
-sh /root/workspace/siboot-runner-0.6.1/setup.sh status
-sh /root/workspace/siboot-runner-0.6.1/setup.sh start [--port N] [--new-login]
-sh /root/workspace/siboot-runner-0.6.1/setup.sh wait [秒]
+sh /root/workspace/pallasboot-runner-0.7.0/setup.sh status
+sh /root/workspace/pallasboot-runner-0.7.0/setup.sh start [--port N] [--new-login]
+sh /root/workspace/pallasboot-runner-0.7.0/setup.sh wait [秒]
 ```
 
 - `status` 报告插件状态页、后台任务、当前阶段、签装目录是否可写、是否已有配对记录和 Apple 会话、组件到期时间、自动续期，并在需要时探测 VPN 和端口。步骤有 `start`、`renew`、`tunnel_unavailable`、`connect_vpn`、`allow_local_network`、`port_unknown`、`sign_in`、`pair_in_settings`、`enter_code`、`wait`、`full_access`、`host_unsupported`、`failed`、`enable_plugin`、`verify`，各自的处理写在 `SKILL.md`。
@@ -33,7 +33,7 @@ sh /root/workspace/siboot-runner-0.6.1/setup.sh wait [秒]
 
 出现 Apple 7460 表示账号的开发证书名额已满，签装页会让你选择。可以保留现有证书并退出；撤销旧证书会影响其他使用它签名的 App。
 
-`install.sh` 仍可手动运行：`sh /root/workspace/siboot-runner-0.6.1/install.sh --open <端口>`，去掉 `--open` 时在前台等待退出码。
+`install.sh` 仍可手动运行：`sh /root/workspace/pallasboot-runner-0.7.0/install.sh --open <端口>`，去掉 `--open` 时在前台等待退出码。
 
 ## 发布到插件市场（未执行，由用户决定）
 
@@ -50,7 +50,7 @@ App 的插件市场读 `https://api.dshfind.com/market/dsh-index.json`（dshfind
 - 仓库 description（即市场简介）：「手机操控 Phone Control：让 Pallas Agent 操作这台设备上的其他 App。安装后在对话里说『开通手机操控』。」App 的搜索按空格拆词逐个匹配名字、标题、简介，所以「手机操控」「phone control」都能搜到。
 - 分类由 dshfind 自动判定，期望是 `tools`；可以联系运营手动定。
 
-App 侧：`PluginPolicy` 只拒绝改界面的插件（`dshGo` 键、`dsh.client`、导出 `./client`），本包都没有。npm 安装（`PluginDownload`）核对 integrity，要求依赖要么打进包里要么引擎自带（本包无依赖），再交给与离线导入相同的 `local-plugins.cjs`；那里只拒绝符号链接、特殊文件和扩展名为 `.node/.dylib/.dll/.so` 的原生库。`siboot-runner-aarch64` 没有这些扩展名、IPA 是普通文件，都放行。包体积 npm 压缩约 6 MB、解包约 12 MB，低于 64 MB / 160 MB 上限。`package.json` 的 `files` 决定 npm 包内容（不含 `checks/`、`validation/` 截图和 WodeiPad 专用安装页），`checks/check-import.cjs` 会用 `npm pack` 的结果走一遍与市场安装相同的导入。
+App 侧：`PluginPolicy` 只拒绝改界面的插件（`dshGo` 键、`dsh.client`、导出 `./client`），本包都没有。npm 安装（`PluginDownload`）核对 integrity，要求依赖要么打进包里要么引擎自带（本包无依赖），再交给与离线导入相同的 `local-plugins.cjs`；那里只拒绝符号链接、特殊文件和扩展名为 `.node/.dylib/.dll/.so` 的原生库。`pallasboot-runner-aarch64` 没有这些扩展名、IPA 是普通文件，都放行。包体积 npm 压缩约 6 MB、解包约 12 MB，低于 64 MB / 160 MB 上限。`package.json` 的 `files` 决定 npm 包内容（不含 `checks/`、`validation/` 截图和 WodeiPad 专用安装页），`checks/check-import.cjs` 会用 `npm pack` 的结果走一遍与市场安装相同的导入。
 
 发布前的阻碍：
 
@@ -65,7 +65,7 @@ App 侧：`PluginPolicy` 只拒绝改界面的插件（`dshGo` 键、`dsh.client
 续期使用同一设备、Apple 团队、开发证书、执行器和 Pallas 连接密钥。配对失效、账号会话过期或证书不可用时，需要打开签装器处理。自动任务只使用已有证书。手动安装以及自动续期共用一把锁。
 
 ```sh
-sh /root/workspace/siboot-runner-0.6.1/renew.sh status
+sh /root/workspace/pallasboot-runner-0.7.0/renew.sh status
 ```
 
 子命令 `disable` 关闭自动续期，`enable` 重新启用，`now` 立即续签。续期时重新探测设备端口，并使用已授权启用的本机隧道访问设备。若系统配置已停用，打开 Pallas 并运行 `setup.sh start` 重新授权。续期还需能访问 Apple。正在使用其他个人 VPN 时，iOS 可能会切换连接。使用完毕可在原 VPN 中查看连接状态。
@@ -75,14 +75,14 @@ sh /root/workspace/siboot-runner-0.6.1/renew.sh status
 不用电脑。在本机对话里，agent 发现设置里没有「开发者模式」时运行：
 
 ```sh
-sh /root/workspace/siboot-runner-0.6.1/setup.sh reveal
+sh /root/workspace/pallasboot-runner-0.7.0/setup.sh reveal
 ```
 
 插件在后台跑 `reveal.sh`（`reveal.py`）：
 
-1. 下载固定版本的 cloudflared（2026.11.1 linux-arm64，校验 SHA-256，存在 `/root/.pallas-siboot/bin`），在本机 Linux 起一个只听回环的小网站，经 Cloudflare 临时隧道拿到公网 HTTPS 地址。路径里带随机令牌。
+1. 下载固定版本的 cloudflared（2026.11.1 linux-arm64，校验 SHA-256，存在 `/root/.pallasboot/bin`），在本机 Linux 起一个只听回环的小网站，经 Cloudflare 临时隧道拿到公网 HTTPS 地址。路径里带随机令牌。
 2. 输入框上方的卡片给出「在 Safari 打开」。用户下载「Pallas 识别本机」描述文件，在「设置」里安装。它是 Profile Service，只把 UDID、型号、系统版本回传到上面的地址，带随机 challenge 校验，不留下任何设置。回传地址必须是 HTTPS：用 http 时系统直接报「描述文件安装失败」，不回传。
-3. 签装器 `siboot reveal` 用免费 Apple 账号登录（和正常安装同一个登录页、同一份会话），把这个 UDID 登记进个人团队，用正常安装将来要用的同一个 App ID 和证书给执行器签名，不连设备、不安装。
+3. 签装器 `pallasboot reveal` 用免费 Apple 账号登录（和正常安装同一个登录页、同一份会话），把这个 UDID 登记进个人团队，用正常安装将来要用的同一个 App ID 和证书给执行器签名，不连设备、不安装。
 4. 卡片再给出安装页。用户在 Safari 点「安装」。装不装得上都可以：系统看到描述文件里登记了本机，就会在「设置 › 隐私与安全性」里显示开发者模式。
 5. 任务以「请打开开发者模式」结束。用户打开开关、重启，再回到 Pallas 做正常的配对和安装。
 
@@ -92,11 +92,11 @@ sh /root/workspace/siboot-runner-0.6.1/setup.sh reveal
 
 ## 实现与状态
 
-插件在 iOS 回环地址上发布状态页。Linux 签装器也只在回环地址监听，两端使用带随机口令的反向连接转发登录页面。登录和双重认证由上游 siboot 的设备内页面处理。签装器使用上游 Apple 登录代码以及 ani.iloader.app 的 anisette 服务。配对记录、Apple 开发者会话和签名私钥保存在本机 Linux 磁盘的 /root/.pallas-siboot，目录权限为 0700。脚本需要写入该磁盘。
+插件在 iOS 回环地址上发布状态页。Linux 签装器也只在回环地址监听，两端使用带随机口令的反向连接转发登录页面。登录和双重认证由上游 siboot 的设备内页面处理。签装器使用上游 Apple 登录代码以及 ani.iloader.app 的 anisette 服务。配对记录、Apple 开发者会话和签名私钥保存在本机 Linux 磁盘的 /root/.pallasboot，目录权限为 0700。脚本需要写入该磁盘。
 
 签装器验证随包 IPA 的固定 SHA-256、Apple 描述文件的 Personal Team 标记、有效期、证书、设备和 App ID。安装完成后，从安装服务重新查找组件，并写入和读回 Pallas 的执行器连接密钥。遇到证书上限时，设备上的选择页允许保留原证书并退出。选择某张证书并再次确认撤销后，签装器才会向 Apple 撤销它。
 
-源代码基于上游 [siboot 固定提交](https://github.com/FrizzleM/siboot/tree/4ae7ef873490ee6ca7b9111e5ad2cf4fc0cb664d/minis)。fork/ 目录含补丁、runner 源文件及构建脚本。runner.sha256 记录两个设备端文件的校验值。
+源代码基于上游 [pallasboot 固定提交](https://github.com/FrizzleM/siboot/tree/4ae7ef873490ee6ca7b9111e5ad2cf4fc0cb664d/minis)。fork/ 目录含补丁、runner 源文件及构建脚本。runner.sha256 记录两个设备端文件的校验值。
 
 ## WodeiPad 真机结果（2026-11-14）
 
