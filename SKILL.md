@@ -38,6 +38,7 @@ sh /root/workspace/{{DIR}}/setup.sh reset       # 清除配对、Apple 登录和
 - `failed`：用一两句话说明 `last_result` 的原因和对应做法，然后问用户是否重试；重试就执行 `setup.sh start`。常见原因：`won't let Pallas reach` 是 VPN 没连；网络错误是访问 Apple 失败，检查网络后重试；页面里取消或超时直接重试。要换 Apple 账号时执行 `setup.sh start --new-login`（开关被隐藏、正在跑 reveal 时是 `setup.sh reveal --new-login`）。`last_result` 说是付费开发者账号时，请用户改用免费 Apple 账号，再用 `--new-login` 重来。
 - 用户要求清除手机操控的数据、从头开通，或彻底换一个 Apple 账号时，先确认用户知道之后要重新配对和登录，再执行 `setup.sh reset`，然后按输出的 `next` 继续。它不会删掉已装的组件，也不会关闭开发者模式。
 - 用户说「手机操控续期没成功」（点了续期失败的通知，或设置里有效期一行显示「续期没成功」「已过期」）：跑 `status`，用一两句话说明 `auto_renewal` 里的出错原因，然后执行 `setup.sh start` 重新签装；需要重新登录 Apple 账号时，`next` 会是 `sign_in`，照常处理。
+- `ios_too_old`：这台设备的系统是 `ios:` 那个版本，低于 iOS 27。在设备上自己配对是 iOS / iPadOS 27 才有的，现在开通不了。告诉用户把系统升级到 iOS 27 或更新版本后，回到 Pallas 说「开通手机操控」。不要执行 `start` 或 `reveal`，也不要让用户去设置里找配对入口。
 - `enable_plugin`：插件没有启用，请用户在插件列表里启用它。
 - 用户明确要求用新版插件更新 ScreenRunner 时，运行一次 `setup.sh start` 安装随包执行器，即使首次 `status` 因旧组件签名仍有效而返回 `verify`。本轮安装完成后按正常流程验证。
 - 验证或使用时若报 `runner_launch_refused`（「系统没有让手机操控启动」）：先跑 `status`。`installed_until` 显示已过期，或 `next` 是 `renew`，就是组件过期了：直接执行 `setup.sh start` 重新签装，不要挂运行环境，也不要让用户去信任。没过期时，先执行 `setup.sh ddi`（重启后要重新挂载组件需要的开发者运行环境，约半分钟），看到 `next: verify` 再验证一次。仍被拒，或用户说屏幕上弹出了「未受信任的开发者」，就是还没信任开发者：按 `trust_developer` 带用户去信任，再验证。不要让用户自己去设置里试手机操控。

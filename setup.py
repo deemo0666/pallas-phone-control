@@ -34,6 +34,10 @@ DONE = '手机操控已安装并已连接 Pallas'
 REVEALED = '请打开开发者模式'
 REVEAL_NEXT = {'identify': 'identify_device', 'install': 'install_in_safari', 'enable': 'turn_on_developer_mode'}
 IDLE_STAGES = {'waiting'}
+# Written by Pallas (PhoneControl.noteRunner): whether the runner is on this iPhone, and the system version.
+NOTE = Path('/root/workspace/.phone-control.json')
+# Pairing from the device itself (Developer Mode › Other devices) came with iOS 27.
+PAIRING_IOS = 27
 
 
 def say(key, value):
@@ -113,6 +117,54 @@ def saved():
             'receipt': receipt}
 
 
+def note():
+    try:
+        return json.loads(NOTE.read_text())
+    except (OSError, ValueError):
+        return {}
+
+
+# Darwin kernel of each iOS before 27; 27 and later run kernel 26 or newer.
+KERNEL_IOS = {25: '26', 24: '18', 23: '17', 22: '16'}
+
+
+def system_version(state):
+    """(iOS version, major) from Pallas's note, else from the kernel the plugin runs on
+    (Pallas 0.5.5 writes no version). (None, None) when neither says."""
+    version = str(note().get('ios') or '')
+    try:
+        return version, int(version.split('.')[0])
+    except ValueError:
+        pass
+    kernel = str((state or {}).get('kernel') or '')
+    try:
+        major = int(kernel.split('.')[0])
+    except ValueError:
+        return None, None
+    if major not in KERNEL_IOS:
+        return None, None
+    return f'{KERNEL_IOS[major]}（Darwin {kernel}）', int(KERNEL_IOS[major])
+
+
+def too_old(state=None):
+    """The system version when it cannot pair from the device and has no pairing yet, else None."""
+    if saved()['pairing']:
+        return None
+    if state is None and not note().get('ios'):
+        try:
+            state = bridge(action='state')
+        except (OSError, RuntimeError, ValueError):
+            return None
+    version, major = system_version(state)
+    return version if major is not None and major < PAIRING_IOS else None
+
+
+def refuse_old(version):
+    say('ios', version)
+    say('next', 'ios_too_old')
+    return 'ios_too_old'
+
+
 def until(expires):
     if not expires:
         return 'none'
@@ -179,10 +231,7 @@ def status(detect=True):
     else:
         say('auto_renewal', 'none')
     # Pallas 0.5.5+ writes whether the runner is on this iPhone; the receipt stays when it is deleted.
-    try:
-        missing = json.loads(Path('/root/workspace/.phone-control.json').read_text()).get('runner') == 'missing'
-    except (OSError, ValueError):
-        missing = False
+    missing = note().get('runner') == 'missing'
     if missing:
         say('runner', 'missing')
     if job:
@@ -209,6 +258,9 @@ def status(detect=True):
     if reason and classify(reason) != 'failed':
         say('next', classify(reason))
         return classify(reason)
+    old = too_old(state)
+    if old:
+        return refuse_old(old)
     if not detect:
         say('next', 'failed' if reason else 'start')
         return 'failed' if reason else 'start'
@@ -243,6 +295,9 @@ def start(args):
         say('note', '已有任务在运行，沿用它')
         say('link', bridge(action='state')['view'])
         return status(detect=False)
+    old = too_old()
+    if old:
+        return refuse_old(old)
     if port is None:
         found = bridge(timeout=210, action='detect', startTunnel=True)
         lan = (found.get('lanError') or {}).get('code')
@@ -289,6 +344,9 @@ def reveal(args):
     if running():
         say('note', '已有任务在运行，沿用它')
         return status(detect=False)
+    old = too_old()
+    if old:
+        return refuse_old(old)
     env = dict(os.environ)
     if '--new-login' in args:
         env['PALLAS_NEW_LOGIN'] = '1'

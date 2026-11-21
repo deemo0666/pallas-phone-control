@@ -3,6 +3,7 @@ const fs = require('node:fs');
 const path = require('node:path');
 const http = require('node:http');
 const net = require('node:net');
+const os = require('node:os');
 const {randomBytes} = require('node:crypto');
 const renewal = require('./renewal.cjs');
 const listener = require('./listen-again.cjs');
@@ -220,6 +221,8 @@ exports.start = function start(workspace, call, scheduler = renewal.create(works
         reply = {ok:true};
       } else if (args.action === 'state') {
         reply = {ok:true,data:{stage, code:Date.now() < expires, signerPage:!!signerPage(), installing, reveal, link, trustPending:fs.existsSync(trustFile),
+                               // The iOS kernel, for setup.py to tell the system version (Pallas 0.5.5 writes none).
+                               kernel:process.env.DSH_IOS_SHELL_MODULE ? os.release() : null,
                                view:'http://127.0.0.1:' + server.address().port + '/' + viewKey}};
       } else if (args.action === 'install' && (args.mode === 'reveal' ||
                  Number.isInteger(args.port) && args.port > 0 && args.port < 65536)) {

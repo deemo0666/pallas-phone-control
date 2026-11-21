@@ -6,6 +6,7 @@
 
 ## 需要
 
+- iOS / iPadOS 27 或更新版本（在设备上自己配对是 iOS 27 才有的）。
 - 带本机引擎和本机 Linux shell 的 Pallas Agent。
 - 一个免费 Apple 账号（用于给设备上的执行器签名，只在签装页填写，不在聊天里输入）。
 - 开通和续期时能访问 Apple。
@@ -50,11 +51,11 @@ Apple 账号的开发证书数量到了上限。签装页可以选择保留现�
 这些命令通常由 agent 执行。路径里的版本号按实际版本替换。
 
 ```sh
-sh /root/workspace/pallasboot-runner-0.7.1/setup.sh status        # 当前状态和下一步
-sh /root/workspace/pallasboot-runner-0.7.1/setup.sh start [--new-login]   # 开始签装；--new-login 换 Apple 账号
-sh /root/workspace/pallasboot-runner-0.7.1/setup.sh wait [秒]
-sh /root/workspace/pallasboot-runner-0.7.1/setup.sh reveal        # 让开发者模式出现
-sh /root/workspace/pallasboot-runner-0.7.1/renew.sh status        # 另有 enable | disable | now
+sh /root/workspace/pallasboot-runner-0.7.2/setup.sh status        # 当前状态和下一步
+sh /root/workspace/pallasboot-runner-0.7.2/setup.sh start [--new-login]   # 开始签装；--new-login 换 Apple 账号
+sh /root/workspace/pallasboot-runner-0.7.2/setup.sh wait [秒]
+sh /root/workspace/pallasboot-runner-0.7.2/setup.sh reveal        # 让开发者模式出现
+sh /root/workspace/pallasboot-runner-0.7.2/renew.sh status        # 另有 enable | disable | now
 ```
 
 `start` 报 `full_access` 时，在「设置 → 权限」为当前对话选「完全权限」后重试，完成后改回。
