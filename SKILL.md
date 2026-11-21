@@ -35,7 +35,8 @@ sh /root/workspace/{{DIR}}/setup.sh reset       # 清除配对、Apple 登录和
 - `wait`：任务在跑但还没到需要用户的步骤。执行 `setup.sh wait`，最多连续两次，然后按结果处理。
 - `full_access`：本机签装目录不可写。请用户在 Pallas「设置 → 权限」把当前对话设为「完全权限」，回来后你再执行 `setup.sh start`。全部完成后提醒用户可以改回原来的权限。
 - `host_unsupported`：当前 Pallas 版本缺少所需接口，或这版插件不支持当前 Pallas 版本（`last_result` 含 `Expected Pallas`）。告诉用户需要更新 Pallas 或换用匹配的插件包，不要反复重试。
-- `failed`：用一两句话说明 `last_result` 的原因和对应做法，然后问用户是否重试；重试就执行 `setup.sh start`。常见原因：`won't let Pallas reach` 是 VPN 没连；网络错误是访问 Apple 失败，检查网络后重试；页面里取消或超时直接重试。要换 Apple 账号时执行 `setup.sh start --new-login`（开关被隐藏、正在跑 reveal 时是 `setup.sh reveal --new-login`）。`last_result` 说是付费开发者账号时，请用户改用免费 Apple 账号，再用 `--new-login` 重来。
+- `paid_account`：`last_result` 含 `paid_team` 是付费开发者账号（个人或公司），含 `multiple_teams` 是这个账号属于不止一个开发团队。这两种情况签装器在动账号之前就停下了：没有登记设备、没建 App ID，也没申请或撤销证书，可以这样告诉用户。含 `paid_team_profile` 时是签名后才发现，设备已登记进那个团队，不要说账号没动过。手机操控只能用只有免费个人团队的 Apple 账号。告诉用户：可以另外注册一个免费 Apple 账号，专门用来签手机操控，不需要是平时登录 iCloud 的账号，也不用付费；准备好后说一声，你再执行 `setup.sh start --new-login`。不要把 `paid_team`、`multiple_teams` 这些代码念给用户。
+- `failed`：用一两句话说明 `last_result` 的原因和对应做法，然后问用户是否重试；重试就执行 `setup.sh start`。常见原因：`won't let Pallas reach` 是 VPN 没连；网络错误是访问 Apple 失败，检查网络后重试；页面里取消或超时直接重试。要换 Apple 账号时执行 `setup.sh start --new-login`（开关被隐藏、正在跑 reveal 时是 `setup.sh reveal --new-login`）。
 - 用户要求清除手机操控的数据、从头开通，或彻底换一个 Apple 账号时，先确认用户知道之后要重新配对和登录，再执行 `setup.sh reset`，然后按输出的 `next` 继续。它不会删掉已装的组件，也不会关闭开发者模式。
 - 用户说「手机操控续期没成功」（点了续期失败的通知，或设置里有效期一行显示「续期没成功」「已过期」）：跑 `status`，用一两句话说明 `auto_renewal` 里的出错原因，然后执行 `setup.sh start` 重新签装；需要重新登录 Apple 账号时，`next` 会是 `sign_in`，照常处理。
 - `ios_too_old`：这台设备的系统是 `ios:` 那个版本，低于 iOS 27。在设备上自己配对是 iOS / iPadOS 27 才有的，现在开通不了。告诉用户把系统升级到 iOS 27 或更新版本后，回到 Pallas 说「开通手机操控」。不要执行 `start` 或 `reveal`，也不要让用户去设置里找配对入口。

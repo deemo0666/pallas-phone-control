@@ -194,6 +194,9 @@ def classify(reason):
         return 'full_access'
     if 'Expected Pallas' in reason:
         return 'host_unsupported'
+    # Codes from the signer (login.rs), not text: the agent explains them in the person's language.
+    if 'paid_team' in reason or 'multiple_teams' in reason:
+        return 'paid_account'
     return 'failed'
 
 

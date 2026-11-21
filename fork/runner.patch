@@ -2300,7 +2300,7 @@ index a51a8ae..336ddfe 100644
  [profile.release]
  # Runs under emulation inside Minis, so speed matters as much as size: signing
 diff --git a/minis/src/account.rs b/minis/src/account.rs
-index b778e40..229adf8 100644
+index b778e40..7b685f3 100644
 --- a/minis/src/account.rs
 +++ b/minis/src/account.rs
 @@ -1,9 +1,7 @@
@@ -2422,7 +2422,7 @@ index b778e40..229adf8 100644
 +    developer: isideload::dev::developer_session::DeveloperSession,
 +    teams: Vec<isideload::dev::teams::DeveloperTeam>) -> Result<Session> {
 +    if args.command.signs_runner() && teams.len() != 1 {
-+        return Err(Fail::new("Use an Apple Account with one Personal Team.", ""));
++        return Err(Fail::new(crate::login::MULTIPLE_TEAMS, ""));
 +    }
 +    let mut sideloader = SideloaderBuilder::<CertPrompt, Extensions>::new(developer.clone(), apple_id.clone())
 +        .team_selection(TeamSelection::First)
@@ -4015,7 +4015,7 @@ index ea02e9d..a41ae5c 100644
          assert_eq!(wrap("", 10), [""]);
          assert_eq!(
 diff --git a/minis/src/web.html b/minis/src/web.html
-index 744c328..5553183 100644
+index 744c328..c1ff8a8 100644
 --- a/minis/src/web.html
 +++ b/minis/src/web.html
 @@ -5,16 +5,16 @@
@@ -4085,7 +4085,68 @@ index 744c328..5553183 100644
    // when what put it there does.
    let bannerWhy = "";
    function banner(text, tone, why) {
-@@ -405,7 +405,7 @@ footer{display:flex; align-items:center; justify-content:space-between; gap:12px
+@@ -390,13 +390,59 @@ footer{display:flex; align-items:center; justify-content:space-between; gap:12px
+     outcome("good", "✓ " + e.title, e.took || "", e.paragraphs || [], "");
+   }
+ 
++  // Account problems the signer reports as codes (login.rs), in the viewer's language.
++  const NOTICES = {
++    multiple_teams: {
++      "zh-Hans": "这个 Apple 账号属于不止一个开发团队，手机操控要用只有免费个人团队的 Apple 账号。回到 Pallas 继续。",
++      "zh-Hant": "這個 Apple 帳號屬於不只一個開發團隊，手機操控要用只有免費個人團隊的 Apple 帳號。回到 Pallas 繼續。",
++      en: "This Apple Account belongs to more than one developer team. Phone Control needs an Apple Account with only a free Personal Team. Go back to Pallas to continue.",
++      ja: "このAppleアカウントは複数のデベロッパチームに属しています。スマホ操作には無料の個人チームだけを持つAppleアカウントが必要です。Pallasに戻って続けてください。",
++      ko: "이 Apple 계정은 둘 이상의 개발자 팀에 속해 있습니다. 휴대폰 제어에는 무료 개인 팀만 있는 Apple 계정이 필요합니다. Pallas로 돌아가 계속하세요.",
++      es: "Esta Cuenta de Apple pertenece a más de un equipo de desarrollo. Control del teléfono necesita una Cuenta de Apple con solo un equipo personal gratuito. Vuelve a Pallas para continuar.",
++      fr: "Ce Compte Apple appartient à plusieurs équipes de développement. Contrôle du téléphone nécessite un Compte Apple avec une seule équipe personnelle gratuite. Revenez dans Pallas pour continuer.",
++      de: "Dieser Apple-Account gehört zu mehr als einem Entwicklerteam. Für die Telefonsteuerung brauchst du einen Apple-Account, der nur ein kostenloses persönliches Team hat. Kehre zu Pallas zurück, um fortzufahren.",
++      "pt-BR": "Esta Conta Apple pertence a mais de uma equipe de desenvolvedores. O Controle do celular precisa de uma Conta Apple com apenas uma equipe pessoal gratuita. Volte ao Pallas para continuar.",
++      it: "Questo Account Apple appartiene a più di un team di sviluppo. Il Controllo del telefono richiede un Account Apple con un solo team personale gratuito. Torna su Pallas per continuare.",
++      ru: "Эта учётная запись Apple состоит в нескольких командах разработчиков. Для управления телефоном нужна учётная запись Apple только с бесплатной личной командой. Вернитесь в Pallas, чтобы продолжить.",
++    },
++    paid_team: {
++      "zh-Hans": "这个 Apple 账号是付费开发者账号，手机操控要用免费 Apple 账号。回到 Pallas 继续。",
++      "zh-Hant": "這個 Apple 帳號是付費開發者帳號，手機操控要用免費 Apple 帳號。回到 Pallas 繼續。",
++      en: "This is a paid developer Apple Account. Phone Control needs a free Apple Account. Go back to Pallas to continue.",
++      ja: "このAppleアカウントは有料のデベロッパアカウントです。スマホ操作には無料のAppleアカウントが必要です。Pallasに戻って続けてください。",
++      ko: "이 Apple 계정은 유료 개발자 계정입니다. 휴대폰 제어에는 무료 Apple 계정이 필요합니다. Pallas로 돌아가 계속하세요.",
++      es: "Esta Cuenta de Apple es una cuenta de desarrollador de pago. Control del teléfono necesita una Cuenta de Apple gratuita. Vuelve a Pallas para continuar.",
++      fr: "Ce Compte Apple est un compte développeur payant. Contrôle du téléphone nécessite un Compte Apple gratuit. Revenez dans Pallas pour continuer.",
++      de: "Dieser Apple-Account ist ein kostenpflichtiger Entwickler-Account. Für die Telefonsteuerung brauchst du einen kostenlosen Apple-Account. Kehre zu Pallas zurück, um fortzufahren.",
++      "pt-BR": "Esta Conta Apple é uma conta de desenvolvedor paga. O Controle do celular precisa de uma Conta Apple gratuita. Volte ao Pallas para continuar.",
++      it: "Questo Account Apple è un account sviluppatore a pagamento. Il Controllo del telefono richiede un Account Apple gratuito. Torna su Pallas per continuare.",
++      ru: "Эта учётная запись Apple — платная учётная запись разработчика. Для управления телефоном нужна бесплатная учётная запись Apple. Вернитесь в Pallas, чтобы продолжить.",
++    },
++  };
++
++  function viewerLanguage() {
++    const known = Object.keys(NOTICES.paid_team);
++    for (const raw of navigator.languages || [navigator.language || ""]) {
++      const tag = String(raw).toLowerCase();
++      if (tag.startsWith("zh")) return /hant|-tw|-hk|-mo/.test(tag) ? "zh-Hant" : "zh-Hans";
++      if (tag.startsWith("pt")) return "pt-BR";
++      if (known.includes(tag.split("-")[0])) return tag.split("-")[0];
++    }
++    return "en";
++  }
++
++  function advice(text) {
++    const code = Object.keys(NOTICES).find((c) => String(text).includes(c));
++    return code ? NOTICES[code][viewerLanguage()] : text;
++  }
++
+   function failure(e) {
+     // A question it was waiting on when it stopped won't be answered now; one
+     // it asks after (the log) comes as a new one.
+     if (asking) answered(asking.id);
+     pinEnd();
+     if (active >= 0) settle("failed", "stopped after " + clock(now() - steps[active].startedAt));
+-    outcome("bad", "✕ Stopped", e.took || "", [e.advice], e.cause || "");
++    outcome("bad", "✕ Stopped", e.took || "", [advice(e.advice)], e.cause || "");
+   }
+ 
+   function end() {
+@@ -405,7 +451,7 @@ footer{display:flex; align-items:center; justify-content:space-between; gap:12px
      pinEnd();
      stopEl.hidden = true;
      if (source) source.close();
@@ -4094,7 +4155,7 @@ index 744c328..5553183 100644
    }
  
    // ---------------------------------------------------------- questions
-@@ -560,7 +560,7 @@ footer{display:flex; align-items:center; justify-content:space-between; gap:12px
+@@ -560,7 +606,7 @@ footer{display:flex; align-items:center; justify-content:space-between; gap:12px
      } catch (err) {
        if (asking && asking.id === id) {
          busy(false);
@@ -4103,7 +4164,7 @@ index 744c328..5553183 100644
        }
      }
    }
-@@ -608,16 +608,16 @@ footer{display:flex; align-items:center; justify-content:space-between; gap:12px
+@@ -608,16 +654,16 @@ footer{display:flex; align-items:center; justify-content:space-between; gap:12px
      };
    }
  

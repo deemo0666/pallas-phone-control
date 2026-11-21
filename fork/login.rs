@@ -17,6 +17,7 @@ use isideload::auth::apple_account::{
 };
 use isideload::auth::grandslam::GrandSlam;
 use isideload::dev::developer_session::DeveloperSession;
+use isideload::dev::device_type::{dev_url, DeveloperDeviceType};
 use isideload::dev::teams::{DeveloperTeam, TeamsApi};
 use isideload::util::fs_storage::FsStorage;
 use rootcause::Report;
@@ -78,6 +79,56 @@ fn write_saved(dir: &Path, saved: &SavedToken) {
     let tmp = dir.join(format!("{TOKEN_FILE}.tmp"));
     if std::fs::write(&tmp, json).is_ok() {
         let _ = std::fs::rename(tmp, dir.join(TOKEN_FILE));
+    }
+}
+
+/// Codes the signer stops with when the account is not a free Personal Team. setup.py turns
+/// them into `next: paid_account` and the agent explains in the person's language.
+pub(crate) const PAID_TEAM: &str = "paid_team";
+pub(crate) const MULTIPLE_TEAMS: &str = "multiple_teams";
+/// Caught only by the profile, after the device, App ID and certificate were set up.
+pub(crate) const PAID_TEAM_PROFILE: &str = "paid_team_profile";
+
+/// A team as Apple's team list describes it, with the programs it belongs to.
+#[derive(Deserialize)]
+#[serde(rename_all = "camelCase")]
+struct TeamMembership {
+    team_id: String,
+    r#type: Option<String>,
+    #[serde(default)]
+    memberships: Vec<Membership>,
+}
+
+#[derive(Deserialize)]
+struct Membership {
+    name: Option<String>,
+}
+
+/// An organisation, or an individual whose programs name no free one ("Xcode Free Provisioning
+/// Program"); AltSign reads the team list the same way. Anything else counts as free, so a
+/// change on Apple's side cannot lock free accounts out: the profile check still stops a paid one.
+fn paid(team: &TeamMembership) -> bool {
+    match team.r#type.as_deref() {
+        Some("Company/Organization") | Some("In-House") => true,
+        Some("Individual") => {
+            !team.memberships.is_empty()
+                && !team.memberships.iter().any(|m| {
+                    m.name.as_deref().is_some_and(|n| n.to_ascii_lowercase().contains("free"))
+                })
+        }
+        _ => false,
+    }
+}
+
+/// Whether `team_id` is a paid team, read before the signer registers the device, adds an App ID
+/// or asks for a certificate. False when Apple's answer cannot be read.
+pub(crate) async fn is_paid_team(developer: &mut DeveloperSession, team_id: &str) -> bool {
+    match developer
+        .send_dev_request::<Vec<TeamMembership>>(&dev_url("listTeams", DeveloperDeviceType::Any), None, "teams")
+        .await
+    {
+        Ok(list) => list.iter().find(|t| t.team_id == team_id).is_some_and(paid),
+        Err(_) => false,
     }
 }
 
@@ -200,6 +251,35 @@ fn transient(error: &str) -> bool {
 #[cfg(test)]
 mod tests {
     use super::*;
+
+    fn team(kind: &str, programs: &[&str]) -> TeamMembership {
+        TeamMembership {
+            team_id: "T".into(),
+            r#type: Some(kind.into()),
+            memberships: programs.iter().map(|n| Membership { name: Some((*n).into()) }).collect(),
+        }
+    }
+
+    #[test]
+    fn paid_teams_from_the_team_list() {
+        assert!(!paid(&team("Individual", &["Xcode Free Provisioning Program"])));
+        assert!(paid(&team("Individual", &["Apple Developer Program"])));
+        assert!(paid(&team("Company/Organization", &["Apple Developer Program"])));
+        assert!(paid(&team("In-House", &[])));
+        // No programs listed, or a type we do not know: free, the profile check is the backstop.
+        assert!(!paid(&team("Individual", &[])));
+        assert!(!paid(&team("Something new", &["Apple Developer Program"])));
+        // Apple's plist shape, as the dev request reads it.
+        let mut program = plist::Dictionary::new();
+        program.insert("name".into(), "Xcode Free Provisioning Program".into());
+        let mut entry = plist::Dictionary::new();
+        entry.insert("teamId".into(), "ABC".into());
+        entry.insert("type".into(), "Individual".into());
+        entry.insert("memberships".into(), plist::Value::Array(vec![program.into()]));
+        let parsed: Vec<TeamMembership> = plist::from_value(&plist::Value::Array(vec![entry.into()])).unwrap();
+        assert_eq!(parsed[0].team_id, "ABC");
+        assert!(!paid(&parsed[0]));
+    }
 
     #[test]
     fn account_folder_is_the_email_hash() {

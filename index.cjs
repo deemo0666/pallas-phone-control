@@ -14,6 +14,57 @@ const SKILL = 'phone-control-setup';
 // The stage an install job ends on when the runner is in (runner-ui.py DONE).
 const INSTALLED = '手机操控已安装并已连接 Pallas';
 
+// The signer stops with codes, not text (login.rs); the status page says them in the viewer's language.
+const NOTICES = {
+  multiple_teams: {
+    'zh-Hans': '这个 Apple 账号属于不止一个开发团队，手机操控要用只有免费个人团队的 Apple 账号。回到 Pallas 继续。',
+    'zh-Hant': '這個 Apple 帳號屬於不只一個開發團隊，手機操控要用只有免費個人團隊的 Apple 帳號。回到 Pallas 繼續。',
+    en: 'This Apple Account belongs to more than one developer team. Phone Control needs an Apple Account with only a free Personal Team. Go back to Pallas to continue.',
+    ja: 'このAppleアカウントは複数のデベロッパチームに属しています。スマホ操作には無料の個人チームだけを持つAppleアカウントが必要です。Pallasに戻って続けてください。',
+    ko: '이 Apple 계정은 둘 이상의 개발자 팀에 속해 있습니다. 휴대폰 제어에는 무료 개인 팀만 있는 Apple 계정이 필요합니다. Pallas로 돌아가 계속하세요.',
+    es: 'Esta Cuenta de Apple pertenece a más de un equipo de desarrollo. Control del teléfono necesita una Cuenta de Apple con solo un equipo personal gratuito. Vuelve a Pallas para continuar.',
+    fr: 'Ce Compte Apple appartient à plusieurs équipes de développement. Contrôle du téléphone nécessite un Compte Apple avec une seule équipe personnelle gratuite. Revenez dans Pallas pour continuer.',
+    de: 'Dieser Apple-Account gehört zu mehr als einem Entwicklerteam. Für die Telefonsteuerung brauchst du einen Apple-Account, der nur ein kostenloses persönliches Team hat. Kehre zu Pallas zurück, um fortzufahren.',
+    'pt-BR': 'Esta Conta Apple pertence a mais de uma equipe de desenvolvedores. O Controle do celular precisa de uma Conta Apple com apenas uma equipe pessoal gratuita. Volte ao Pallas para continuar.',
+    it: 'Questo Account Apple appartiene a più di un team di sviluppo. Il Controllo del telefono richiede un Account Apple con un solo team personale gratuito. Torna su Pallas per continuare.',
+    ru: 'Эта учётная запись Apple состоит в нескольких командах разработчиков. Для управления телефоном нужна учётная запись Apple только с бесплатной личной командой. Вернитесь в Pallas, чтобы продолжить.',
+  },
+  paid_team: {
+    'zh-Hans': '这个 Apple 账号是付费开发者账号，手机操控要用免费 Apple 账号。回到 Pallas 继续。',
+    'zh-Hant': '這個 Apple 帳號是付費開發者帳號，手機操控要用免費 Apple 帳號。回到 Pallas 繼續。',
+    en: 'This is a paid developer Apple Account. Phone Control needs a free Apple Account. Go back to Pallas to continue.',
+    ja: 'このAppleアカウントは有料のデベロッパアカウントです。スマホ操作には無料のAppleアカウントが必要です。Pallasに戻って続けてください。',
+    ko: '이 Apple 계정은 유료 개발자 계정입니다. 휴대폰 제어에는 무료 Apple 계정이 필요합니다. Pallas로 돌아가 계속하세요.',
+    es: 'Esta Cuenta de Apple es una cuenta de desarrollador de pago. Control del teléfono necesita una Cuenta de Apple gratuita. Vuelve a Pallas para continuar.',
+    fr: 'Ce Compte Apple est un compte développeur payant. Contrôle du téléphone nécessite un Compte Apple gratuit. Revenez dans Pallas pour continuer.',
+    de: 'Dieser Apple-Account ist ein kostenpflichtiger Entwickler-Account. Für die Telefonsteuerung brauchst du einen kostenlosen Apple-Account. Kehre zu Pallas zurück, um fortzufahren.',
+    'pt-BR': 'Esta Conta Apple é uma conta de desenvolvedor paga. O Controle do celular precisa de uma Conta Apple gratuita. Volte ao Pallas para continuar.',
+    it: 'Questo Account Apple è un account sviluppatore a pagamento. Il Controllo del telefono richiede un Account Apple gratuito. Torna su Pallas per continuare.',
+    ru: 'Эта учётная запись Apple — платная учётная запись разработчика. Для управления телефоном нужна бесплатная учётная запись Apple. Вернитесь в Pallas, чтобы продолжить.',
+  },
+};
+const LANGUAGES = Object.keys(NOTICES.paid_team);
+
+// The first of the viewer's languages we have; English when none is.
+function pickLanguage(header) {
+  for (const part of String(header || '').split(',')) {
+    const tag = part.split(';')[0].trim().toLowerCase();
+    if (!tag) continue;
+    if (tag.startsWith('zh')) return /hant|-tw|-hk|-mo/.test(tag) ? 'zh-Hant' : 'zh-Hans';
+    if (tag.startsWith('pt')) return 'pt-BR';
+    const base = tag.split('-')[0];
+    if (LANGUAGES.includes(base)) return base;
+  }
+  return 'en';
+}
+
+// A stage that carries a signer code, said in the viewer's language; other stages as they are.
+function localStage(stage, header) {
+  const code = Object.keys(NOTICES).find(c => String(stage).includes(c));
+  return code ? {text: NOTICES[code][pickLanguage(header)], lang: pickLanguage(header)} : {text: stage, lang: 'zh-Hans'};
+}
+exports.localStage = localStage;
+
 function knock(port, ms = 1500, host = DEVICE) {
   return new Promise(resolve => {
     const socket = net.connect({host, port});
@@ -157,8 +208,9 @@ exports.start = function start(workspace, call, scheduler = renewal.create(works
       if (signerPage()) { res.writeHead(303,{Location:signerPage()}).end(); return; }
       res.setHeader('Content-Type', 'text/html; charset=utf-8');
       res.setHeader('Referrer-Policy', 'no-referrer');
-      return res.end('<meta name="viewport" content="width=device-width"><meta http-equiv="refresh" content="2"><h1>' +
-        escapeHTML(stage) + '</h1>' + (Date.now() < expires ? '<h2>' + pin + '</h2>' : ''));
+      const shown = localStage(stage, req.headers['accept-language']);
+      return res.end('<html lang="' + shown.lang + '"><meta name="viewport" content="width=device-width"><meta http-equiv="refresh" content="2"><h1>' +
+        escapeHTML(shown.text) + '</h1>' + (Date.now() < expires ? '<h2>' + pin + '</h2>' : ''));
     }
     if (req.method !== 'POST' || req.url !== '/' || req.headers.authorization !== 'Bearer ' + key) {
       res.writeHead(403).end(); return;

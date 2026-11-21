@@ -235,10 +235,7 @@ fn check_profile(parsed: &ProvisioningProfile, udid: &str, cert_der: &[u8], team
     // A paid team's profile lasts a year and has no LocalProvision: the runner and its renewal are
     // built around a free Personal Team, so say plainly which account to use instead.
     if p.get("LocalProvision").and_then(Value::as_boolean) != Some(true) {
-        return Err(Fail::new(
-            "这个 Apple 账号是付费开发者账号。手机操控要用免费 Apple 账号（个人团队），请换免费账号重新登录。",
-            "profile has no LocalProvision",
-        ));
+        return Err(Fail::new(crate::login::PAID_TEAM_PROFILE, "profile has no LocalProvision"));
     }
     if !p
             .get("ProvisionedDevices")
@@ -397,6 +394,11 @@ pub async fn install(args: &Args, mut conn: Connection, device: &DeviceInfo) -> 
     let mut session = account::sign_in(args).await?;
     let team = &session.selected;
     let dev = &mut session.developer;
+    // Before registering the device, adding an App ID or asking for a certificate: a paid team
+    // would lose a device slot and maybe a certificate for an install that cannot finish.
+    if crate::login::is_paid_team(dev, &team.team_id).await {
+        return Err(Fail::new(crate::login::PAID_TEAM, "paid developer team"));
+    }
     let id = runner_id(&team.team_id);
     if let Some(old) = &previous {
         if old.bundle != id { return Err(Fail::new("Apple team changed. Run a manual install.", "")); }
