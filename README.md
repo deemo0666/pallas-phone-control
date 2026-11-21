@@ -50,11 +50,11 @@ Renewal reuses the same device pairing, Apple session and certificate. If the pa
 The agent normally runs these for you. Replace the version in the path if yours differs.
 
 ```sh
-sh /root/workspace/pallasboot-runner-0.7.0/setup.sh status        # current state and next step
-sh /root/workspace/pallasboot-runner-0.7.0/setup.sh start [--new-login]   # start signing; --new-login switches Apple ID
-sh /root/workspace/pallasboot-runner-0.7.0/setup.sh wait [seconds]
-sh /root/workspace/pallasboot-runner-0.7.0/setup.sh reveal        # make Developer Mode appear
-sh /root/workspace/pallasboot-runner-0.7.0/renew.sh status        # also: enable | disable | now
+sh /root/workspace/pallasboot-runner-0.7.1/setup.sh status        # current state and next step
+sh /root/workspace/pallasboot-runner-0.7.1/setup.sh start [--new-login]   # start signing; --new-login switches Apple ID
+sh /root/workspace/pallasboot-runner-0.7.1/setup.sh wait [seconds]
+sh /root/workspace/pallasboot-runner-0.7.1/setup.sh reveal        # make Developer Mode appear
+sh /root/workspace/pallasboot-runner-0.7.1/renew.sh status        # also: enable | disable | now
 ```
 
 If `start` reports `full_access`, choose **Full Access** for the current chat under **Settings → Permissions**, retry, then switch it back.
