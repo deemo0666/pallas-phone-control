@@ -27,6 +27,7 @@
     "cordis.patch.yml",
     "SKILL.md",
     "README.md",
+    "README.zh-CN.md",
     "setup.sh",
     "setup.py",
     "install.sh",
