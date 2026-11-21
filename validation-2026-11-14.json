@@ -1,0 +1,103 @@
+{
+  "date": "2026-11-14",
+  "system": "iPadOS 27.2.1",
+  "device_model": "iPad16,5",
+  "host": "separate development-signed Pallas 0.3.3 (6) test build",
+  "guest_command": "sh ./siboot-probe/run.sh 49610",
+  "upstream_commit": "4ae7ef873490ee6ca7b9111e5ad2cf4fc0cb664d",
+  "observed": [
+    "OK this iPhone answers on 10.7.0.1:49610 (RPPairing, wire protocol 26)",
+    "等待系统配对",
+    "Settings connected: waiting for it to ask for a code",
+    "OK paired with WodeiPad (iPad16,5)",
+    "OK this iPhone accepts the new pairing",
+    "OK The tunnel works",
+    "exit 0"
+  ],
+  "sign_install": {
+    "command": "sh ./siboot-probe/install.sh 49610",
+    "host": "development test build; ran the on-device guest and presented its sign-in page",
+    "target": "TestFlight Pallas Agent 0.3.1 (4)",
+    "stages": [
+      "existing device pairing accepted",
+      "tunnel verified",
+      "on-device email prompt rendered",
+      "Apple session verified",
+      "Apple 7460 handled by on-device certificate selection and confirmation",
+      "Personal Team profile verified and runner signed",
+      "Runner installation confirmed",
+      "Pallas runner installed and linked",
+      "exit 0"
+    ],
+    "pallas_check": {
+      "time_zone": "America/Los_Angeles",
+      "observations": {
+        "14:46:16": "Calculator keypad and clear control",
+        "14:46:18": "37",
+        "14:46:24": "37×19",
+        "14:46:26": "Pallas diagnostics returned and displayed 703"
+      },
+      "calculator_display": "37×19 = 703",
+      "pallas_readback": "执行器按出 37 × 19，读回 703。"
+    }
+  },
+  "developer_mode_entry": {
+    "device": "WodeiPad",
+    "evidence_scope": "Historical observation only; not a reproducible proof that Safari installation reveals Developer Mode on an unprepared device.",
+    "transport": "Safari, USB disconnected; Mac previously signed the device-specific test IPA",
+    "observed": [
+      "settings entry initially hidden",
+      "OTA install attempted; entry still hidden on first check",
+      "user tapped test icon and saw integrity error",
+      "entry visible on next Settings check",
+      "user enabled Developer Mode and confirmed after restart"
+    ],
+    "not_isolated": "icon tap versus delayed system handling of the installation; prior Mac pairing and device preparation were not excluded by a clean baseline",
+    "reproduction_report": {
+      "date": "2026-11-20",
+      "source": "user report",
+      "status": "not_reproduced",
+      "report": "我重新弄了iPad，没激活开发者模式的入口",
+      "unknown": [
+        "whether the device was restarted, reset or erased",
+        "current device model and system version",
+        "installation URL, IPA signature validity and installation result"
+      ],
+      "conclusion": "Do not present the Safari method as verified or reliable. This report does not establish the failure's cause."
+    },
+    "skip": "when the switch exists, skip OTA; when enabled, proceed directly to normal pairing and signing"
+  },
+  "repeat_and_auto_renewal": {
+    "device": "WodeiPad",
+    "plugin_version": "0.4.0",
+    "host": "Pallas development test host 0.3.3 (6), on-device Linux",
+    "controller_host": "TestFlight Pallas 0.3.1 (4)",
+    "developer_mode": "already enabled, skipped setup, OTA and new pairing",
+    "manual_install_exit": 0,
+    "apple_login": "reused saved session",
+    "schedule_test": "one test-only 8-day eligibility window, production 48 hours; real system clock, same plugin shell job, no user input",
+    "auto_renewal_exit": 0,
+    "system_provisioning_profiles": {
+      "before": {
+        "created_utc": "2026-11-14T22:43:54.000Z",
+        "expires_utc": "2026-11-21T22:43:54.000Z",
+        "profile_uuid": "EC51CC8C-F8E2-4F4B-B648-A5E784336C9D"
+      },
+      "manual": {
+        "created_utc": "2026-11-14T23:07:28.000Z",
+        "expires_utc": "2026-11-21T23:07:28.000Z",
+        "profile_uuid": "C9B91DE6-4531-4ED9-B451-A8289CC262AB"
+      },
+      "auto": {
+        "created_utc": "2026-11-14T23:09:05.000Z",
+        "expires_utc": "2026-11-21T23:09:05.000Z",
+        "profile_uuid": "D29485A7-475E-4217-B9B2-475C29887E8C"
+      }
+    },
+    "calculator": "calculator cleared then 3, 37, 37×19, 703, followed by Pallas reading back 703",
+    "evidence": [
+      "validation/renewed-calculator.png",
+      "validation/renewed-pallas-readback.png"
+    ]
+  }
+}

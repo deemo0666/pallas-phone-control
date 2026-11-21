@@ -1,0 +1,3658 @@
+diff --git a/minis/Cargo.lock b/minis/Cargo.lock
+index 8128bbb..3533299 100644
+--- a/minis/Cargo.lock
++++ b/minis/Cargo.lock
+@@ -25,7 +25,7 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
+ checksum = "1973cfbc1a2daf9cf550e74e1f088c28e7f7d8c1e1418fb6c9dc5184b7e84c99"
+ dependencies = [
+  "crypto-common 0.2.2",
+- "inout 0.2.2",
++ "inout 0.2.6",
+ ]
+ 
+ [[package]]
+@@ -41,32 +41,40 @@ dependencies = [
+ 
+ [[package]]
+ name = "aes"
+-version = "0.9.2"
++version = "0.9.4"
+ source = "registry+https://github.com/rust-lang/crates.io-index"
+-checksum = "f8eb277bec05f56a0e0591f155a484cbd0f4f07ff2905051a48c72f004f7ed58"
++checksum = "fc0fc36d7440d015b45468ba08a21e80e056ebbd014c611c6298bb7503e04bd1"
+ dependencies = [
+  "cipher 0.5.2",
+  "cpubits",
+- "cpufeatures 0.3.0",
++ "cpufeatures 0.3.1",
+ ]
+ 
+ [[package]]
+ name = "aes-gcm"
+-version = "0.11.0"
++version = "0.11.1"
+ source = "registry+https://github.com/rust-lang/crates.io-index"
+-checksum = "fdf011db2e21ce0d575593d749db5554b47fed37aff429e4dc50bc91ac93a028"
++checksum = "7f2b8006a0c83f52b62ba44a97b58bf76fe2f70a329e588f67f89691d93d498f"
+ dependencies = [
+  "aead 0.6.1",
+- "aes 0.9.2",
++ "aes 0.9.4",
+  "cipher 0.5.2",
+  "ctr",
++ "ctutils",
+  "ghash",
+- "subtle",
+ ]
+ 
++[[package]]
++name = "anyhow"
++version = "1.0.104"
++source = "registry+https://github.com/rust-lang/crates.io-index"
++checksum = "330a5ed07fa54e4702c9d6c4174f74427fc0ef6e214bbd677ae50a5099946470"
++
+ [[package]]
+ name = "apple-codesign-quick"
+ version = "0.1.0"
++source = "registry+https://github.com/rust-lang/crates.io-index"
++checksum = "519defc726db80b8a43836bbd6f69eb606a42783db799716a103436042593f0b"
+ dependencies = [
+  "byteorder",
+  "cms 0.2.3",
+@@ -79,7 +87,7 @@ dependencies = [
+  "rsa",
+  "sha1 0.11.0",
+  "sha2 0.10.9",
+- "sha2 0.11.0",
++ "sha2 0.11.1",
+  "spki 0.7.3",
+  "thiserror",
+  "x509-cert 0.2.5",
+@@ -110,7 +118,7 @@ dependencies = [
+  "proc-macro2",
+  "quote",
+  "syn 2.0.119",
+- "synstructure",
++ "synstructure 0.13.2",
+ ]
+ 
+ [[package]]
+@@ -126,9 +134,9 @@ dependencies = [
+ 
+ [[package]]
+ name = "async-compression"
+-version = "0.4.43"
++version = "0.4.52"
+ source = "registry+https://github.com/rust-lang/crates.io-index"
+-checksum = "3976abdc8fe7d1133d43d304afd42abdf5bc3e1319d263d223bde07b5efc4be8"
++checksum = "6ad47a740fb906fffdd891e8b6d5fde2511600f7bfaebd68939fa08a14999459"
+ dependencies = [
+  "compression-codecs",
+  "compression-core",
+@@ -161,13 +169,13 @@ dependencies = [
+ 
+ [[package]]
+ name = "async-trait"
+-version = "0.1.91"
++version = "0.1.92"
+ source = "registry+https://github.com/rust-lang/crates.io-index"
+-checksum = "ae36dc4177970ef04fde5178d3e2429882def40e57a451f919c098f72baa6cec"
++checksum = "82f6aeea286b8eb4dd3431a1be1b59d290ace00f5bfd8e2a159bc2a05e2c1667"
+ dependencies = [
+  "proc-macro2",
+  "quote",
+- "syn 3.0.3",
++ "syn 3.0.10",
+ ]
+ 
+ [[package]]
+@@ -199,20 +207,19 @@ checksum = "f2032f911046de80f0a198e0901378627c33f59ea0ac00e363d481118bd70a53"
+ 
+ [[package]]
+ name = "aws-lc-rs"
+-version = "1.17.3"
++version = "1.19.0"
+ source = "registry+https://github.com/rust-lang/crates.io-index"
+-checksum = "00bdb5da18dac48ca2cc7cd4a98e533e8635a58e2361d13a1a4ee3888e0d72f1"
++checksum = "048006790404103c488e6c5616b3e7e702a71292aadda08e8f7698a9e0d2eb53"
+ dependencies = [
+  "aws-lc-sys",
+- "untrusted 0.7.1",
+  "zeroize",
+ ]
+ 
+ [[package]]
+ name = "aws-lc-sys"
+-version = "0.43.0"
++version = "0.47.0"
+ source = "registry+https://github.com/rust-lang/crates.io-index"
+-checksum = "43103168cc76fe62678a375e722fc9cb3a0146159ac5828bc4f0dfd755c2224c"
++checksum = "8bfbe32ac36b3c428696ce315464181bc4029d689fd58e3f2a4e58c252242f52"
+ dependencies = [
+  "cc",
+  "cmake",
+@@ -239,6 +246,12 @@ version = "0.22.1"
+ source = "registry+https://github.com/rust-lang/crates.io-index"
+ checksum = "72b3254f16251a8381aa12e40e3c4d2f0199f8c6508fbecb9d91f575e0fbb8c6"
+ 
++[[package]]
++name = "base64"
++version = "0.23.1"
++source = "registry+https://github.com/rust-lang/crates.io-index"
++checksum = "ac07cdecf99051d9a5238b80f35af32cdeba5b336e55d957b318b50137e18da5"
++
+ [[package]]
+ name = "base64ct"
+ version = "1.8.3"
+@@ -256,9 +269,9 @@ dependencies = [
+ 
+ [[package]]
+ name = "bitflags"
+-version = "2.13.1"
++version = "2.13.2"
+ source = "registry+https://github.com/rust-lang/crates.io-index"
+-checksum = "b588b76d00fde79687d7646a9b5bdf3cc0f655e0bbd080335a95d7e96f3587da"
++checksum = "3ded4057c258ba199e2d26386d3af3780957ecaee6c4ef4041c6b4b8b97c0b06"
+ 
+ [[package]]
+ name = "block-buffer"
+@@ -298,9 +311,9 @@ dependencies = [
+ 
+ [[package]]
+ name = "bumpalo"
+-version = "3.20.3"
++version = "3.20.4"
+ source = "registry+https://github.com/rust-lang/crates.io-index"
+-checksum = "72f5acc6cb2ba439de613abc23857ec3d78374d8ed5ac84e9d11336e87da8649"
++checksum = "87a0cf66fd1eb2fb7b822cb78370d82303750809bc6ba855f3f58e517d3238db"
+ 
+ [[package]]
+ name = "byteorder"
+@@ -310,9 +323,9 @@ checksum = "1fd0f2584146f6f2ef48085050886acf353beff7305ebd1ae69500e27c67f64b"
+ 
+ [[package]]
+ name = "bytes"
+-version = "1.12.1"
++version = "1.12.2"
+ source = "registry+https://github.com/rust-lang/crates.io-index"
+-checksum = "fc652a48c352aef3ea3aed32080501cf3ef6ed5da78602a020c991775b0aff04"
++checksum = "776dfebd015e2d8732c684a2c71003674ccb49457b539b9e82151ba38e96dd7c"
+ 
+ [[package]]
+ name = "cbc"
+@@ -334,9 +347,9 @@ dependencies = [
+ 
+ [[package]]
+ name = "cc"
+-version = "1.4.0"
++version = "1.11.3"
+ source = "registry+https://github.com/rust-lang/crates.io-index"
+-checksum = "5add81bb678e6cb321aff7fa0dc7689ad82b112dbc032cea19f91d6b8e3582b9"
++checksum = "02f0e023adb368345ce0ca6cdfc0f24a06554468d0e8503e14a0841de79bfa69"
+ dependencies = [
+  "find-msvc-tools",
+  "jobserver",
+@@ -346,9 +359,9 @@ dependencies = [
+ 
+ [[package]]
+ name = "cfg-if"
+-version = "1.0.4"
++version = "1.0.5"
+ source = "registry+https://github.com/rust-lang/crates.io-index"
+-checksum = "9330f8b2ff13f34540b44e946ef35111825727b38d33286ef986142615121801"
++checksum = "4e7648175b45a9a48536d676f68d918270699102aa8dab5496df06904c914600"
+ 
+ [[package]]
+ name = "cfg_aliases"
+@@ -369,12 +382,12 @@ dependencies = [
+ 
+ [[package]]
+ name = "chacha20"
+-version = "0.10.1"
++version = "0.10.2"
+ source = "registry+https://github.com/rust-lang/crates.io-index"
+-checksum = "d524456ba66e72eb8b115ff89e01e497f8e6d11d78b70b1aa13c0fbd97540a81"
++checksum = "65c35e4b699c7e15ccbe7ee35c005e4fc0a278d22238a2857e6ce2dadeda1b06"
+ dependencies = [
+  "cfg-if",
+- "cpufeatures 0.3.0",
++ "cpufeatures 0.3.1",
+  "rand_core 0.10.1",
+ ]
+ 
+@@ -420,7 +433,7 @@ checksum = "e8cf2a2c93cd704877c0858356ed03480ff301ee950b43f1cbe4573b088bfa6c"
+ dependencies = [
+  "block-buffer 0.12.1",
+  "crypto-common 0.2.2",
+- "inout 0.2.2",
++ "inout 0.2.6",
+ ]
+ 
+ [[package]]
+@@ -461,21 +474,21 @@ dependencies = [
+ 
+ [[package]]
+ name = "cms"
+-version = "0.3.0-pre.1"
++version = "0.3.0-rc.2"
+ source = "registry+https://github.com/rust-lang/crates.io-index"
+-checksum = "758d5272932ff167e96ec9641a04d96ab1901cccc5ea9f47c15b4cbaa6f9ea53"
++checksum = "d089eddc8a5c984d82fcf1427367a6fa0d019d5af04b6e3197e86c8989533b8d"
+ dependencies = [
+- "const-oid 0.10.2",
+- "der 0.8.1",
+- "spki 0.8.0",
+- "x509-cert 0.3.0",
++ "const-oid 0.10.3",
++ "der 0.8.3",
++ "spki 0.8.1",
++ "x509-cert 0.3.1",
+ ]
+ 
+ [[package]]
+ name = "combine"
+-version = "4.6.7"
++version = "4.6.9"
+ source = "registry+https://github.com/rust-lang/crates.io-index"
+-checksum = "ba5a308b75df32fe02788e748662718f03fde005016435c444eea572398219fd"
++checksum = "4356eba6976435498d05a311ee9fc486da3bc81c200d3f0d7dd9703b41913f92"
+ dependencies = [
+  "bytes",
+  "memchr",
+@@ -483,9 +496,9 @@ dependencies = [
+ 
+ [[package]]
+ name = "compression-codecs"
+-version = "0.4.38"
++version = "0.4.48"
+ source = "registry+https://github.com/rust-lang/crates.io-index"
+-checksum = "ce2548391e9c1929c21bf6aa2680af86fe4c1b33e6cea9ac1cfeec0bd11218cf"
++checksum = "5e41632c2efd201c62f1432f7cbee121b97878eab579da9d85676573d1fd33b9"
+ dependencies = [
+  "compression-core",
+  "flate2",
+@@ -494,9 +507,9 @@ dependencies = [
+ 
+ [[package]]
+ name = "compression-core"
+-version = "0.4.32"
++version = "0.4.34"
+ source = "registry+https://github.com/rust-lang/crates.io-index"
+-checksum = "cc14f565cf027a105f7a44ccf9e5b424348421a1d8952a8fc9d499d313107789"
++checksum = "2ebdda89edc534bf8d5dd2857562633b6495557e5846552ade994b99ed13c36a"
+ 
+ [[package]]
+ name = "const-oid"
+@@ -506,9 +519,9 @@ checksum = "c2459377285ad874054d797f3ccebf984978aa39129f6eafde5cdc8315b612f8"
+ 
+ [[package]]
+ name = "const-oid"
+-version = "0.10.2"
++version = "0.10.3"
+ source = "registry+https://github.com/rust-lang/crates.io-index"
+-checksum = "a6ef517f0926dd24a1582492c791b6a4818a4d94e789a334894aa15b0d12f55c"
++checksum = "be95d4a884358a21a199689323c29e9256b4a1b315e22f183d155422041d3a9a"
+ 
+ [[package]]
+ name = "core-foundation"
+@@ -536,6 +549,12 @@ version = "0.8.7"
+ source = "registry+https://github.com/rust-lang/crates.io-index"
+ checksum = "773648b94d0e5d620f64f280777445740e61fe701025087ec8b57f45c791888b"
+ 
++[[package]]
++name = "core_detect"
++version = "1.0.0"
++source = "registry+https://github.com/rust-lang/crates.io-index"
++checksum = "7f8f80099a98041a3d1622845c271458a2d73e688351bf3cb999266764b81d48"
++
+ [[package]]
+ name = "cpubits"
+ version = "0.1.1"
+@@ -553,27 +572,27 @@ dependencies = [
+ 
+ [[package]]
+ name = "cpufeatures"
+-version = "0.3.0"
++version = "0.3.1"
+ source = "registry+https://github.com/rust-lang/crates.io-index"
+-checksum = "8b2a41393f66f16b0823bb79094d54ac5fbd34ab292ddafb9a0456ac9f87d201"
++checksum = "5ca28b0ae3115b884660db4118d803791fd6756b6e88f39c0f3f7859060d7566"
+ dependencies = [
+  "libc",
+ ]
+ 
+ [[package]]
+ name = "crc32fast"
+-version = "1.5.0"
++version = "1.5.5"
+ source = "registry+https://github.com/rust-lang/crates.io-index"
+-checksum = "9481c1c90cbf2ac953f07c8d4a58aa3945c425b7185c9154d67a65e4230da511"
++checksum = "2b929dd2a135771f40afabd1073f85eed59c800b7c61901e5c254270497dad64"
+ dependencies = [
+  "cfg-if",
+ ]
+ 
+ [[package]]
+ name = "crossbeam-deque"
+-version = "0.8.7"
++version = "0.8.8"
+ source = "registry+https://github.com/rust-lang/crates.io-index"
+-checksum = "5181e0de7b61eb03a81e347d6dd8797bae9da5146707b51077e2d71a54ec0ceb"
++checksum = "622f3fc73690be383c7214310406f28a90e6edeadc3cea882f9d71e495b9711a"
+ dependencies = [
+  "crossbeam-epoch",
+  "crossbeam-utils",
+@@ -581,24 +600,24 @@ dependencies = [
+ 
+ [[package]]
+ name = "crossbeam-epoch"
+-version = "0.9.20"
++version = "0.9.21"
+ source = "registry+https://github.com/rust-lang/crates.io-index"
+-checksum = "2d6914041f254d6e9176c01941b21115dcfb7089e55135a35411081bd106ef3f"
++checksum = "dc74980687109a3b14c72fd458107bf0baa1da1a1a805e178d15501ba9b86d9d"
+ dependencies = [
+  "crossbeam-utils",
+ ]
+ 
+ [[package]]
+ name = "crossbeam-utils"
+-version = "0.8.22"
++version = "0.8.23"
+ source = "registry+https://github.com/rust-lang/crates.io-index"
+-checksum = "61803da095bee82a81bb1a452ecc25d3b2f1416d1897eb86430c6159ef717c17"
++checksum = "a31eee39dddec8330830986fcd7625edb5a24ec90ea038215273bbc3adb08ac6"
+ 
+ [[package]]
+ name = "crypto-bigint"
+-version = "0.7.5"
++version = "0.7.11"
+ source = "registry+https://github.com/rust-lang/crates.io-index"
+-checksum = "1a52aa3fcda4e6302a9f48734f234d35d4721b96f8fe07d073f07ce9df4f0271"
++checksum = "914c195c4d7fbc5ed7f88d14cbf85914d5c664967658d43404b263913a477e82"
+ dependencies = [
+  "cpubits",
+  "ctutils",
+@@ -641,9 +660,9 @@ dependencies = [
+ 
+ [[package]]
+ name = "ctutils"
+-version = "0.4.2"
++version = "0.4.8"
+ source = "registry+https://github.com/rust-lang/crates.io-index"
+-checksum = "7d5515a3834141de9eafb9717ad39eea8247b5674e6066c404e8c4b365d2a29e"
++checksum = "261af4dc7a06ea8a527a8717d8cbba3417530d6ea14e1edb3de6b67806be474f"
+ dependencies = [
+  "cmov",
+ ]
+@@ -696,11 +715,11 @@ dependencies = [
+ 
+ [[package]]
+ name = "der"
+-version = "0.8.1"
++version = "0.8.3"
+ source = "registry+https://github.com/rust-lang/crates.io-index"
+-checksum = "a69dedd701da44b0536442edf09c81a64b0ab97a7a4a5e3d1971f00027cbc63d"
++checksum = "6a996a108feb8b427a6e12fcf6af4aa83409b79d72c15337d7741368131ee004"
+ dependencies = [
+- "const-oid 0.10.2",
++ "const-oid 0.10.3",
+  "der_derive 0.8.0",
+  "flagset",
+  "pem-rfc7468 1.0.0",
+@@ -745,9 +764,9 @@ dependencies = [
+ 
+ [[package]]
+ name = "deranged"
+-version = "0.5.8"
++version = "0.5.9"
+ source = "registry+https://github.com/rust-lang/crates.io-index"
+-checksum = "7cd812cc2bc1d69d4764bd80df88b4317eaef9e773c75226407d9bc0876b211c"
++checksum = "9e9de72ce2ad1f90dc62fa25f0f430ef85eb4b0d8fa0be4f30373bc40a21d28e"
+ 
+ [[package]]
+ name = "des"
+@@ -777,7 +796,7 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
+ checksum = "f1dd6dbb5841937940781866fa1281a1ff7bd3bf827091440879f9994983d5c2"
+ dependencies = [
+  "block-buffer 0.12.1",
+- "const-oid 0.10.2",
++ "const-oid 0.10.3",
+  "crypto-common 0.2.2",
+  "ctutils",
+ ]
+@@ -790,7 +809,7 @@ checksum = "c6232dd377dcc64799954cbd3a9bb882e9cdc1308ccd87b1c098f1fb2eaf82a8"
+ dependencies = [
+  "proc-macro2",
+  "quote",
+- "syn 3.0.3",
++ "syn 3.0.10",
+ ]
+ 
+ [[package]]
+@@ -826,30 +845,35 @@ dependencies = [
+ 
+ [[package]]
+ name = "either"
+-version = "1.17.0"
++version = "1.19.0"
+ source = "registry+https://github.com/rust-lang/crates.io-index"
+-checksum = "9e5e8f6c15a24b9a3ee5efec809ccd006d3b30e8b3bb63c39af737c7f87daa1d"
++checksum = "0e9c71c2167ca323c882b99918929403426e2373ea17242ff5653e0d5e1058be"
+ 
+ [[package]]
+ name = "encoding_rs"
+-version = "0.8.35"
++version = "0.8.44"
+ source = "registry+https://github.com/rust-lang/crates.io-index"
+-checksum = "75030f3c4f45dafd7586dd6780965a8c7e8e285a5ecb86713e63a79c5b2766f3"
++checksum = "89253175e704ab869b04f9db224d38630e0211a53841a79181deae0889e169f5"
+ dependencies = [
+  "cfg-if",
++ "core_detect",
++ "multiversion_no_op",
++ "rustversion",
++ "scopeguard",
++ "simdutf8",
+ ]
+ 
+ [[package]]
+ name = "equivalent"
+-version = "1.0.2"
++version = "1.0.3"
+ source = "registry+https://github.com/rust-lang/crates.io-index"
+-checksum = "877a4ace8713b0bcf2a4e7eec82529c029f1d0619886d18145fea96c3ffe5c0f"
++checksum = "00d174d5400e5e8fd687ad1049e2f578285fa914201b1af7e8b112a4546bd826"
+ 
+ [[package]]
+ name = "errno"
+-version = "0.3.14"
++version = "0.3.15"
+ source = "registry+https://github.com/rust-lang/crates.io-index"
+-checksum = "39cab71617ae0d63f51a36d69f866391735b51691dbda63cf6f96d042b63efeb"
++checksum = "e35d6e78f4cebb90e51d543db8fe41528851d6deeef6ef21ebd4bfdc1e784776"
+ dependencies = [
+  "libc",
+  "windows-sys 0.61.2",
+@@ -869,9 +893,9 @@ checksum = "28dea519a9695b9977216879a3ebfddf92f1c08c05d984f8996aecd6ecdc811d"
+ 
+ [[package]]
+ name = "find-msvc-tools"
+-version = "0.1.9"
++version = "0.1.15"
+ source = "registry+https://github.com/rust-lang/crates.io-index"
+-checksum = "5baebc0774151f905a1a2cc41989300b1e6fbb29aff0ceffa1064fdd3088d582"
++checksum = "1c66915cc5391097de7a2b0b972e8505aa33c0df401fd3a6811dbdb32881ba48"
+ 
+ [[package]]
+ name = "flagset"
+@@ -881,9 +905,9 @@ checksum = "b7ac824320a75a52197e8f2d787f6a38b6718bb6897a35142d749af3c0e8f4fe"
+ 
+ [[package]]
+ name = "flate2"
+-version = "1.1.9"
++version = "1.1.11"
+ source = "registry+https://github.com/rust-lang/crates.io-index"
+-checksum = "843fba2746e448b37e26a819579957415c8cef339bf08564fe8b7ddbd959573c"
++checksum = "626d4928326b646e70f65ed36fc7cf9f206bdb68a0019ee7c6b4709da4e084c4"
+ dependencies = [
+  "crc32fast",
+  "miniz_oxide",
+@@ -913,9 +937,9 @@ checksum = "00b0228411908ca8685dba7fc2cdd70ec9990a6e753e89b6ac91a84c40fbaf4b"
+ 
+ [[package]]
+ name = "form_urlencoded"
+-version = "1.2.2"
++version = "1.2.3"
+ source = "registry+https://github.com/rust-lang/crates.io-index"
+-checksum = "cb4cb245038516f5f85277875cdaa4f7d2c9a0fa0468de06ed190163b1581fcf"
++checksum = "afa489199eaffb1211795df1c6236ce1ad0d41a6fa45250add73e3b02420f06e"
+ dependencies = [
+  "percent-encoding",
+ ]
+@@ -928,9 +952,9 @@ checksum = "42703706b716c37f96a77aea830392ad231f44c9e9a67872fa5548707e11b11c"
+ 
+ [[package]]
+ name = "futures"
+-version = "0.3.33"
++version = "0.3.34"
+ source = "registry+https://github.com/rust-lang/crates.io-index"
+-checksum = "a88cf1f829d945f548cf8fec32c61b1f202b6d93b45848602fc02af4b12ad218"
++checksum = "9a31d2a3fbaaeb2af2368bbdd904aa8e812d3c04a1ee10d3171f52d556e5d0a3"
+ dependencies = [
+  "futures-channel",
+  "futures-core",
+@@ -943,9 +967,9 @@ dependencies = [
+ 
+ [[package]]
+ name = "futures-channel"
+-version = "0.3.33"
++version = "0.3.34"
+ source = "registry+https://github.com/rust-lang/crates.io-index"
+-checksum = "262590f4fe6afeb0bc83be1daa64e52657fe185690a958af7f3ad0e92085c5ae"
++checksum = "b1f9e3d69d39e4862ffed03ed071a76f9a13ba1d9109d355b0f0aa6b15e393c4"
+ dependencies = [
+  "futures-core",
+  "futures-sink",
+@@ -953,15 +977,15 @@ dependencies = [
+ 
+ [[package]]
+ name = "futures-core"
+-version = "0.3.33"
++version = "0.3.34"
+ source = "registry+https://github.com/rust-lang/crates.io-index"
+-checksum = "2cd50c473c80f6d7c3670a752354b8e569b1a7cbfdc0419ec88e5edad85e0dc7"
++checksum = "92d699e522242e69e3003b94ecc1f960f3a5e015aa7c5d7486e65ad01dd94f5e"
+ 
+ [[package]]
+ name = "futures-executor"
+-version = "0.3.33"
++version = "0.3.34"
+ source = "registry+https://github.com/rust-lang/crates.io-index"
+-checksum = "6754879cc9f2c66f88c6e5c35344bb0bdb0708b0352b1201815667c7eabc7458"
++checksum = "031b47cf1a3c6cc8bc2fc76cd437f521619387907d469316e7c0bc278f1f5432"
+ dependencies = [
+  "futures-core",
+  "futures-task",
+@@ -970,9 +994,9 @@ dependencies = [
+ 
+ [[package]]
+ name = "futures-io"
+-version = "0.3.33"
++version = "0.3.34"
+ source = "registry+https://github.com/rust-lang/crates.io-index"
+-checksum = "4577ecaa3c4f96589d473f679a71b596316f6641bc350038b962a5daf0085d7a"
++checksum = "53c0fa8157de1303bfffdaa1cc2a673bfffb60102f76b0ef4441659124373fed"
+ 
+ [[package]]
+ name = "futures-lite"
+@@ -989,32 +1013,32 @@ dependencies = [
+ 
+ [[package]]
+ name = "futures-macro"
+-version = "0.3.33"
++version = "0.3.34"
+ source = "registry+https://github.com/rust-lang/crates.io-index"
+-checksum = "2d6d3cde68c518367be28956066ddfef33813991b77a55005a69dae04bf3b10b"
++checksum = "9fb9654ba8355388abeb8dcb4fc62f511300867002afc858860463bdd9fe0c44"
+ dependencies = [
+  "proc-macro2",
+  "quote",
+- "syn 2.0.119",
++ "syn 3.0.10",
+ ]
+ 
+ [[package]]
+ name = "futures-sink"
+-version = "0.3.33"
++version = "0.3.34"
+ source = "registry+https://github.com/rust-lang/crates.io-index"
+-checksum = "e34418ac499d6305c2fb5ad0ed2f6ac998c5f8ca209b4510f7f94242c647e307"
++checksum = "1944426bf7d03f1d14f708785e4b33efd750b36d48a157b836b3efc15ede8e1d"
+ 
+ [[package]]
+ name = "futures-task"
+-version = "0.3.33"
++version = "0.3.34"
+ source = "registry+https://github.com/rust-lang/crates.io-index"
+-checksum = "b231ed28831efb4a61a08580c4bc233ec56bc009f4cd8f52da2c3cb97df0c109"
++checksum = "cd417de3d1d015fc3bfd2b1ea46dfc7bab72ef86f1cc7cc9c78e728b34a6d1fd"
+ 
+ [[package]]
+ name = "futures-util"
+-version = "0.3.33"
++version = "0.3.34"
+ source = "registry+https://github.com/rust-lang/crates.io-index"
+-checksum = "a77a90a256fce34da66415271e30f94ee91c57b04b8a2c042d9cf3220179deaa"
++checksum = "0d50a92467f8ba5dd6e3ee5d4bd04d73ab2e4e1c44474a0674821dfce14b79bc"
+ dependencies = [
+  "futures-channel",
+  "futures-core",
+@@ -1089,9 +1113,9 @@ dependencies = [
+ 
+ [[package]]
+ name = "h2"
+-version = "0.4.15"
++version = "0.4.20"
+ source = "registry+https://github.com/rust-lang/crates.io-index"
+-checksum = "6cb093c84e8bd9b188d4c4a8cb6579fc016968d14c99882163cd3ff402a4f155"
++checksum = "7d29020232d6aa3fb1daca64c1127cf662cf97f254ae16c18c05b8ab635fc118"
+ dependencies = [
+  "atomic-waker",
+  "bytes",
+@@ -1173,9 +1197,9 @@ dependencies = [
+ 
+ [[package]]
+ name = "http-body-util"
+-version = "0.1.4"
++version = "0.1.5"
+ source = "registry+https://github.com/rust-lang/crates.io-index"
+-checksum = "e9f41fd6a08e4d4ec69df65976da761afd5ad5e58a9d4acb46bd1c953a9e3ff2"
++checksum = "23169fe34a5fbcdd3f3862e78fb9b6fccd5f02a6dc6f732547005d45631ce71c"
+ dependencies = [
+  "bytes",
+  "futures-core",
+@@ -1192,18 +1216,18 @@ checksum = "6dbf3de79e51f3d586ab4cb9d5c3e2c14aa28ed23d180cf89b4df0454a69cc87"
+ 
+ [[package]]
+ name = "hybrid-array"
+-version = "0.4.14"
++version = "0.4.15"
+ source = "registry+https://github.com/rust-lang/crates.io-index"
+-checksum = "707114b52a152fa7bdb290cd7cd5912d9467273b6d74e21b8d81aca1f8533f6b"
++checksum = "27f864f10dfb56725ce5ce5472bc52252c8f93a4ab86327122cebf62c5f59a17"
+ dependencies = [
+  "typenum",
+ ]
+ 
+ [[package]]
+ name = "hyper"
+-version = "1.11.0"
++version = "1.12.0"
+ source = "registry+https://github.com/rust-lang/crates.io-index"
+-checksum = "d22053281f852e11534f5198498373cbb59295120a20771d90f7ed1897490a72"
++checksum = "2c3e324da4c95177d6291d4c8730197c0d1822f8a9766814a4a44fa5ab797c9c"
+ dependencies = [
+  "atomic-waker",
+  "bytes",
+@@ -1222,9 +1246,9 @@ dependencies = [
+ 
+ [[package]]
+ name = "hyper-rustls"
+-version = "0.27.9"
++version = "0.27.10"
+ source = "registry+https://github.com/rust-lang/crates.io-index"
+-checksum = "33ca68d021ef39cf6463ab54c1d0f5daf03377b70561305bb89a8f83aab66e0f"
++checksum = "dfa8e654703247911e29c23fbeaa261834bd9bb74efba2f9acddc37bfb127f53"
+ dependencies = [
+  "http",
+  "hyper",
+@@ -1253,16 +1277,17 @@ dependencies = [
+ 
+ [[package]]
+ name = "hyper-util"
+-version = "0.1.20"
++version = "0.1.21"
+ source = "registry+https://github.com/rust-lang/crates.io-index"
+-checksum = "96547c2556ec9d12fb1578c4eaf448b04993e7fb79cbaad930a656880a6bdfa0"
++checksum = "ddc03d96684f9226b8a787cdb71488417b53ab5ea8fdb1dac946cb9431cc8bff"
+ dependencies = [
+- "base64 0.22.1",
++ "base64 0.23.1",
+  "bytes",
+  "futures-channel",
+  "futures-util",
+  "http",
+  "http-body",
++ "httparse",
+  "hyper",
+  "ipnet",
+  "libc",
+@@ -1278,9 +1303,9 @@ dependencies = [
+ 
+ [[package]]
+ name = "icu_collections"
+-version = "2.2.0"
++version = "2.4.0"
+ source = "registry+https://github.com/rust-lang/crates.io-index"
+-checksum = "2984d1cd16c883d7935b9e07e44071dca8d917fd52ecc02c04d5fa0b5a3f191c"
++checksum = "fe090a42a0d3140fed8c63263ed1fecc02422cb2f4bfe55cd8de2de1b8e105dd"
+ dependencies = [
+  "displaydoc",
+  "potential_utf",
+@@ -1292,9 +1317,9 @@ dependencies = [
+ 
+ [[package]]
+ name = "icu_locale_core"
+-version = "2.2.0"
++version = "2.4.0"
+ source = "registry+https://github.com/rust-lang/crates.io-index"
+-checksum = "92219b62b3e2b4d88ac5119f8904c10f8f61bf7e95b640d25ba3075e6cac2c29"
++checksum = "25d29b57c17c6528d0dc4c2141cfa2d08200465acb537a3909c8b9b8a4a984c0"
+ dependencies = [
+  "displaydoc",
+  "litemap",
+@@ -1305,9 +1330,9 @@ dependencies = [
+ 
+ [[package]]
+ name = "icu_normalizer"
+-version = "2.2.0"
++version = "2.4.0"
+ source = "registry+https://github.com/rust-lang/crates.io-index"
+-checksum = "c56e5ee99d6e3d33bd91c5d85458b6005a22140021cc324cea84dd0e72cff3b4"
++checksum = "404a3b8c486f205c87fe7f23ab6894d84a4ad76d6e4671ae1981ba7def87c599"
+ dependencies = [
+  "icu_collections",
+  "icu_normalizer_data",
+@@ -1319,16 +1344,17 @@ dependencies = [
+ 
+ [[package]]
+ name = "icu_normalizer_data"
+-version = "2.2.0"
++version = "2.4.0"
+ source = "registry+https://github.com/rust-lang/crates.io-index"
+-checksum = "da3be0ae77ea334f4da67c12f149704f19f81d1adf7c51cf482943e84a2bad38"
++checksum = "20f0088bfb7441f7a37fa0c9e20cb1e9cba1cac6b9ce8cd2a6dc44294f8e8cbc"
+ 
+ [[package]]
+ name = "icu_properties"
+-version = "2.2.0"
++version = "2.4.0"
+ source = "registry+https://github.com/rust-lang/crates.io-index"
+-checksum = "bee3b67d0ea5c2cca5003417989af8996f8604e34fb9ddf96208a033901e70de"
++checksum = "2ea83d991c56158f7cf898bf86436c1dfe7c07ee82fe88951f2695c9f37a379f"
+ dependencies = [
++ "displaydoc",
+  "icu_collections",
+  "icu_locale_core",
+  "icu_properties_data",
+@@ -1339,15 +1365,15 @@ dependencies = [
+ 
+ [[package]]
+ name = "icu_properties_data"
+-version = "2.2.0"
++version = "2.4.0"
+ source = "registry+https://github.com/rust-lang/crates.io-index"
+-checksum = "8e2bbb201e0c04f7b4b3e14382af113e17ba4f63e2c9d2ee626b720cbce54a14"
++checksum = "b98f29af82d02b163fe50161388350e743bb3107cc8e8c2f7314cb505faddfcf"
+ 
+ [[package]]
+ name = "icu_provider"
+-version = "2.2.0"
++version = "2.4.0"
+ source = "registry+https://github.com/rust-lang/crates.io-index"
+-checksum = "139c4cf31c8b5f33d7e199446eff9c1e02decfc2f0eec2c8d71f65befa45b421"
++checksum = "413099315636c588ee8f011190b329b971a09a8fae9d157e01dcae8379468514"
+ dependencies = [
+  "displaydoc",
+  "icu_locale_core",
+@@ -1360,7 +1386,9 @@ dependencies = [
+ 
+ [[package]]
+ name = "idevice"
+-version = "0.1.63"
++version = "0.1.68"
++source = "registry+https://github.com/rust-lang/crates.io-index"
++checksum = "f5d7799c8497cef60ddfd38f7d92e267b9fa5d0b18e7691d31041453007400ca"
+ dependencies = [
+  "aes 0.8.4",
+  "async-stream",
+@@ -1379,7 +1407,7 @@ dependencies = [
+  "libc",
+  "plist",
+  "plist-macro",
+- "rand 0.10.2",
++ "rand 0.10.4",
+  "rsa",
+  "rustls",
+  "serde",
+@@ -1392,6 +1420,7 @@ dependencies = [
+  "tokio-rustls",
+  "tracing",
+  "uuid",
++ "webpki-roots 1.0.12",
+  "x25519-dalek",
+ ]
+ 
+@@ -1432,9 +1461,9 @@ dependencies = [
+ 
+ [[package]]
+ name = "indexmap"
+-version = "2.14.0"
++version = "2.14.2"
+ source = "registry+https://github.com/rust-lang/crates.io-index"
+-checksum = "d466e9454f08e4a911e14806c24e16fba1b4c121d1ea474396f396069cf949d9"
++checksum = "cc4e190f5d26ca7051642629da2c52fc03bde85a03197c99408dcd291734c855"
+ dependencies = [
+  "equivalent",
+  "hashbrown 0.17.1",
+@@ -1454,9 +1483,9 @@ dependencies = [
+ 
+ [[package]]
+ name = "inout"
+-version = "0.2.2"
++version = "0.2.6"
+ source = "registry+https://github.com/rust-lang/crates.io-index"
+-checksum = "4250ce6452e92010fdf7268ccc5d14faa80bb12fc741938534c58f16804e03c7"
++checksum = "3a580c13f0ffc335ef42dd3f6b1a41b726051c5e1656d9a3aa6fddb3c5dfbbf9"
+ dependencies = [
+  "block-padding 0.4.2",
+  "hybrid-array",
+@@ -1464,42 +1493,52 @@ dependencies = [
+ 
+ [[package]]
+ name = "ipnet"
+-version = "2.12.1"
++version = "2.12.2"
+ source = "registry+https://github.com/rust-lang/crates.io-index"
+-checksum = "6a756c3fac73139e83f14c2d742155dd2b78d3ee56597b419a0579b7bdd6dd78"
++checksum = "791930b43c0d5973160d90a8f3894509f2b273430f5c5c73b668636d0287c5c0"
+ 
+ [[package]]
+ name = "isideload"
+-version = "0.2.22"
++version = "0.5.2"
++source = "git+https://github.com/nab138/isideload?rev=326e56229d0727cb6e7b34c8cf03e37e2cd3e17d#326e56229d0727cb6e7b34c8cf03e37e2cd3e17d"
+ dependencies = [
+- "aes 0.9.2",
++ "aes 0.9.4",
+  "aes-gcm",
+  "apple-codesign-quick",
+  "async-trait",
+  "base64 0.22.1",
+  "cbc 0.2.1",
++ "futures",
+  "futures-util",
+  "hex",
+  "hmac 0.13.0",
++ "http",
++ "idevice",
+  "isideload-p12-keystore",
++ "isideload-vfs",
+  "pbkdf2",
+  "plist",
+  "plist-macro",
+- "rand 0.8.7",
++ "rand 0.8.8",
+  "rcgen",
+  "reqwest",
++ "reqwest-middleware",
++ "ring",
+  "rootcause",
+  "rsa",
++ "rustls",
+  "serde",
+  "serde_json",
+  "sha1 0.11.0",
+- "sha2 0.11.0",
++ "sha2 0.11.1",
+  "srp",
+  "thiserror",
+  "tokio",
+  "tokio-tungstenite",
+  "tracing",
++ "urlencoding",
+  "uuid",
++ "web-time",
+  "x509-cert 0.2.5",
+  "zip",
+ ]
+@@ -1511,33 +1550,39 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
+ checksum = "169d9344eb672235ee5e1f311809d7dec0b3a0448ce5138d53d0f19c2924d6f9"
+ dependencies = [
+  "cbc 0.2.1",
+- "cms 0.3.0-pre.1",
+- "der 0.8.1",
++ "cms 0.3.0-rc.2",
++ "der 0.8.3",
+  "des",
+  "hex",
+  "hmac 0.13.0",
+  "pkcs12",
+  "pkcs5",
+  "pkcs8 0.11.0",
+- "rand 0.10.2",
++ "rand 0.10.4",
+  "rc2",
+  "sha1 0.11.0",
+- "sha2 0.11.0",
++ "sha2 0.11.1",
+  "thiserror",
+  "x509-parser",
+ ]
+ 
++[[package]]
++name = "isideload-vfs"
++version = "0.0.1"
++source = "registry+https://github.com/rust-lang/crates.io-index"
++checksum = "a1133e156a6beed9d5e14a2b9618d52f8c2c6786326f4efbd73c7aecfcabab4c"
++
+ [[package]]
+ name = "itoa"
+-version = "1.0.18"
++version = "1.0.19"
+ source = "registry+https://github.com/rust-lang/crates.io-index"
+-checksum = "8f42a60cbdf9a97f5d2305f08a87dc4e09308d1276d28c869c684d7777685682"
++checksum = "3bd1574e617a9a6c1f8f8181bd7e841e1f20e4277607ef28945765188d6284d4"
+ 
+ [[package]]
+ name = "jktcp"
+-version = "0.1.6"
++version = "0.1.8"
+ source = "registry+https://github.com/rust-lang/crates.io-index"
+-checksum = "54408d8a86952b9f1cc009782ad7bbb4007a7caaba0599db441e0eae8785288c"
++checksum = "f67259b6408391e66f7d7fd3dbef41ef3bc65e1d67f4c8d5512f2e59835f7844"
+ dependencies = [
+  "futures",
+  "getrandom 0.3.4",
+@@ -1609,9 +1654,9 @@ dependencies = [
+ 
+ [[package]]
+ name = "js-sys"
+-version = "0.3.103"
++version = "0.3.107"
+ source = "registry+https://github.com/rust-lang/crates.io-index"
+-checksum = "53b44bfcdb3f8d5837a46dae1ca9660a837176eee74a28b229bc626816589102"
++checksum = "8dc09d2154098bbf4ef54eab6b117a3c24cbbffe94046b16ee6d6d4510584d3a"
+ dependencies = [
+  "cfg-if",
+  "futures-util",
+@@ -1629,18 +1674,18 @@ dependencies = [
+ 
+ [[package]]
+ name = "lazy_static"
+-version = "1.5.0"
++version = "1.5.1"
+ source = "registry+https://github.com/rust-lang/crates.io-index"
+-checksum = "bbd2bcb4c963f2ddae06a2efc7e9f3591312473c50c6685e1f298068316e66fe"
++checksum = "20870f649af7073d53e38067b2a84312175d56ea15217e1b15bc83506ec50afb"
+ dependencies = [
+  "spin",
+ ]
+ 
+ [[package]]
+ name = "libc"
+-version = "0.2.189"
++version = "0.2.191"
+ source = "registry+https://github.com/rust-lang/crates.io-index"
+-checksum = "3eaf3ede3fee6db1a4c2ee091bf8a8b4dccdc6d17f656fb07896ee72867612f2"
++checksum = "65cd87c9a6d60536580b316ad985726104730a5151c99845f2490428ef91240a"
+ 
+ [[package]]
+ name = "libm"
+@@ -1656,9 +1701,9 @@ checksum = "32a66949e030da00e8c7d4434b251670a91556f4144941d37452769c25d58a53"
+ 
+ [[package]]
+ name = "litemap"
+-version = "0.8.2"
++version = "0.8.3"
+ source = "registry+https://github.com/rust-lang/crates.io-index"
+-checksum = "92daf443525c4cce67b150400bc2316076100ce0b3686209eb8cf3c31612e6f0"
++checksum = "47d9d19d1d6efa0109d2f65ff4c85cddd50bd572e5a00127ab10987290bcefae"
+ 
+ [[package]]
+ name = "lock_api"
+@@ -1671,15 +1716,15 @@ dependencies = [
+ 
+ [[package]]
+ name = "log"
+-version = "0.4.33"
++version = "0.4.35"
+ source = "registry+https://github.com/rust-lang/crates.io-index"
+-checksum = "0ceec5bc11778974d1bcb055b18002eba7f4b3518b6a0081b3af5f21666da9ad"
++checksum = "5d15f86d12da44cd8d4ec3c73984537eb7f4cadcb9776a575a0a8a05ca11005c"
+ 
+ [[package]]
+ name = "lru-slab"
+-version = "0.1.2"
++version = "0.1.3"
+ source = "registry+https://github.com/rust-lang/crates.io-index"
+-checksum = "112b39cec0b298b6c1999fee3e31427f74f676e4cb9879ed1a121b43661a4154"
++checksum = "4050469837a6ff301cd14c1f8f24f88549e6d548f24f64e2148eb0f72cebc51f"
+ 
+ [[package]]
+ name = "md-5"
+@@ -1699,18 +1744,18 @@ checksum = "cf8baf1c55e62ffcace7a9f06f4bd9cd3f0c4beb022d3b367256b91b87513d98"
+ 
+ [[package]]
+ name = "memmap2"
+-version = "0.9.11"
++version = "0.9.12"
+ source = "registry+https://github.com/rust-lang/crates.io-index"
+-checksum = "d1219ed1b7f229ee7104d281dd01d6802fe28bb6e95d292942c4daacdeb798c0"
++checksum = "6b0ca1155a9ecc25aa12e8313a119f32edf0255fea2f44839c4ac0a12b2ac157"
+ dependencies = [
+  "libc",
+ ]
+ 
+ [[package]]
+ name = "mime"
+-version = "0.3.17"
++version = "0.3.18"
+ source = "registry+https://github.com/rust-lang/crates.io-index"
+-checksum = "6877bb514081ee2a7ff5ef9de3281f14a4dd4bceac4c09388074a6b5df8a139a"
++checksum = "d5848f5a9e8117cf94f2f90faac24a87ff81600ff8628c1e3deaab572e76bfa1"
+ 
+ [[package]]
+ name = "minimal-lexical"
+@@ -1720,9 +1765,9 @@ checksum = "68354c5c6bd36d73ff3feceb05efa59b6acb7626617f4962be322a825e61f79a"
+ 
+ [[package]]
+ name = "miniz_oxide"
+-version = "0.8.9"
++version = "0.9.1"
+ source = "registry+https://github.com/rust-lang/crates.io-index"
+-checksum = "1fa76a2c86f704bdb222d66965fb3d63269ce38518b83cb0575fca855ebb6316"
++checksum = "b63fbc4a50860e98e7b2aa7804ded1db5cbc3aff9193adaff57a6931bf7c4b4c"
+ dependencies = [
+  "adler2",
+  "simd-adler32",
+@@ -1730,15 +1775,21 @@ dependencies = [
+ 
+ [[package]]
+ name = "mio"
+-version = "1.2.2"
++version = "1.2.5"
+ source = "registry+https://github.com/rust-lang/crates.io-index"
+-checksum = "30d65c71f1ce40ab09135ce117d742b9f8a19ff91a41a8b57ed50bc2de59c427"
++checksum = "20521a903f02b0a573cd6840e9d0a5a0cc043d361fe924092cd70f8556cc9c4a"
+ dependencies = [
+  "libc",
+  "wasi",
+  "windows-sys 0.61.2",
+ ]
+ 
++[[package]]
++name = "multiversion_no_op"
++version = "1.0.0"
++source = "registry+https://github.com/rust-lang/crates.io-index"
++checksum = "743fb55ba31b18fb1ecef6bdc9aa2743314978ac084044301a7eee33fb99a20d"
++
+ [[package]]
+ name = "native-tls"
+ version = "0.2.18"
+@@ -1796,7 +1847,7 @@ dependencies = [
+  "num-integer",
+  "num-iter",
+  "num-traits",
+- "rand 0.8.7",
++ "rand 0.8.8",
+  "smallvec",
+  "zeroize",
+ ]
+@@ -1809,9 +1860,9 @@ checksum = "521739c6d2bac4aa25192232afe6841231376b2b26d4d9fae5ecf8ca5772e441"
+ 
+ [[package]]
+ name = "num-integer"
+-version = "0.1.46"
++version = "0.1.47"
+ source = "registry+https://github.com/rust-lang/crates.io-index"
+-checksum = "7969661fd2958a5cb096e56c8e1ad0444ac2bbcd0061bd28660485a44879858f"
++checksum = "7ce2d95d4b3734dc35aa2f45e1aa22cd416814592a4f9d9205e11affd5b8e10b"
+ dependencies = [
+  "num-traits",
+ ]
+@@ -1859,9 +1910,9 @@ checksum = "c08d65885ee38876c4f86fa503fb49d7b507c2b62552df7c70b2fce627e06381"
+ 
+ [[package]]
+ name = "openssl"
+-version = "0.10.81"
++version = "0.10.82"
+ source = "registry+https://github.com/rust-lang/crates.io-index"
+-checksum = "77823a27f0babb03091cb9ed9ef80af3b39dbc82f97e8fa530374b7dafd87a45"
++checksum = "4de8111e94a56adca7ebfe6c365b6d42f99deb69b74b6becacd4204e2f193aa2"
+ dependencies = [
+  "bitflags",
+  "cfg-if",
+@@ -1884,15 +1935,15 @@ dependencies = [
+ 
+ [[package]]
+ name = "openssl-probe"
+-version = "0.2.1"
++version = "0.2.2"
+ source = "registry+https://github.com/rust-lang/crates.io-index"
+-checksum = "7c87def4c32ab89d880effc9e097653c8da5d6ef28e6b539d313baaacfbafcbe"
++checksum = "7e036b411754132fd6b74e94b74e9a13c5cf606fa93d1885c35860d3060820b1"
+ 
+ [[package]]
+ name = "openssl-sys"
+-version = "0.9.117"
++version = "0.9.118"
+ source = "registry+https://github.com/rust-lang/crates.io-index"
+-checksum = "b47e7e6bb2c38cd930d25a23b40fa52e068c10e85f3e03a7f5ba5aaca5713695"
++checksum = "19c413d6ec9ebaf5e1c829d355cb3e9f783778d700f135be0921d52fce3c60ae"
+ dependencies = [
+  "cc",
+  "libc",
+@@ -1941,11 +1992,11 @@ dependencies = [
+ 
+ [[package]]
+ name = "pem"
+-version = "3.0.6"
++version = "4.0.0"
+ source = "registry+https://github.com/rust-lang/crates.io-index"
+-checksum = "1d30c53c26bc5b31a98cd02d20f25a7c8567146caf63ed593a9d87b2775291be"
++checksum = "d354a98a3d1251555de99e8fdd8afda05573c31b82f59063a7b0a29b5527f120"
+ dependencies = [
+- "base64 0.22.1",
++ "base64 0.23.1",
+  "serde_core",
+ ]
+ 
+@@ -1975,35 +2026,29 @@ checksum = "9b4f627cb1b25917193a259e49bdad08f671f8d9708acfd5fe0a8c1455d87220"
+ 
+ [[package]]
+ name = "pin-project"
+-version = "1.1.13"
++version = "1.2.0"
+ source = "registry+https://github.com/rust-lang/crates.io-index"
+-checksum = "2466b2336ed02bcdca6b294417127b90ec92038d1d5c4fbeac971a922e0e0924"
++checksum = "a6c2123f4708bbd422630a6dae7c03f678b1ce1f1c99e4c4b3beac69c8174cc9"
+ dependencies = [
+  "pin-project-internal",
+ ]
+ 
+ [[package]]
+ name = "pin-project-internal"
+-version = "1.1.13"
++version = "1.2.0"
+ source = "registry+https://github.com/rust-lang/crates.io-index"
+-checksum = "c96395f0a926bc13b1c17622aaddda1ecb55d49c8f1bf9777e4d877800a43f8b"
++checksum = "358938fd6df944c1e44bb328b60fb275f13c804aac47ba26a1165d45a3f87756"
+ dependencies = [
+  "proc-macro2",
+  "quote",
+- "syn 2.0.119",
++ "syn 3.0.10",
+ ]
+ 
+ [[package]]
+ name = "pin-project-lite"
+-version = "0.2.17"
+-source = "registry+https://github.com/rust-lang/crates.io-index"
+-checksum = "a89322df9ebe1c1578d689c92318e070967d1042b512afbe49518723f4e6d5cd"
+-
+-[[package]]
+-name = "pin-utils"
+-version = "0.1.0"
++version = "0.2.18"
+ source = "registry+https://github.com/rust-lang/crates.io-index"
+-checksum = "8b870d8c151b6f2fb93e84a13146138f05d02ed11c7e7c54f8826aaaf7c9f184"
++checksum = "c938015719552d665fd0553b90d96cd7ff58e83e4c061ca99e6bb78865a72752"
+ 
+ [[package]]
+ name = "pkcs1"
+@@ -2018,16 +2063,16 @@ dependencies = [
+ 
+ [[package]]
+ name = "pkcs12"
+-version = "0.2.0-pre.0"
++version = "0.2.0-rc.0"
+ source = "registry+https://github.com/rust-lang/crates.io-index"
+-checksum = "8059bd79345d1d1c125656025814704bab5cdd204b1cefd5fab59b0fdd7476d2"
++checksum = "9fd993500a1de8a428a2e6cc9a2ec942c99a801a88d58a24fb986c5ad3b767ca"
+ dependencies = [
+- "cms 0.3.0-pre.1",
+- "const-oid 0.10.2",
+- "der 0.8.1",
++ "cms 0.3.0-rc.2",
++ "const-oid 0.10.3",
++ "der 0.8.3",
+  "digest 0.11.3",
+- "spki 0.8.0",
+- "x509-cert 0.3.0",
++ "spki 0.8.1",
++ "x509-cert 0.3.1",
+  "zeroize",
+ ]
+ 
+@@ -2037,14 +2082,14 @@ version = "0.8.1"
+ source = "registry+https://github.com/rust-lang/crates.io-index"
+ checksum = "63d440a804ec8d6fafbb6b84471e013286658d373248927692ab3366686220ca"
+ dependencies = [
+- "aes 0.9.2",
++ "aes 0.9.4",
+  "aes-gcm",
+  "cbc 0.2.1",
+- "der 0.8.1",
++ "der 0.8.3",
+  "pbkdf2",
+  "scrypt",
+- "sha2 0.11.0",
+- "spki 0.8.0",
++ "sha2 0.11.1",
++ "spki 0.8.1",
+ ]
+ 
+ [[package]]
+@@ -2063,23 +2108,23 @@ version = "0.11.0"
+ source = "registry+https://github.com/rust-lang/crates.io-index"
+ checksum = "451913da69c775a56034ea8d9003d27ee8948e12443eae7c038ba100a4f21cb7"
+ dependencies = [
+- "der 0.8.1",
+- "spki 0.8.0",
++ "der 0.8.3",
++ "spki 0.8.1",
+ ]
+ 
+ [[package]]
+ name = "pkg-config"
+-version = "0.3.33"
++version = "0.3.34"
+ source = "registry+https://github.com/rust-lang/crates.io-index"
+-checksum = "19f132c84eca552bf34cab8ec81f1c1dcc229b811638f9d283dceabe58c5569e"
++checksum = "f6b464fbc74e149a392436b17d523f769e057cb6877f6a5c4618bc6f11800548"
+ 
+ [[package]]
+ name = "plist"
+-version = "1.10.0"
++version = "1.10.4"
+ source = "registry+https://github.com/rust-lang/crates.io-index"
+-checksum = "7da1d65da6dd5d1e44199ac0f58712d241c0f439f80adea8924d832384087f85"
++checksum = "d86a77b7d9cdebd9643c180c158748db7d894b24a3935ed4b5843e698ae086eb"
+ dependencies = [
+- "base64 0.22.1",
++ "base64 0.23.1",
+  "indexmap",
+  "quick-xml",
+  "serde",
+@@ -2113,24 +2158,24 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
+ checksum = "f0fa31d631f2b2cb2a544d0aa321ce847a94764d701ca2becc411138b93d49cd"
+ dependencies = [
+  "cpubits",
+- "cpufeatures 0.3.0",
++ "cpufeatures 0.3.1",
+  "universal-hash 0.6.1",
+ ]
+ 
+ [[package]]
+ name = "potential_utf"
+-version = "0.1.5"
++version = "0.1.6"
+ source = "registry+https://github.com/rust-lang/crates.io-index"
+-checksum = "0103b1cef7ec0cf76490e969665504990193874ea05c85ff9bab8b911d0a0564"
++checksum = "d83eb9bc6d8e5cf568e7a1101d60ee05e81ed50ea106026f3d18deeb046d7661"
+ dependencies = [
+  "zerovec",
+ ]
+ 
+ [[package]]
+ name = "powerfmt"
+-version = "0.2.0"
++version = "0.2.1"
+ source = "registry+https://github.com/rust-lang/crates.io-index"
+-checksum = "439ee305def115ba05938db6eb1644ff94165c5ab5e9420d1c1bcedbba909391"
++checksum = "4a6394b9e965e73d0a289ee54f589087e2c676aedf60885baf52c76b771e4958"
+ 
+ [[package]]
+ name = "ppv-lite86"
+@@ -2152,18 +2197,18 @@ dependencies = [
+ 
+ [[package]]
+ name = "quick-xml"
+-version = "0.41.0"
++version = "0.42.0"
+ source = "registry+https://github.com/rust-lang/crates.io-index"
+-checksum = "e660451e55124f798a69a5af3f49ccfbefbd41910eefd25caf2393e1f3473ec1"
++checksum = "41b1177fdf999d2321d3fb46ff47159d9c1fb9ad66a4879f8c50a0b504615e9b"
+ dependencies = [
+  "memchr",
+ ]
+ 
+ [[package]]
+ name = "quinn"
+-version = "0.11.11"
++version = "0.11.12"
+ source = "registry+https://github.com/rust-lang/crates.io-index"
+-checksum = "0c1a41e437b6bbd489372cd4971de128e85c855f56c57f283d20ff016cf7c0a8"
++checksum = "4051e23e9185c255a7e33ef59cdbca87a22d359052eecd22fc6b901fb37d9d11"
+ dependencies = [
+  "bytes",
+  "cfg_aliases",
+@@ -2181,15 +2226,15 @@ dependencies = [
+ 
+ [[package]]
+ name = "quinn-proto"
+-version = "0.11.16"
++version = "0.11.19"
+ source = "registry+https://github.com/rust-lang/crates.io-index"
+-checksum = "2f4bfc015262b9df63c8845072ce59068853ff5872180c2ce2f13038b970e560"
++checksum = "0e750cca55fe4f0439a15d0bb529da9651e79993e8e72c61a899a36d462befbe"
+ dependencies = [
+  "aws-lc-rs",
+  "bytes",
+  "getrandom 0.4.3",
+  "lru-slab",
+- "rand 0.10.2",
++ "rand 0.10.4",
+  "rand_pcg",
+  "ring",
+  "rustc-hash",
+@@ -2204,9 +2249,9 @@ dependencies = [
+ 
+ [[package]]
+ name = "quinn-udp"
+-version = "0.5.15"
++version = "0.5.16"
+ source = "registry+https://github.com/rust-lang/crates.io-index"
+-checksum = "35a133f956daabe89a61a685c2649f13d82d5aa4bd5d12d1277e1072a21c0694"
++checksum = "af66907df18639dcf4db56ca65490cabc4b27a97dbadd96f2926cca73298f016"
+ dependencies = [
+  "cfg_aliases",
+  "libc",
+@@ -2239,9 +2284,9 @@ checksum = "f8dcc9c7d52a811697d2151c701e0d08956f92b0e24136cf4cf27b57a6a0d9bf"
+ 
+ [[package]]
+ name = "rand"
+-version = "0.8.7"
++version = "0.8.8"
+ source = "registry+https://github.com/rust-lang/crates.io-index"
+-checksum = "22f6172bdec972074665ed81ed53b71da00bfc44b65a753cfde883ec4c702a1a"
++checksum = "e058c7de0b26af77780c769414d6257830bb240f3c38477dbc2c16e5f54d6d4c"
+ dependencies = [
+  "libc",
+  "rand_chacha 0.3.1",
+@@ -2260,11 +2305,11 @@ dependencies = [
+ 
+ [[package]]
+ name = "rand"
+-version = "0.10.2"
++version = "0.10.4"
+ source = "registry+https://github.com/rust-lang/crates.io-index"
+-checksum = "c7f5fa3a058cd35567ef9bfa5e75732bee0f9e4c55fa90477bef2dfcdbc4be80"
++checksum = "8f6fa277c67e6ea590466f04c3fe82cb509f0864fe470643e5570de9514a9b11"
+ dependencies = [
+- "chacha20 0.10.1",
++ "chacha20 0.10.2",
+  "getrandom 0.4.3",
+  "rand_core 0.10.1",
+ ]
+@@ -2315,9 +2360,9 @@ checksum = "63b8176103e19a2643978565ca18b50549f6101881c443590420e4dc998a3c69"
+ 
+ [[package]]
+ name = "rand_pcg"
+-version = "0.10.2"
++version = "0.10.3"
+ source = "registry+https://github.com/rust-lang/crates.io-index"
+-checksum = "caa0f4137e1c0a72f4c651489402276c8e8e1cf081f3b0ba156d2cbeef09e86a"
++checksum = "eb95882a1e14462c69aea9984bb261293ccfe6022ef8de0eda18bd5afb0052df"
+ dependencies = [
+  "rand_core 0.10.1",
+ ]
+@@ -2353,12 +2398,12 @@ dependencies = [
+ 
+ [[package]]
+ name = "rcgen"
+-version = "0.14.8"
++version = "0.14.10"
+ source = "registry+https://github.com/rust-lang/crates.io-index"
+-checksum = "57f6d249aad744e274e682777a50283a225a32705394ee6d5fcc01efa25e4055"
++checksum = "8774e05a7d0de114588e6a28fe7e71694b82614ed569d86d8b389dfbc98b8ad8"
+ dependencies = [
+- "aws-lc-rs",
+  "pem",
++ "ring",
+  "rustls-pki-types",
+  "time",
+  "x509-parser",
+@@ -2376,11 +2421,11 @@ dependencies = [
+ 
+ [[package]]
+ name = "reqwest"
+-version = "0.13.4"
++version = "0.13.5"
+ source = "registry+https://github.com/rust-lang/crates.io-index"
+-checksum = "219c5811de6525e5416c7d5d53bb656d3afdbc6c5af816e0802bcfa42dbdc1c3"
++checksum = "16a1cfa75cc186dd73d5818e510e042e40927bccc9c236b061cea97e1eb08029"
+ dependencies = [
+- "base64 0.22.1",
++ "base64 0.23.1",
+  "bytes",
+  "encoding_rs",
+  "futures-core",
+@@ -2417,6 +2462,20 @@ dependencies = [
+  "web-sys",
+ ]
+ 
++[[package]]
++name = "reqwest-middleware"
++version = "0.5.2"
++source = "registry+https://github.com/rust-lang/crates.io-index"
++checksum = "07bc3f1384cffa4f274dad2d4ddd73aed32fed8f786d96c6be8aa4e5fd3c3b58"
++dependencies = [
++ "anyhow",
++ "async-trait",
++ "http",
++ "reqwest",
++ "thiserror",
++ "tower-service",
++]
++
+ [[package]]
+ name = "ring"
+ version = "0.17.14"
+@@ -2427,7 +2486,7 @@ dependencies = [
+  "cfg-if",
+  "getrandom 0.2.17",
+  "libc",
+- "untrusted 0.9.0",
++ "untrusted",
+  "windows-sys 0.52.0",
+ ]
+ 
+@@ -2455,9 +2514,9 @@ dependencies = [
+ 
+ [[package]]
+ name = "rpassword"
+-version = "7.5.4"
++version = "7.5.5"
+ source = "registry+https://github.com/rust-lang/crates.io-index"
+-checksum = "2da316a15f47e3d053de9cb2c439650bd8fa4aaeb9365f2e5f27f492ff73c196"
++checksum = "1fa2c5d9304b618df61ff17f3d3485c6e1854a3d94902a49abbb8d43dfbe0464"
+ dependencies = [
+  "libc",
+  "rtoolbox",
+@@ -2521,9 +2580,9 @@ dependencies = [
+ 
+ [[package]]
+ name = "rustix"
+-version = "1.1.4"
++version = "1.1.6"
+ source = "registry+https://github.com/rust-lang/crates.io-index"
+-checksum = "b6fe4565b9518b83ef4f91bb47ce29620ca828bd32cb7e408f0062e9930ba190"
++checksum = "e5e76742e5294153d4dde1207dbec5bdd81eef6fabdc0d2118babadabfd858aa"
+ dependencies = [
+  "bitflags",
+  "errno",
+@@ -2534,12 +2593,13 @@ dependencies = [
+ 
+ [[package]]
+ name = "rustls"
+-version = "0.23.43"
++version = "0.23.46"
+ source = "registry+https://github.com/rust-lang/crates.io-index"
+-checksum = "0283386ce02abc0151e1761d08802dfe86c173b0b494af5cbc086574e453da06"
++checksum = "48e13bd8c0e9365c43cfa5c9e8f9ad49d3c8444926c9aac819e0e4dc503c8fdf"
+ dependencies = [
+  "aws-lc-rs",
+  "once_cell",
++ "ring",
+  "rustls-pki-types",
+  "rustls-webpki",
+  "subtle",
+@@ -2548,9 +2608,9 @@ dependencies = [
+ 
+ [[package]]
+ name = "rustls-native-certs"
+-version = "0.8.4"
++version = "0.8.5"
+ source = "registry+https://github.com/rust-lang/crates.io-index"
+-checksum = "dab5152771c58876a2146916e53e35057e1a4dfa2b9df0f0305b07f611fdea4d"
++checksum = "4a073f5dc7469f984c52ad2752b63b0807745133b6de880b7b64c1ac4c48aec4"
+ dependencies = [
+  "openssl-probe",
+  "rustls-pki-types",
+@@ -2560,9 +2620,9 @@ dependencies = [
+ 
+ [[package]]
+ name = "rustls-pki-types"
+-version = "1.15.1"
++version = "1.16.0"
+ source = "registry+https://github.com/rust-lang/crates.io-index"
+-checksum = "2f4925028c7eb5d1fcdaf196971378ed9d2c1c4efc7dc5d011256f76c99c0a96"
++checksum = "102f35f7de7b06d8c61f1cff6592f5253e0dea431c74867aad5dfd70f44663fb"
+ dependencies = [
+  "web-time",
+  "zeroize",
+@@ -2570,9 +2630,9 @@ dependencies = [
+ 
+ [[package]]
+ name = "rustls-platform-verifier"
+-version = "0.7.0"
++version = "0.7.1"
+ source = "registry+https://github.com/rust-lang/crates.io-index"
+-checksum = "26d1e2536ce4f35f4846aa13bff16bd0ff40157cdb14cc056c7b14ba41233ba0"
++checksum = "1167586491e2b18b8bfbb293e8180ec17c201c4f076d7cb3070ca964e7598f98"
+ dependencies = [
+  "core-foundation 0.10.1",
+  "core-foundation-sys",
+@@ -2591,20 +2651,20 @@ dependencies = [
+ 
+ [[package]]
+ name = "rustls-platform-verifier-android"
+-version = "0.1.1"
++version = "0.2.0"
+ source = "registry+https://github.com/rust-lang/crates.io-index"
+-checksum = "f87165f0995f63a9fbeea62b64d10b4d9d8e78ec6d7d51fb2125fda7bb36788f"
++checksum = "eec689c0bc40ff2458a5977b6619cb718087084a18e02a131c599b62d05e1a5f"
+ 
+ [[package]]
+ name = "rustls-webpki"
+-version = "0.103.13"
++version = "0.103.17"
+ source = "registry+https://github.com/rust-lang/crates.io-index"
+-checksum = "61c429a8649f110dddef65e2a5ad240f747e85f7758a6bccc7e5777bd33f756e"
++checksum = "e3a0760a887c14823fca5a1c970b01d47c328c696c0c64829d1df50e8f853fd5"
+ dependencies = [
+  "aws-lc-rs",
+  "ring",
+  "rustls-pki-types",
+- "untrusted 0.9.0",
++ "untrusted",
+ ]
+ 
+ [[package]]
+@@ -2634,9 +2694,9 @@ dependencies = [
+ 
+ [[package]]
+ name = "schannel"
+-version = "0.1.29"
++version = "0.1.30"
+ source = "registry+https://github.com/rust-lang/crates.io-index"
+-checksum = "91c1b7e4904c873ef0710c1f407dde2e6287de2bebc1bbbf7d430bb7cbffd939"
++checksum = "9cb23c424d8ee841bb4d813677ca237e2a610067d594fec130f87d6093495ab5"
+ dependencies = [
+  "windows-sys 0.61.2",
+ ]
+@@ -2656,7 +2716,7 @@ dependencies = [
+  "cfg-if",
+  "pbkdf2",
+  "salsa20",
+- "sha2 0.11.0",
++ "sha2 0.11.1",
+ ]
+ 
+ [[package]]
+@@ -2715,14 +2775,14 @@ checksum = "e7a5d71263a5a7d47b41f6b3f06ba276f10cc18b0931f1799f710578e2309348"
+ dependencies = [
+  "proc-macro2",
+  "quote",
+- "syn 3.0.3",
++ "syn 3.0.10",
+ ]
+ 
+ [[package]]
+ name = "serde_json"
+-version = "1.0.151"
++version = "1.0.154"
+ source = "registry+https://github.com/rust-lang/crates.io-index"
+-checksum = "c841b55ecdae098c80dcae9cf767f6f8a0c2cdb3416bbef72181df4d0fe73f14"
++checksum = "e7e9cc8b1b85264074fbcc02a88680c4096b1e47df8f739dceb03bf482f04bd6"
+ dependencies = [
+  "itoa",
+  "memchr",
+@@ -2759,7 +2819,7 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
+ checksum = "aacc4cc499359472b4abe1bf11d0b12e688af9a805fa5e3016f9a386dc2d0214"
+ dependencies = [
+  "cfg-if",
+- "cpufeatures 0.3.0",
++ "cpufeatures 0.3.1",
+  "digest 0.11.3",
+ ]
+ 
+@@ -2776,12 +2836,12 @@ dependencies = [
+ 
+ [[package]]
+ name = "sha2"
+-version = "0.11.0"
++version = "0.11.1"
+ source = "registry+https://github.com/rust-lang/crates.io-index"
+-checksum = "446ba717509524cb3f22f17ecc096f10f4822d76ab5c0b9822c5f9c284e825f4"
++checksum = "47d7069beb7d6ac7b9acd1039986e73443f24234f41074da099d6f994ac9ad19"
+ dependencies = [
+  "cfg-if",
+- "cpufeatures 0.3.0",
++ "cpufeatures 0.3.1",
+  "digest 0.11.3",
+ ]
+ 
+@@ -2814,6 +2874,7 @@ checksum = "f8fadd59c855ef2080decdef8ff161eb6661b86933c9d82e5ba29dc602a55aba"
+ name = "siboot"
+ version = "0.18.0"
+ dependencies = [
++ "apple-codesign-quick",
+  "base64 0.22.1",
+  "chacha20poly1305",
+  "ed25519-dalek",
+@@ -2827,14 +2888,18 @@ dependencies = [
+  "reqwest",
+  "rootcause",
+  "rpassword",
++ "rsa",
++ "rustls",
+  "serde",
+  "serde_json",
+  "sha2 0.10.9",
+- "sha2 0.11.0",
++ "sha2 0.11.1",
++ "tempfile",
+  "tokio",
+  "tracing",
+  "tracing-subscriber",
+  "uuid",
++ "x509-cert 0.2.5",
+ ]
+ 
+ [[package]]
+@@ -2881,9 +2946,9 @@ checksum = "e3a9fe34e3e7a50316060351f37187a3f546bce95496156754b601a5fa71b76e"
+ 
+ [[package]]
+ name = "siphasher"
+-version = "1.0.3"
++version = "1.0.4"
+ source = "registry+https://github.com/rust-lang/crates.io-index"
+-checksum = "8ee5873ec9cce0195efcb7a4e9507a04cd49aec9c83d0389df45b1ef7ba2e649"
++checksum = "33f4fe9184a62d842c9ef383018f3306d8ba224fd9d836f56d7288308847c256"
+ 
+ [[package]]
+ name = "slab"
+@@ -2893,9 +2958,9 @@ checksum = "0c790de23124f9ab44544d7ac05d60440adc586479ce501c1d6d7da3cd8c9cf5"
+ 
+ [[package]]
+ name = "smallvec"
+-version = "1.15.2"
++version = "1.16.6"
+ source = "registry+https://github.com/rust-lang/crates.io-index"
+-checksum = "8ed6a63f02c8539c91a8685a86f4099661ba3da017932f6ebbea6de3f0fa7c90"
++checksum = "3244542535d5de959d90ec55d1b5ff0fd2bb7b1310223907d5f11932847f7b59"
+ 
+ [[package]]
+ name = "socket2"
+@@ -2925,12 +2990,12 @@ dependencies = [
+ 
+ [[package]]
+ name = "spki"
+-version = "0.8.0"
++version = "0.8.1"
+ source = "registry+https://github.com/rust-lang/crates.io-index"
+-checksum = "1d9efca8738c78ee9484207732f728b1ef517bbb1833d6fc0879ca898a522f6f"
++checksum = "7ef958a98b9d5da290cfc78946e9f3e61e1e62a18db0d92cac0b83cc161491a9"
+ dependencies = [
+  "base64ct",
+- "der 0.8.1",
++ "der 0.8.3",
+ ]
+ 
+ [[package]]
+@@ -2970,9 +3035,9 @@ dependencies = [
+ 
+ [[package]]
+ name = "syn"
+-version = "3.0.3"
++version = "3.0.10"
+ source = "registry+https://github.com/rust-lang/crates.io-index"
+-checksum = "53e9bae58849f64dfa4f5d5ae372c8341f7305f82a3868709269343628b659a3"
++checksum = "4ae9ccbea3a7b0b09443036490c8f34a8b1b760fd345e5c0dae0aac718faea79"
+ dependencies = [
+  "proc-macro2",
+  "quote",
+@@ -2999,6 +3064,17 @@ dependencies = [
+  "syn 2.0.119",
+ ]
+ 
++[[package]]
++name = "synstructure"
++version = "0.14.0"
++source = "registry+https://github.com/rust-lang/crates.io-index"
++checksum = "901704edd0dfe137f1987838ee4f259e4e063c31371bdb423f7ae38ec6f77f02"
++dependencies = [
++ "proc-macro2",
++ "quote",
++ "syn 3.0.10",
++]
++
+ [[package]]
+ name = "system-configuration"
+ version = "0.7.0"
+@@ -3035,22 +3111,22 @@ dependencies = [
+ 
+ [[package]]
+ name = "thiserror"
+-version = "2.0.19"
++version = "2.0.21"
+ source = "registry+https://github.com/rust-lang/crates.io-index"
+-checksum = "09a43598840e33d5b0331f38c5e30d13bb11c11210a4b58f0d9b18a5a5eefcd9"
++checksum = "09e52cb86a36cede5cb101bf8908837b3e4c6e5e59fe7fd85c23fb56200d189e"
+ dependencies = [
+  "thiserror-impl",
+ ]
+ 
+ [[package]]
+ name = "thiserror-impl"
+-version = "2.0.19"
++version = "2.0.21"
+ source = "registry+https://github.com/rust-lang/crates.io-index"
+-checksum = "43cbfe0cf76104d42a574802844187e84a305e531ed54455f11fbde0f10541cd"
++checksum = "fe5197923287db20a58125f0bc85c062f7f2c892de97b18c356f9efb14b28524"
+ dependencies = [
+  "proc-macro2",
+  "quote",
+- "syn 3.0.3",
++ "syn 3.0.10",
+ ]
+ 
+ [[package]]
+@@ -3094,9 +3170,9 @@ dependencies = [
+ 
+ [[package]]
+ name = "tinystr"
+-version = "0.8.3"
++version = "0.8.5"
+ source = "registry+https://github.com/rust-lang/crates.io-index"
+-checksum = "c8323304221c2a851516f22236c5722a72eaa19749016521d6dff0824447d96d"
++checksum = "abc840c238154d58f9e86b2792261edfde565a17696e1cda1a449de27979801a"
+ dependencies = [
+  "displaydoc",
+  "zerovec",
+@@ -3104,18 +3180,9 @@ dependencies = [
+ 
+ [[package]]
+ name = "tinyvec"
+-version = "1.12.0"
+-source = "registry+https://github.com/rust-lang/crates.io-index"
+-checksum = "bb4ebadaa0af04fab11ae01eb5f9fdb5f9c5b875506e210e71c07873528baa7f"
+-dependencies = [
+- "tinyvec_macros",
+-]
+-
+-[[package]]
+-name = "tinyvec_macros"
+-version = "0.1.1"
++version = "1.13.3"
+ source = "registry+https://github.com/rust-lang/crates.io-index"
+-checksum = "1f3ccbac311fea05f86f61904b462b55fb3df8837a366dfc601a0161d0532f20"
++checksum = "fd3ca314f692efd6c868f8408f53fe444634a845f96c028b97d35f6a1f79f0ee"
+ 
+ [[package]]
+ name = "tls_codec"
+@@ -3140,9 +3207,9 @@ dependencies = [
+ 
+ [[package]]
+ name = "tokio"
+-version = "1.53.1"
++version = "1.54.1"
+ source = "registry+https://github.com/rust-lang/crates.io-index"
+-checksum = "202caea871b69668250d242070849eb495be178ed697a3e98aebce5bc81a0bed"
++checksum = "b52fd3255258d26fac7264ab5a76b53c13367136dc011d3d6ad4f8ed070396a3"
+ dependencies = [
+  "bytes",
+  "libc",
+@@ -3162,7 +3229,7 @@ checksum = "78773a2a397f451582ce068015985c33193cf6dea8b74d2a639fe457b2f07b0e"
+ dependencies = [
+  "proc-macro2",
+  "quote",
+- "syn 3.0.3",
++ "syn 3.0.10",
+ ]
+ 
+ [[package]]
+@@ -3177,9 +3244,9 @@ dependencies = [
+ 
+ [[package]]
+ name = "tokio-rustls"
+-version = "0.26.4"
++version = "0.26.6"
+ source = "registry+https://github.com/rust-lang/crates.io-index"
+-checksum = "1729aa945f29d91ba541258c8df89027d5792d85a8841fb65e8bf0f4ede4ef61"
++checksum = "c9cc2678c2cdd569ef8215e2afd7954ada2ae20b4fdd2c5fe6139a3b02d105db"
+ dependencies = [
+  "rustls",
+  "tokio",
+@@ -3203,9 +3270,9 @@ dependencies = [
+ 
+ [[package]]
+ name = "tokio-util"
+-version = "0.7.19"
++version = "0.7.20"
+ source = "registry+https://github.com/rust-lang/crates.io-index"
+-checksum = "494815d09bf52b5548659851081238f0ca39ff638363907596da739561c62c52"
++checksum = "e464cf451ba96ebfc6f9b6542f17ee8b8956e33f1e40d9690624e59d7a7f8a4b"
+ dependencies = [
+  "bytes",
+  "futures-core",
+@@ -3325,9 +3392,9 @@ dependencies = [
+ 
+ [[package]]
+ name = "triomphe"
+-version = "0.1.16"
++version = "0.1.17"
+ source = "registry+https://github.com/rust-lang/crates.io-index"
+-checksum = "b40688ea6389c8171614b25491f71d4a27946e0c7ce2da1c6de27e25abf1a0ae"
++checksum = "0d15f4f5898bcfc5d8a8e45ed30b2f108d710c1a2e5489dbf80e078f707181bc"
+ 
+ [[package]]
+ name = "try-lock"
+@@ -3355,9 +3422,9 @@ dependencies = [
+ 
+ [[package]]
+ name = "typed-path"
+-version = "0.12.3"
++version = "0.12.4"
+ source = "registry+https://github.com/rust-lang/crates.io-index"
+-checksum = "8e28f89b80c87b8fb0cf04ab448d5dd0dd0ade2f8891bae878de66a75a28600e"
++checksum = "54ec2755506471f54baf5e4bb5499d8e510cc1caf271270e778a736bd2d7336c"
+ 
+ [[package]]
+ name = "typenum"
+@@ -3367,9 +3434,9 @@ checksum = "b6f5e870be6c3b371b77fe0ee0bafb859fa4964b4404c27de1d380043c4dda20"
+ 
+ [[package]]
+ name = "unicode-ident"
+-version = "1.0.24"
++version = "1.0.27"
+ source = "registry+https://github.com/rust-lang/crates.io-index"
+-checksum = "e6e4313cd5fcd3dad5cafa179702e2b244f760991f45397d14d4ebf38247da75"
++checksum = "a2c754d6c33795a1c324727428e5a7dedb5b06195f9890bdbcba760d3e246563"
+ 
+ [[package]]
+ name = "universal-hash"
+@@ -3391,12 +3458,6 @@ dependencies = [
+  "ctutils",
+ ]
+ 
+-[[package]]
+-name = "untrusted"
+-version = "0.7.1"
+-source = "registry+https://github.com/rust-lang/crates.io-index"
+-checksum = "a156c684c91ea7d62626509bce3cb4e1d9ed5c4d978f7b4352658f96a4c26b4a"
+-
+ [[package]]
+ name = "untrusted"
+ version = "0.9.0"
+@@ -3405,9 +3466,9 @@ checksum = "8ecb6da28b8a351d773b68d5825ac39017e680750f980f3a1a85cd8dd28a47c1"
+ 
+ [[package]]
+ name = "url"
+-version = "2.5.8"
++version = "2.5.9"
+ source = "registry+https://github.com/rust-lang/crates.io-index"
+-checksum = "ff67a8a4397373c3ef660812acab3268222035010ab8680ec4215f38ba3d0eed"
++checksum = "f00cd2407bb42c0ef17be88d4cf020f5cceffd121665bac9b8b9493a369b3b1a"
+ dependencies = [
+  "form_urlencoded",
+  "idna",
+@@ -3415,17 +3476,32 @@ dependencies = [
+  "serde",
+ ]
+ 
++[[package]]
++name = "urlencoding"
++version = "2.1.3"
++source = "registry+https://github.com/rust-lang/crates.io-index"
++checksum = "daf8dba3b7eb870caf1ddeed7bc9d2a049f3cfdfae7cb521b087cc33ae4c49da"
++
+ [[package]]
+ name = "utf8_iter"
+-version = "1.0.4"
++version = "1.1.0"
++source = "registry+https://github.com/rust-lang/crates.io-index"
++checksum = "af3bd9d3e571c26fcce9d033b87ea5ab061b8d2ffe9b7a5675d810d68f03edf0"
++dependencies = [
++ "utf_types",
++]
++
++[[package]]
++name = "utf_types"
++version = "1.0.0"
+ source = "registry+https://github.com/rust-lang/crates.io-index"
+-checksum = "b6c140620e7ffbb22c2dee59cafe6084a59b5ffc27a8859a5f0d494b5d52b6be"
++checksum = "3a3b425286980a367278453f3b6d28cdcb134b574e5a35824a6ff5eebad50bb6"
+ 
+ [[package]]
+ name = "uuid"
+-version = "1.24.0"
++version = "1.29.3"
+ source = "registry+https://github.com/rust-lang/crates.io-index"
+-checksum = "bf3923a6f5c4c6382e0b653c4117f48d631ea17f38ed86e2a828e6f7412f5239"
++checksum = "3c14b15dffa2f4bd712103e857140aa04a4f2ff6e955c77d7eb8e53ee02a3b64"
+ dependencies = [
+  "getrandom 0.4.3",
+  "js-sys",
+@@ -3454,9 +3530,9 @@ checksum = "0b928f33d975fc6ad9f86c8f283853ad26bdd5b10b7f1542aa2fa15e2289105a"
+ 
+ [[package]]
+ name = "walkdir"
+-version = "2.5.0"
++version = "2.5.1"
+ source = "registry+https://github.com/rust-lang/crates.io-index"
+-checksum = "29790946404f91d9c5d06f9874efddea1dc06c5efe94541a7d6863108e3a5e4b"
++checksum = "b42e295b7452c4604982280d8586001fcad9b8b201cac67bca9771e7a7475403"
+ dependencies = [
+  "same-file",
+  "winapi-util",
+@@ -3464,9 +3540,9 @@ dependencies = [
+ 
+ [[package]]
+ name = "want"
+-version = "0.3.1"
++version = "0.3.2"
+ source = "registry+https://github.com/rust-lang/crates.io-index"
+-checksum = "bfa7760aed19e106de2c7c0b581b509f2f25d3dacaf737cb82ac61bc6d760b0e"
++checksum = "ec4cdd0dd910afe868b7ef477227d8d538b46b3075031afee8a9f2acb0a2ed0b"
+ dependencies = [
+  "try-lock",
+ ]
+@@ -3488,12 +3564,11 @@ dependencies = [
+ 
+ [[package]]
+ name = "wasm-bindgen"
+-version = "0.2.126"
++version = "0.2.130"
+ source = "registry+https://github.com/rust-lang/crates.io-index"
+-checksum = "4b067c0c11094aef6b7a801c1e34a26affafdf3d051dba08456b868789aaf9a4"
++checksum = "a0181c14ddd6c7b8b0b0132a5f1ea2f32be0d893cd3ea97b6e3b28886b8a3d1c"
+ dependencies = [
+  "cfg-if",
+- "once_cell",
+  "rustversion",
+  "wasm-bindgen-macro",
+  "wasm-bindgen-shared",
+@@ -3501,19 +3576,20 @@ dependencies = [
+ 
+ [[package]]
+ name = "wasm-bindgen-futures"
+-version = "0.4.76"
++version = "0.4.80"
+ source = "registry+https://github.com/rust-lang/crates.io-index"
+-checksum = "c62df1340f32221cb9c54d6a27b030e3dba64361d4a95bed55f9aacb44da291d"
++checksum = "5e14e0327cb5368ad60ccb22d04a9827a693c95a926d8d125e9fa39e0baec501"
+ dependencies = [
+  "js-sys",
++ "tokio",
+  "wasm-bindgen",
+ ]
+ 
+ [[package]]
+ name = "wasm-bindgen-macro"
+-version = "0.2.126"
++version = "0.2.130"
+ source = "registry+https://github.com/rust-lang/crates.io-index"
+-checksum = "167ce5e579f6bcf889c4f7175a8a5a585de84e8ff93976ce393efa5f2837aab1"
++checksum = "6e931a02a39abdbf66966fc35902b5ed58344750a70885bed4ebb3d8eaf28ed9"
+ dependencies = [
+  "quote",
+  "wasm-bindgen-macro-support",
+@@ -3521,44 +3597,44 @@ dependencies = [
+ 
+ [[package]]
+ name = "wasm-bindgen-macro-support"
+-version = "0.2.126"
++version = "0.2.130"
+ source = "registry+https://github.com/rust-lang/crates.io-index"
+-checksum = "f3997c7839262f4ef12cf90b818d6340c18e80f263f1a94bf157d0ec4420380e"
++checksum = "2ca4b54280e455bd831e33a6b8e734baf432fe63fbc35c42ac14ce67a043a53a"
+ dependencies = [
+  "bumpalo",
+  "proc-macro2",
+  "quote",
+- "syn 2.0.119",
++ "syn 3.0.10",
+  "wasm-bindgen-shared",
+ ]
+ 
+ [[package]]
+ name = "wasm-bindgen-shared"
+-version = "0.2.126"
++version = "0.2.130"
+ source = "registry+https://github.com/rust-lang/crates.io-index"
+-checksum = "dc1b4cb0cc549fcf58d7dfc081778139b3d283a081644e833e84682ad71cea24"
++checksum = "3b1f9c3798725016c6ee5f2f57869ec0831e8bbc0ab0310a86e787e97f41389e"
+ dependencies = [
+  "unicode-ident",
+ ]
+ 
+ [[package]]
+ name = "wasmtimer"
+-version = "0.4.3"
++version = "0.4.5"
+ source = "registry+https://github.com/rust-lang/crates.io-index"
+-checksum = "1c598d6b99ea013e35844697fc4670d08339d5cda15588f193c6beedd12f644b"
++checksum = "c62b7f338e4397a45d054c15a2b36a93d57cccdda7be11a7d7b045d47b5e70ce"
+ dependencies = [
+  "futures",
+  "js-sys",
+  "parking_lot",
+- "pin-utils",
++ "pin-project-lite",
+  "wasm-bindgen",
+ ]
+ 
+ [[package]]
+ name = "web-sys"
+-version = "0.3.103"
++version = "0.3.107"
+ source = "registry+https://github.com/rust-lang/crates.io-index"
+-checksum = "8622dcb61c0bcc9fffa6938bed81210af2da9a7e4a1a834b2e37a59b6dfb6141"
++checksum = "d7d179596ff5ec0f6de4db64d54011bde6289cc49603d3a6e4ce3f329207ab88"
+ dependencies = [
+  "js-sys",
+  "wasm-bindgen",
+@@ -3576,9 +3652,9 @@ dependencies = [
+ 
+ [[package]]
+ name = "webpki-root-certs"
+-version = "1.0.9"
++version = "1.0.12"
+ source = "registry+https://github.com/rust-lang/crates.io-index"
+-checksum = "b96554aa2acc8ccdb7e1c9a58a7a68dd5d13bccc69cd124cb09406db612a1c9b"
++checksum = "293198dcebfb821155b5092ab94b5a82ff180eddd7241df3bd6e66a4ffd1a585"
+ dependencies = [
+  "rustls-pki-types",
+ ]
+@@ -3589,14 +3665,14 @@ version = "0.26.11"
+ source = "registry+https://github.com/rust-lang/crates.io-index"
+ checksum = "521bc38abb08001b01866da9f51eb7c5d647a19260e00054a8c7fd5f9e57f7a9"
+ dependencies = [
+- "webpki-roots 1.0.9",
++ "webpki-roots 1.0.12",
+ ]
+ 
+ [[package]]
+ name = "webpki-roots"
+-version = "1.0.9"
++version = "1.0.12"
+ source = "registry+https://github.com/rust-lang/crates.io-index"
+-checksum = "7dcd9d09a39985f5344844e66b0c530a33843579125f23e21e9f0f220850f22a"
++checksum = "7265c9301c16a8711c992c2d8da90ee77ef54b1ed51482d6dfeb00dc756b1297"
+ dependencies = [
+  "rustls-pki-types",
+ ]
+@@ -3735,9 +3811,9 @@ checksum = "1ebf944e87a7c253233ad6766e082e3cd714b5d03812acc24c318f549614536e"
+ 
+ [[package]]
+ name = "writeable"
+-version = "0.6.3"
++version = "0.6.4"
+ source = "registry+https://github.com/rust-lang/crates.io-index"
+-checksum = "1ffae5123b2d3fc086436f8834ae3ab053a283cfac8fe0a0b8eaae044768a4c4"
++checksum = "3ad82d2a33cdc9674dc7465672f271e096168fcdbe0f799d9e6db8c5892679dc"
+ 
+ [[package]]
+ name = "x25519-dalek"
+@@ -3767,13 +3843,13 @@ dependencies = [
+ 
+ [[package]]
+ name = "x509-cert"
+-version = "0.3.0"
++version = "0.3.1"
+ source = "registry+https://github.com/rust-lang/crates.io-index"
+-checksum = "105ef4642d9cb137ef83d623d0e4bf08b8adf69e9918ca904a174adb6d3d038b"
++checksum = "e9f58ad685a2945c7c063f5d69b5c27105d75bb85c740380d8fc64e79a098417"
+ dependencies = [
+- "const-oid 0.10.2",
+- "der 0.8.1",
+- "spki 0.8.0",
++ "const-oid 0.10.3",
++ "der 0.8.3",
++ "spki 0.8.1",
+ ]
+ 
+ [[package]]
+@@ -3783,12 +3859,12 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
+ checksum = "d43b0f71ce057da06bc0851b23ee24f3f86190b07203dd8f567d0b706a185202"
+ dependencies = [
+  "asn1-rs",
+- "aws-lc-rs",
+  "data-encoding",
+  "der-parser",
+  "lazy_static",
+  "nom",
+  "oid-registry",
++ "ring",
+  "rusticata-macros",
+  "thiserror",
+  "time",
+@@ -3806,9 +3882,9 @@ dependencies = [
+ 
+ [[package]]
+ name = "yoke"
+-version = "0.8.3"
++version = "0.8.4"
+ source = "registry+https://github.com/rust-lang/crates.io-index"
+-checksum = "709fe23a0424b6a435d82152b1bd3fdfb0833487d5fa90d05d42762a9891fef5"
++checksum = "417ef3fcf6c300b7dbd25c85531a746931c02ad536f3cf4786ed1e88223340b3"
+ dependencies = [
+  "stable_deref_trait",
+  "yoke-derive",
+@@ -3817,30 +3893,30 @@ dependencies = [
+ 
+ [[package]]
+ name = "yoke-derive"
+-version = "0.8.2"
++version = "0.8.4"
+ source = "registry+https://github.com/rust-lang/crates.io-index"
+-checksum = "de844c262c8848816172cef550288e7dc6c7b7814b4ee56b3e1553f275f1858e"
++checksum = "ec8ebde2db3681e8c9980cc27822030e68752690ddfa9473e739aeb4dbde6d71"
+ dependencies = [
+  "proc-macro2",
+  "quote",
+- "syn 2.0.119",
+- "synstructure",
++ "syn 3.0.10",
++ "synstructure 0.14.0",
+ ]
+ 
+ [[package]]
+ name = "zerocopy"
+-version = "0.8.56"
++version = "0.8.64"
+ source = "registry+https://github.com/rust-lang/crates.io-index"
+-checksum = "556764e583adb45a9f8d413c2a147fa7e8d821e48e12b14fd560b607998b75eb"
++checksum = "ed43f3060383c64b000f3c630550aebdfa9d3b76d48de32390483dd2cc7e0865"
+ dependencies = [
+  "zerocopy-derive",
+ ]
+ 
+ [[package]]
+ name = "zerocopy-derive"
+-version = "0.8.56"
++version = "0.8.64"
+ source = "registry+https://github.com/rust-lang/crates.io-index"
+-checksum = "f2ab42fc20575779bd240faa45f94a74256f755c0fa9e89f0ede20d91d0cdfc1"
++checksum = "a5cbd820fe3e35fb38c83b6dc7e6b1618bc46e0cd10073ae94e8d52dc468d8b9"
+ dependencies = [
+  "proc-macro2",
+  "quote",
+@@ -3858,21 +3934,21 @@ dependencies = [
+ 
+ [[package]]
+ name = "zerofrom-derive"
+-version = "0.1.7"
++version = "0.1.8"
+ source = "registry+https://github.com/rust-lang/crates.io-index"
+-checksum = "11532158c46691caf0f2593ea8358fed6bbf68a0315e80aae9bd41fbade684a1"
++checksum = "f75b4683f6c7f45248d4d64056a24298c6281e0993356d7d1b4a1a962ef10d4a"
+ dependencies = [
+  "proc-macro2",
+  "quote",
+- "syn 2.0.119",
+- "synstructure",
++ "syn 3.0.10",
++ "synstructure 0.14.0",
+ ]
+ 
+ [[package]]
+ name = "zeroize"
+-version = "1.9.0"
++version = "1.9.2"
+ source = "registry+https://github.com/rust-lang/crates.io-index"
+-checksum = "e13c156562582aa81c60cb29407084cdb54c4164760106ab78e6c5b0858cf64e"
++checksum = "85ccff8a4805aba1eaa4cd4afcd49f7557dd2cf5fd79ffc37f8959466effc5aa"
+ dependencies = [
+  "zeroize_derive",
+ ]
+@@ -3890,9 +3966,9 @@ dependencies = [
+ 
+ [[package]]
+ name = "zerotrie"
+-version = "0.2.4"
++version = "0.2.5"
+ source = "registry+https://github.com/rust-lang/crates.io-index"
+-checksum = "0f9152d31db0792fa83f70fb2f83148effb5c1f5b8c7686c3459e361d9bc20bf"
++checksum = "4ea269c3bd32f0a32c321907a2ae912ba6f4649bb0fc764a15627e99a7095a3f"
+ dependencies = [
+  "displaydoc",
+  "yoke",
+@@ -3901,9 +3977,9 @@ dependencies = [
+ 
+ [[package]]
+ name = "zerovec"
+-version = "0.11.6"
++version = "0.11.9"
+ source = "registry+https://github.com/rust-lang/crates.io-index"
+-checksum = "90f911cbc359ab6af17377d242225f4d75119aec87ea711a880987b18cd7b239"
++checksum = "f58a2799cfe9a1670c7ea8edbd52ef8edb93cb37a7f83bf31ba9e35d9dae6a40"
+ dependencies = [
+  "yoke",
+  "zerofrom",
+@@ -3912,13 +3988,13 @@ dependencies = [
+ 
+ [[package]]
+ name = "zerovec-derive"
+-version = "0.11.3"
++version = "0.11.7"
+ source = "registry+https://github.com/rust-lang/crates.io-index"
+-checksum = "625dc425cab0dca6dc3c3319506e6593dcb08a9f387ea3b284dbd52a92c40555"
++checksum = "c3743ddbf47738d929cd1ae2e199d40d0162979dfe31aef8ae646d2bf00bf97a"
+ dependencies = [
+  "proc-macro2",
+  "quote",
+- "syn 2.0.119",
++ "syn 3.0.10",
+ ]
+ 
+ [[package]]
+@@ -3937,9 +4013,9 @@ dependencies = [
+ 
+ [[package]]
+ name = "zlib-rs"
+-version = "0.6.7"
++version = "0.6.8"
+ source = "registry+https://github.com/rust-lang/crates.io-index"
+-checksum = "34b31d188d9d685a4f9c7b46d6e36631b07058d2cfe190267adce54dc230bf12"
++checksum = "b268e58e7c693d7c271f93ffc4ba3b380412554231c85bf61ca7af91042a4112"
+ 
+ [[package]]
+ name = "zmij"
+@@ -3949,9 +4025,9 @@ checksum = "29666d0abbfad1e3dc4dcf6144730dd3a3ab225bbbdac83319345b1b44ccfc1b"
+ 
+ [[package]]
+ name = "zopfli"
+-version = "0.8.3"
++version = "0.8.4"
+ source = "registry+https://github.com/rust-lang/crates.io-index"
+-checksum = "f05cd8797d63865425ff89b5c4a48804f35ba0ce8d125800027ad6017d2b5249"
++checksum = "aaf7fc5d30c28483d93805c4a5e12b05bbb52407fa67c5f8bd552374cd01fb11"
+ dependencies = [
+  "bumpalo",
+  "crc32fast",
+diff --git a/minis/Cargo.toml b/minis/Cargo.toml
+index a51a8ae..336ddfe 100644
+--- a/minis/Cargo.toml
++++ b/minis/Cargo.toml
+@@ -16,9 +16,15 @@ path = "src/main.rs"
+ [workspace]
+ 
+ [dependencies]
+-# The same vendored idevice SideInstaller ships (OPACK back-reference fix and
+-# logging changes, see ../SideInstaller/rust-core/vendor/idevice/README.md), with the features
+-# the pipeline needs:
++apple-codesign-quick = "=0.1.0"
++x509-cert = "0.2"
++# Both aws-lc-rs and ring reach rustls through the tree, so the provider is
++# chosen at start (see main).
++rustls = { version = "0.23", default-features = false, features = ["aws_lc_rs"] }
++# Matching the stored signing key to a certificate Apple already has.
++rsa = "0.9.10"
++tempfile = "3"
++# idevice from crates.io, with the features the pipeline needs:
+ #   remote_pairing     the pairable-host responder (pairing in Minis) and pair-verify
+ #   tunnel_tcp_stack   in-process software TCP stack over the CDTunnel
+ #   rsd / xpc / tcp    RemoteServiceDiscovery inside the tunnel
+@@ -27,7 +33,7 @@ path = "src/main.rs"
+ #   house_arrest       writing the pairing file into SideInstaller's container
+ #   amfi               `siboot developer-mode`
+ # `aws-lc`, as rust-core: aarch64 musl is a supported aws-lc target.
+-idevice = { path = "../SideInstaller/rust-core/vendor/idevice", default-features = false, features = [
++idevice = { version = "=0.1.68", default-features = false, features = [
+   "aws-lc",
+   "remote_pairing",
+   "tunnel_tcp_stack",
+@@ -38,13 +44,14 @@ idevice = { path = "../SideInstaller/rust-core/vendor/idevice", default-features
+   "installation_proxy",
+   "house_arrest",
+   "amfi",
++  "mobile_image_mounter",
++  "tss",
+ ] }
+ 
+-# Apple ID sign-in, developer portal and signing: SideInstaller's vendored copy,
+-# with `install` off as in rust-core (the install goes over our own tunnel) and
+-# fs-storage instead of a keyring, which iSH doesn't have.
+-isideload = { path = "../SideInstaller/rust-core/vendor/isideload", default-features = false, features = [
+-  "fs-storage",
++# Apple ID sign-in, developer portal and signing: upstream isideload, with
++# fs-storage instead of a keyring, which the guest does not have.
++isideload = { git = "https://github.com/nab138/isideload", rev = "326e56229d0727cb6e7b34c8cf03e37e2cd3e17d", default-features = false, features = [
++  "fs-storage", "install", "tokio-mt",
+ ] }
+ 
+ tokio = { version = "1", features = [
+@@ -66,8 +73,6 @@ uuid = { version = "1", features = ["v4"] }
+ # Downloading the SideInstaller release. Same line isideload uses, so it adds
+ # nothing to the tree.
+ reqwest = { version = "0.13", features = ["json", "gzip"] }
+-# Named by rust-core's apple_session.rs, which this crate compiles as its own
+-# (see main.rs). Same versions as rust-core.
+ rootcause = "0.12"
+ sha2 = "0.11"
+ hex = "0.4"
+@@ -90,11 +95,6 @@ chacha20poly1305 = "0.10"
+ ed25519-dalek = "2"
+ base64 = "0.22"
+ 
+-# isideload signs with apple-codesign-quick; SideInstaller's vendored copy also
+-# signs ExtensionKit extensions (#110). Patches only apply at a workspace root,
+-# so rust-core's is repeated here.
+-[patch.crates-io]
+-apple-codesign-quick = { path = "../SideInstaller/rust-core/vendor/apple-codesign-quick" }
+ 
+ [profile.release]
+ # Runs under emulation inside Minis, so speed matters as much as size: signing
+diff --git a/minis/src/account.rs b/minis/src/account.rs
+index b778e40..6ab3d13 100644
+--- a/minis/src/account.rs
++++ b/minis/src/account.rs
+@@ -1,9 +1,7 @@
+ //! Step 4: sign in to the user's Apple Account, as SideInstaller does.
+ //!
+-//! The sign-in itself is rust-core's `apple_session::open`, compiled here
+-//! unchanged (see main.rs): a saved developer token first, then a full
+-//! GrandSlam sign-in with two-factor, the -80046 skip for Android-ADI servers,
+-//! and the current-Mac identity rules. What's added is the terminal: the
++//! The sign-in itself is `login::open` (a saved developer token first, then a
++//! full GrandSlam sign-in with two-factor). What's here is the terminal: the
+ //! prompts, and the order servers are tried in.
+ 
+ use std::path::{Path, PathBuf};
+@@ -16,7 +14,7 @@ use isideload::sideload::{SideloaderBuilder, TeamSelection};
+ use isideload::util::fs_storage::FsStorage;
+ use rootcause::Report;
+ 
+-use crate::apple_session;
++use crate::login;
+ use crate::fail::{Fail, Result};
+ use crate::{ui, Args};
+ 
+@@ -37,13 +35,47 @@ pub const SERVERS: &[&str] = &[
+ /// The name the signing certificate is made for, as Xcode names a Mac's.
+ const MACHINE_NAME: &str = "siboot";
+ 
++/// isideload's certificate-limit prompt, boxed so the type can be named.
++pub type CertPrompt = fn(
++    Vec<DevelopmentCertificate>,
++) -> std::pin::Pin<Box<dyn std::future::Future<Output = std::result::Result<Option<Vec<String>>, Report>> + Send>>;
++/// Never called: with no extensions behaviour set, isideload uses its default.
++pub type Extensions = for<'a> fn(
++    &'a [isideload::sideload::bundle::Bundle],
++) -> std::future::Ready<std::result::Result<isideload::sideload::builder::ExtensionsBehavior, Report>>;
++pub type Loader = Sideloader<CertPrompt, Extensions>;
++
++fn revoke_prompt(
++    certs: Vec<DevelopmentCertificate>,
++) -> std::pin::Pin<Box<dyn std::future::Future<Output = std::result::Result<Option<Vec<String>>, Report>> + Send>> {
++    Box::pin(async move { Ok(choose_certificates_to_revoke(&certs)) })
++}
++
+ pub struct Session {
+-    pub sideloader: Sideloader,
++    pub sideloader: Loader,
++    pub developer: isideload::dev::developer_session::DeveloperSession,
++    pub selected: isideload::dev::teams::DeveloperTeam,
++    pub email: String,
+     /// The developer team signing for it, as "name (ID)".
+     pub team: String,
+ }
+ 
+ pub async fn sign_in(args: &Args) -> Result<Session> {
++    if args.command.signs_runner() && args.apple_id.is_none()
++        && std::env::var_os("PALLAS_NEW_LOGIN").is_none() {
++        let storage = args.home.join("isideload");
++        let server = args.anisette.clone().or_else(|| last_server(&args.home));
++        if let Some(server) = server {
++            if let Some((email, developer, teams)) = login::resume_single(&storage, &server).await
++                .map_err(|e| Fail::new("Cannot resume the on-device Apple session", e))? {
++                ui::ok("Existing Apple session verified");
++                return finish_session(args, &storage, email, developer, teams).await;
++            }
++        }
++    }
++
++    if crate::runner::renewing() { return Err(Fail::new("Apple session expired. Open the installer to sign in.", "")); }
++
+     let apple_id = match args
+         .apple_id
+         .clone()
+@@ -100,37 +132,14 @@ pub async fn sign_in(args: &Args) -> Result<Session> {
+     let mut last_error = String::new();
+     for server in &servers {
+         ui::status(&format!("signing in through {}", host_of(server)));
+-        match apple_session::open(
+-            &apple_id, &password, server, &storage, true, two_factor, "Apple ID",
++        match login::open(
++            &apple_id, &password, server, &storage, two_factor,
+         )
+         .await
+         {
+             Ok((developer, teams)) => {
+                 remember_server(&args.home, server);
+-                let mut sideloader = SideloaderBuilder::new(developer, apple_id.clone())
+-                    .team_selection(TeamSelection::First)
+-                    .max_certs_behavior(MaxCertsBehavior::Prompt(Box::new(
+-                        choose_certificates_to_revoke,
+-                    )))
+-                    .storage(Box::new(FsStorage::new(storage.clone())))
+-                    .machine_name(MACHINE_NAME.to_string())
+-                    .build();
+-                if let Some(first) = teams.into_iter().next() {
+-                    sideloader.set_team(first);
+-                }
+-                let team = sideloader.get_team().await.map_err(|e| {
+-                    Fail::new(
+-                        "Signed in, but Apple didn't list a developer team.",
+-                        crate::error_text::report_text(&e),
+-                    )
+-                })?;
+-                let team = format!(
+-                    "{} ({})",
+-                    team.name.as_deref().unwrap_or("unnamed"),
+-                    team.team_id
+-                );
+-                ui::ok(&format!("signed in — team {team}"));
+-                return Ok(Session { sideloader, team });
++                return finish_session(args, &storage, apple_id, developer, teams).await;
+             }
+             Err(e) => {
+                 if let Some(advice) = stops_sign_in(&e) {
+@@ -156,6 +165,34 @@ pub async fn sign_in(args: &Args) -> Result<Session> {
+     ))
+ }
+ 
++async fn finish_session(args: &Args, storage: &Path, apple_id: String,
++    developer: isideload::dev::developer_session::DeveloperSession,
++    teams: Vec<isideload::dev::teams::DeveloperTeam>) -> Result<Session> {
++    if args.command.signs_runner() && teams.len() != 1 {
++        return Err(Fail::new("Use an Apple Account with one Personal Team.", ""));
++    }
++    let mut sideloader = SideloaderBuilder::<CertPrompt, Extensions>::new(developer.clone(), apple_id.clone())
++        .team_selection(TeamSelection::First)
++        .max_certs_behavior(MaxCertsBehavior::Prompt(revoke_prompt as CertPrompt))
++        .storage(Box::new(FsStorage::new(storage.to_owned())))
++        .machine_name(MACHINE_NAME.to_string())
++        .build();
++    let team = sideloader.get_team().await.map_err(|e| {
++        Fail::new(
++            "Signed in, but Apple didn't list a developer team.",
++            crate::error_text::report_text(&e),
++        )
++    })?;
++    let selected = team.clone();
++    let team = format!(
++        "{} ({})",
++        team.name.as_deref().unwrap_or("unnamed"),
++        team.team_id
++    );
++    ui::ok(&format!("signed in — team {team}"));
++    Ok(Session { sideloader, team, developer, selected, email: apple_id })
++}
++
+ /// `pick` alone when given; otherwise the last server that worked, then the
+ /// rest of `SERVERS`.
+ fn candidates(pick: Option<&str>, last: Option<&str>) -> Vec<String> {
+@@ -222,8 +259,8 @@ fn adopt_folder_typed_as(storage: &Path, typed: &str, apple_id: &str) {
+     if typed == apple_id {
+         return;
+     }
+-    let old = apple_session::account_dir(storage, typed);
+-    let new = apple_session::account_dir(storage, apple_id);
++    let old = login::account_dir(storage, typed);
++    let new = login::account_dir(storage, apple_id);
+     if old.is_dir() && !new.exists() {
+         let _ = std::fs::rename(old, new);
+     }
+@@ -263,6 +300,7 @@ struct Prompt {
+     numbers: Vec<(u32, String, String)>,
+ }
+ 
++#[allow(dead_code)]
+ #[derive(PartialEq, Eq, Debug)]
+ enum Method {
+     Devices,
+@@ -276,8 +314,6 @@ impl From<&TwoFactorCallbackParams> for Prompt {
+     fn from(p: &TwoFactorCallbackParams) -> Self {
+         let method = if p.unknown {
+             Method::Choose
+-        } else if p.voice {
+-            Method::Voice
+         } else if p.sms {
+             Method::Sms
+         } else {
+@@ -326,10 +362,6 @@ impl Prompt {
+                     TwoFactorCallbackResponse::SendSms(*id),
+                 ));
+             }
+-            ways.push((
+-                format!("Call {number}"),
+-                TwoFactorCallbackResponse::CallNumber(*id),
+-            ));
+         }
+         ways.push((
+             "Send it to your Apple devices".into(),
+@@ -411,7 +443,7 @@ fn ask_two_factor_plain(prompt: &Prompt) -> TwoFactorCallbackResponse {
+         let how = if mode == "voice" { " (calls only)" } else { "" };
+         ui::status(&format!("  {id}: {number}{how}"));
+     }
+-    ui::status("Type the code, or: t N to text number N, c N to call it, d for your devices,");
++    ui::status("Type the code, or: t N to text number N, d for your devices,");
+     ui::status("r to send it again, q to give up.");
+     loop {
+         let Some(line) = ui::ask("Code: ") else {
+@@ -443,7 +475,6 @@ fn parse_two_factor(line: &str) -> Option<TwoFactorCallbackResponse> {
+     };
+     match (verb.to_ascii_lowercase().as_str(), id) {
+         ("t" | "text" | "sms", Some(id)) => Some(TwoFactorCallbackResponse::SendSms(id)),
+-        ("c" | "call" | "voice", Some(id)) => Some(TwoFactorCallbackResponse::CallNumber(id)),
+         ("d" | "devices", None) => Some(TwoFactorCallbackResponse::SendToDevices),
+         ("r" | "resend", None) => Some(TwoFactorCallbackResponse::ResendCode),
+         ("q" | "quit", None) => Some(TwoFactorCallbackResponse::Abort),
+@@ -455,7 +486,7 @@ fn parse_two_factor(line: &str) -> Option<TwoFactorCallbackResponse> {
+ /// certificates as Apple allows. Revoking one stops every app signed with it
+ /// (on any device) from opening, so nothing is revoked without the user typing
+ /// which.
+-#[allow(clippy::ptr_arg)] // isideload's `MaxCertsBehavior::Prompt` takes a `&Vec`
++#[allow(clippy::ptr_arg)]
+ fn choose_certificates_to_revoke(certs: &Vec<DevelopmentCertificate>) -> Option<Vec<String>> {
+     tokio::task::block_in_place(|| {
+         if !ui::interactive() {
+@@ -532,7 +563,6 @@ mod tests {
+             "Some(SubmitCode(\"123456\"))"
+         ));
+         assert!(is(parse_two_factor("t 2"), "Some(SendSms(2))"));
+-        assert!(is(parse_two_factor("call 1"), "Some(CallNumber(1))"));
+         assert!(is(parse_two_factor("d"), "Some(SendToDevices)"));
+         assert!(is(parse_two_factor("r"), "Some(ResendCode)"));
+         assert!(is(parse_two_factor("q"), "Some(Abort)"));
+@@ -566,7 +596,7 @@ mod tests {
+         assert!(stops_sign_in("login failed: HTTP 429").is_some());
+         assert!(stops_sign_in("login failed: No 2FA code provided, aborting").is_some());
+         assert!(stops_sign_in("anisette provider: error sending request").is_none());
+-        assert!(stops_sign_in(apple_session::ANDROID_ADI_SKIP).is_none());
++        assert!(stops_sign_in(login::ANDROID_ADI_SKIP).is_none());
+     }
+ 
+     #[test]
+@@ -575,8 +605,8 @@ mod tests {
+         let _ = std::fs::remove_dir_all(&storage);
+         let typed = "Someone@Example.com";
+         let apple_id = typed.to_lowercase();
+-        let old = apple_session::account_dir(&storage, typed);
+-        let new = apple_session::account_dir(&storage, &apple_id);
++        let old = login::account_dir(&storage, typed);
++        let new = login::account_dir(&storage, &apple_id);
+ 
+         std::fs::create_dir_all(&old).unwrap();
+         std::fs::write(old.join("key"), "old key").unwrap();
+diff --git a/minis/src/bridge.rs b/minis/src/bridge.rs
+index 35466db..091ffe3 100644
+--- a/minis/src/bridge.rs
++++ b/minis/src/bridge.rs
+@@ -143,7 +143,7 @@ impl Bridge {
+     /// with stand-ins); otherwise they come from `$PATH`.
+     pub fn from_env() -> Self {
+         Self {
+-            dir: std::env::var_os("SIBOOT_MINIS_BIN").map(PathBuf::from),
++            dir: std::env::var_os("SIBOOT_PALLAS_BIN").map(PathBuf::from),
+         }
+     }
+ 
+@@ -202,7 +202,7 @@ impl Bridge {
+     // MARK: minis-bonjour
+ 
+     pub async fn bonjour_types(&self) -> Result<Types, BridgeError> {
+-        let data = self.call("minis-bonjour", &["types"]).await?;
++        let data = self.call("pallas-bonjour", &["types"]).await?;
+         // `types` is a list of strings; tolerate {type: …} items too.
+         let types = data
+             .get("types")
+@@ -223,7 +223,7 @@ impl Bridge {
+     }
+ 
+     pub async fn bonjour_list(&self) -> Result<Listing, BridgeError> {
+-        let data = self.call("minis-bonjour", &["list"]).await?;
++        let data = self.call("pallas-bonjour", &["list"]).await?;
+         let advertisements = data
+             .get("advertisements")
+             .and_then(Value::as_array)
+@@ -252,7 +252,7 @@ impl Bridge {
+         let records: Vec<String> = txt.iter().map(|(k, v)| format!("{k}={v}")).collect();
+         let mut args = vec!["advertise", service_type, name, port.as_str()];
+         args.extend(records.iter().map(String::as_str));
+-        let data = self.call("minis-bonjour", &args).await?;
++        let data = self.call("pallas-bonjour", &args).await?;
+         let advert = Advert::from_value(&data).ok_or_else(|| {
+             BridgeError::Unreadable(format!("advertise answered without an id: {data}"))
+         })?;
+@@ -276,7 +276,7 @@ impl Bridge {
+     }
+ 
+     pub async fn stop_advert(&self, id: &str) -> Result<(), BridgeError> {
+-        self.call("minis-bonjour", &["stop", id]).await.map(|_| ())
++        self.call("pallas-bonjour", &["stop", id]).await.map(|_| ())
+     }
+ 
+     // MARK: apple-notification
+@@ -364,7 +364,7 @@ impl Advertisement {
+ impl Drop for Advertisement {
+     fn drop(&mut self) {
+         if let Some(advert) = self.advert.take() {
+-            self.bridge.call_now("minis-bonjour", &["stop", &advert.id]);
++            self.bridge.call_now("pallas-bonjour", &["stop", &advert.id]);
+         }
+     }
+ }
+@@ -418,14 +418,14 @@ mod tests {
+ 
+     #[test]
+     fn data_comes_out_of_a_good_envelope() {
+-        let out = br#"{"ok":true,"tool":"minis-bonjour","action":"types","timestamp":"t","data":{"types":["_remotepairing-pairable-host._tcp","_http._tcp"],"restricted":true}}"#;
++        let out = br#"{"ok":true,"tool":"pallas-bonjour","action":"types","timestamp":"t","data":{"types":["_remotepairing-pairable-host._tcp","_http._tcp"],"restricted":true}}"#;
+         let data = parse_envelope(out, b"").unwrap();
+         assert_eq!(data["types"][0], "_remotepairing-pairable-host._tcp");
+     }
+ 
+     #[test]
+     fn a_refusal_keeps_its_code() {
+-        let out = br#"{"ok":false,"tool":"minis-bonjour","action":"advertise","error":{"code":"not_declared","message":"add it to NSBonjourServices"}}"#;
++        let out = br#"{"ok":false,"tool":"pallas-bonjour","action":"advertise","error":{"code":"not_declared","message":"add it to NSBonjourServices"}}"#;
+         match parse_envelope(out, b"") {
+             Err(BridgeError::Refused { code, message }) => {
+                 assert_eq!(code, "not_declared");
+diff --git a/minis/src/devmode.rs b/minis/src/devmode.rs
+index b2d7a75..2aaf0ac 100644
+--- a/minis/src/devmode.rs
++++ b/minis/src/devmode.rs
+@@ -121,7 +121,7 @@ pub async fn run(
+     }
+ 
+     ui::warn(
+-        "Without a passcode, this iPhone restarts right away to turn Developer Mode on, and Minis \
++        "Without a passcode, this iPhone restarts right away to turn Developer Mode on, and Pallas \
+          stops with it. Once you unlock it, tap Turn On in the alert iOS shows.",
+     );
+     ui::note("With a passcode, iOS refuses, and siboot shows the switch in Settings instead.");
+diff --git a/minis/src/fake_iphone.rs b/minis/src/fake_iphone.rs
+index aec2460..df01a93 100644
+--- a/minis/src/fake_iphone.rs
++++ b/minis/src/fake_iphone.rs
+@@ -370,24 +370,24 @@ pub fn minis_stub(home: &Path) -> PathBuf {
+     let closed = closed.to_string_lossy();
+     let scripts = [
+         (
+-            "minis-bonjour",
++            "pallas-bonjour",
+             r#"case "$1" in
+ types) if [ -e "$UNDECLARED" ]; then t='"_http._tcp"'; else t='"_remotepairing-pairable-host._tcp","_http._tcp"'; fi
+-  echo '{"ok":true,"tool":"minis-bonjour","action":"types","data":{"types":['"$t"'],"source":"Info.plist NSBonjourServices","restricted":true}}' ;;
++  echo '{"ok":true,"tool":"pallas-bonjour","action":"types","data":{"types":['"$t"'],"source":"Info.plist NSBonjourServices","restricted":true}}' ;;
+ list) if [ -e "$BACKGROUND" ]; then bg=true; else bg=false; fi
+   if [ -e "$LEFTOVER" ]; then
+     ads='{"id":"adv-0","kind":"advertise","type":"_remotepairing-pairable-host._tcp.","name":"0LD-HOST","guest_port":1,"listener_port":2,"state":"ready"}'
+   else ads=''; fi
+-  echo '{"ok":true,"tool":"minis-bonjour","action":"list","data":{"advertisements":['"$ads"'],"forwards":[],"declared_types":["_remotepairing-pairable-host._tcp"],"app_in_background":'$bg'}}' ;;
++  echo '{"ok":true,"tool":"pallas-bonjour","action":"list","data":{"advertisements":['"$ads"'],"forwards":[],"declared_types":["_remotepairing-pairable-host._tcp"],"app_in_background":'$bg'}}' ;;
+ advertise) if [ -e "$UNDECLARED" ]; then
+-    echo '{"ok":false,"tool":"minis-bonjour","action":"advertise","error":{"code":"not_declared","message":"add it to NSBonjourServices"}}'; exit 4
++    echo '{"ok":false,"tool":"pallas-bonjour","action":"advertise","error":{"code":"not_declared","message":"add it to NSBonjourServices"}}'; exit 4
+   elif [ -e "$DENY" ]; then rm -f "$DENY"
+-    echo '{"ok":false,"tool":"minis-bonjour","action":"advertise","error":{"code":"authorization_denied","message":"Local Network access is off"}}'; exit 3
++    echo '{"ok":false,"tool":"pallas-bonjour","action":"advertise","error":{"code":"authorization_denied","message":"Local Network access is off"}}'; exit 3
+   fi
+-  printf '{"ok":true,"tool":"minis-bonjour","action":"advertise","data":{"id":"adv-1","kind":"advertise","type":"%s","name":"%s","requested_name":"%s","guest_port":%s,"listener_port":%s,"state":"ready"}}\n' "$2" "$3" "$3" "$4" "$4" ;;
++  printf '{"ok":true,"tool":"pallas-bonjour","action":"advertise","data":{"id":"adv-1","kind":"advertise","type":"%s","name":"%s","requested_name":"%s","guest_port":%s,"listener_port":%s,"state":"ready"}}\n' "$2" "$3" "$3" "$4" "$4" ;;
+ stop) [ "$2" = adv-0 ] && rm -f "$LEFTOVER"
+-  echo '{"ok":true,"tool":"minis-bonjour","action":"stop","data":{"stopped":["'"$2"'"],"count":1}}' ;;
+-*) echo '{"ok":false,"tool":"minis-bonjour","action":"?","error":{"code":"invalid_args","message":"unknown command"}}'; exit 2 ;;
++  echo '{"ok":true,"tool":"pallas-bonjour","action":"stop","data":{"stopped":["'"$2"'"],"count":1}}' ;;
++*) echo '{"ok":false,"tool":"pallas-bonjour","action":"?","error":{"code":"invalid_args","message":"unknown command"}}'; exit 2 ;;
+ esac"#,
+         ),
+         (
+@@ -443,7 +443,7 @@ mod tests {
+     #[ignore = "needs a siboot waiting to pair"]
+     async fn dial_a_running_siboot() {
+         let log = PathBuf::from(std::env::var("SIBOOT_FAKE_LOG").expect("set SIBOOT_FAKE_LOG"));
+-        let advertised = wait_for_line(&log, "minis-bonjour advertise").await;
++        let advertised = wait_for_line(&log, "pallas-bonjour advertise").await;
+         let port: u16 = advertised.split(' ').nth(4).unwrap().parse().unwrap();
+         let pin = async {
+             let posted =
+diff --git a/minis/src/keepalive.rs b/minis/src/keepalive.rs
+index 0118469..6c9a1d5 100644
+--- a/minis/src/keepalive.rs
++++ b/minis/src/keepalive.rs
+@@ -62,7 +62,7 @@ impl KeepAlive {
+                 .map_err(|e| format!("couldn't write {}: {e}", file.display()))?;
+         }
+         let session = bridge.play(&file).await.map_err(|e| match e {
+-            BridgeError::Missing(_) => "Minis's apple-player command isn't here".to_string(),
++            BridgeError::Missing(_) => "Pallas's apple-player command isn't here".to_string(),
+             other => other.to_string(),
+         })?;
+         Ok(Self {
+diff --git a/minis/src/main.rs b/minis/src/main.rs
+index f1adef7..bb67228 100644
+--- a/minis/src/main.rs
++++ b/minis/src/main.rs
+@@ -23,6 +23,7 @@
+ //! keeps it in the terminal.
+ 
+ mod account;
++mod ddi;
+ mod bridge;
+ mod devmode;
+ mod fail;
+@@ -34,20 +35,14 @@ mod pairing;
+ mod preflight;
+ mod report;
+ mod seed;
++mod runner;
+ mod sign;
+ mod tunnel;
+ mod ui;
+ mod web;
+ 
+-// rust-core's saved-session sign-in, compiled here unchanged so siboot signs in
+-// exactly as SideInstaller does (anisette identity rules, -80046 skip, token
+-// reuse). `crate::error_text` is the path it expects.
+-#[allow(dead_code)]
+-#[path = "../../SideInstaller/rust-core/src/apple_session.rs"]
+-mod apple_session;
+-#[allow(dead_code)]
+-#[path = "../../SideInstaller/rust-core/src/error_text.rs"]
+ mod error_text;
++mod login;
+ 
+ use std::net::{IpAddr, Ipv4Addr, SocketAddr};
+ use std::path::PathBuf;
+@@ -82,8 +77,16 @@ pub enum Command {
+     Connect,
+     /// Steps 1-3, then show Developer Mode in Settings (or turn it on).
+     DeveloperMode,
++    Runner,
++    /// Sign the runner for a device known only by its UDID, with no pairing, to bring back a
++    /// hidden Developer Mode switch: iOS shows it once an app signed for this device is offered.
++    Reveal,
++    /// Steps 1-3 with the saved pairing, then mount the developer image the runner needs: a
++    /// restart unmounts it.
++    Ddi,
+ }
+ 
++#[derive(Clone)]
+ pub struct Args {
+     pub command: Command,
+     /// With `developer-mode`: turn it on, not only show it.
+@@ -101,6 +104,14 @@ pub struct Args {
+     pub apple_id: Option<String>,
+     pub ipa: Option<String>,
+     pub anisette: Option<String>,
++    /// With `reveal`: the device to sign for, and the folder that receives Payload/<app>.
++    pub udid: Option<String>,
++    pub out: Option<PathBuf>,
++}
++
++impl Command {
++    /// Commands that sign the Pallas runner and keep one Apple session for it.
++    pub fn signs_runner(self) -> bool { matches!(self, Command::Runner | Command::Reveal) }
+ }
+ 
+ impl Args {
+@@ -135,6 +146,8 @@ fn parse_args(argv: impl IntoIterator<Item = String>) -> std::result::Result<Par
+         apple_id: None,
+         ipa: None,
+         anisette: None,
++        udid: None,
++        out: None,
+     };
+     let mut argv = argv.into_iter();
+     let mut command_seen = false;
+@@ -164,18 +177,32 @@ fn parse_args(argv: impl IntoIterator<Item = String>) -> std::result::Result<Par
+             "--apple-id" => args.apple_id = Some(value("--apple-id")?),
+             "--ipa" => args.ipa = Some(value("--ipa")?),
+             "--anisette" => args.anisette = Some(value("--anisette")?),
++            "--udid" => args.udid = Some(value("--udid")?),
++            "--out" => args.out = Some(PathBuf::from(value("--out")?)),
+             "--turn-on" => args.turn_on = true,
+-            "check" | "connect" | "developer-mode" if !command_seen => {
++            "check" | "connect" | "developer-mode" | "runner" | "reveal" | "ddi" if !command_seen => {
+                 command_seen = true;
+                 args.command = match arg.as_str() {
+                     "check" => Command::Check,
+                     "connect" => Command::Connect,
++                    "runner" => Command::Runner,
++                    "reveal" => Command::Reveal,
++                    "ddi" => Command::Ddi,
+                     _ => Command::DeveloperMode,
+                 };
+             }
+             other => return Err(format!("unrecognised argument `{other}`")),
+         }
+     }
++    if args.command == Command::Reveal {
++        let udid = args.udid.as_deref().unwrap_or("");
++        if udid.len() < 20 || !udid.chars().all(|c| c.is_ascii_alphanumeric() || c == '-') {
++            return Err("`siboot reveal` needs --udid with the device's UDID".into());
++        }
++        if args.ipa.is_none() || args.out.is_none() {
++            return Err("`siboot reveal` needs --ipa and --out".into());
++        }
++    }
+     if args.turn_on && args.command != Command::DeveloperMode {
+         return Err("--turn-on goes with `siboot developer-mode`".into());
+     }
+@@ -184,113 +211,22 @@ fn parse_args(argv: impl IntoIterator<Item = String>) -> std::result::Result<Par
+ 
+ /// Kept narrow: Minis's terminal is an iPhone's, about 45 columns upright.
+ fn usage() {
+-    use std::io::IsTerminal;
+-    let styled = std::io::stdout().is_terminal() && std::env::var_os("NO_COLOR").is_none();
+-    let head = |text: &str| if styled { format!("\x1b[1m{text}\x1b[0m") } else { text.to_string() };
+-    let flag = |text: &str| if styled { format!("\x1b[36m{text}\x1b[0m") } else { text.to_string() };
+-    println!(
+-        "\
+-{name} {VERSION}
+-Installs SideInstaller onto this iPhone, from
+-Open Minis, with your own Apple Account.
+-
+-{usage}
+-  siboot [command] [options]
+-
+-  With no command, every step runs: check,
+-  pair this iPhone with siboot (in Settings,
+-  the first time), connect, sign in, sign
+-  SideInstaller, install it, and hand it the
+-  pairing.
+-
+-{commands}
+-  {check}
+-      Only check that LocalDevVPN, this iPhone
+-      and the internet are ready.
+-  {connect}
+-      Check, pair, and only open the tunnel
+-      with the pairing.
+-  {devmode}
+-      Connect, and if Developer Mode is off, show
+-      its switch under Settings › Privacy &
+-      Security. Sends nothing when it's on. With
+-      --turn-on, turn it on instead, after
+-      asking: the iPhone restarts. iOS allows
+-      that only without a passcode; with one,
+-      siboot shows the switch instead.
+-
+-{options}
+-  {apple_id}
+-      Apple Account to sign with (else
+-      SIBOOT_APPLE_ID, else it asks). The
+-      password comes from SIBOOT_PASSWORD or a
+-      prompt that shows only dots.
+-  {ipa}
+-      Install this IPA instead of SideInstaller's
+-      latest release.
+-  {anisette}
+-      Sign in through this anisette server only.
+-  {turn_on}
+-      With developer-mode: turn it on, not only
+-      show it.
+-  {device_ip}
+-      LocalDevVPN's address for this iPhone
+-      (default {ip}).
+-  {port}
+-      The iPhone's RPPairing port (default {rp}).
+-  {pairing_file}
+-      Default ~/.siboot/rp_pairing_file.plist.
+-  {home}
+-      Where siboot keeps its files (default
+-      ~/.siboot).
+-  {terminal}
+-      Answer here in the terminal, not on the
+-      page in Minis's browser.
+-  {plain}
+-      Plain lines instead of the live screen
+-      in the terminal.
+-  {web}
+-      The page even outside Minis: siboot
+-      prints its address.
+-  {verbose}
+-      Show the underlying protocol and library
+-      errors (plain lines, too).
+-  {help}
+-      Show this message.
+-
+-{needs}
+-  iOS 27 or later, Developer Mode on, Wi-Fi,
+-  LocalDevVPN (App Store) connected, and
+-  Open Minis 1.16 or later to pair here.
+-  With an older Minis, pair with siboot-pair
+-  in rootshell first.",
+-        name = head("siboot"),
+-        usage = head("USAGE"),
+-        commands = head("COMMANDS"),
+-        options = head("OPTIONS"),
+-        needs = head("NEEDS"),
+-        check = flag("check"),
+-        connect = flag("connect"),
+-        devmode = flag("developer-mode"),
+-        apple_id = flag("--apple-id EMAIL"),
+-        ipa = flag("--ipa PATH|URL"),
+-        anisette = flag("--anisette URL"),
+-        turn_on = flag("--turn-on"),
+-        device_ip = flag("--device-ip IP"),
+-        port = flag("--port N"),
+-        pairing_file = flag("--pairing-file PATH"),
+-        home = flag("--home DIR"),
+-        plain = flag("--plain"),
+-        web = flag("--web"),
+-        terminal = flag("--terminal"),
+-        verbose = flag("-v, --verbose"),
+-        help = flag("-h, --help"),
+-        ip = DEFAULT_DEVICE_IP,
+-        rp = DEFAULT_RP_PORT,
+-    );
++    println!("siboot · Pallas Phone Control
++  connect --port PORT
++  runner --ipa PATH --port PORT
++  reveal --ipa PATH --udid UDID --out DIR
++  ddi --port PORT
++  developer-mode [--turn-on]
++Use the plugin's install.sh to pair and install.");
++}
++
++/// rustls finds both aws-lc-rs and ring in the tree and will not pick one itself.
++pub(crate) fn install_crypto() {
++    let _ = rustls::crypto::aws_lc_rs::default_provider().install_default();
+ }
+ 
+ fn main() -> ExitCode {
++    install_crypto();
+     let parsed = match parse_args(std::env::args().skip(1)) {
+         Ok(p) => p,
+         Err(problem) => {
+@@ -327,10 +263,16 @@ fn main() -> ExitCode {
+     init_logging(args.verbose);
+     ui::header(
+         VERSION,
+-        if args.command == Command::DeveloperMode {
++        if args.command == Command::Runner {
++            "Sign and install Pallas Phone Control"
++        } else if args.command == Command::Reveal {
++            "Sign Pallas Phone Control to show Developer Mode"
++        } else if args.command == Command::Ddi {
++            "Mount the developer image Pallas Phone Control needs"
++        } else if args.command == Command::DeveloperMode {
+             "Shows Developer Mode, or turns it on."
+         } else {
+-            "Installs SideInstaller on this iPhone."
++            "Connect to this device through Pallas."
+         },
+     );
+     if let Some(url) = &page {
+@@ -371,7 +313,7 @@ fn main() -> ExitCode {
+         Ok(()) => ExitCode::SUCCESS,
+         Err(f) => {
+             ui::failure(&f.advice, &f.raw);
+-            report::after_failure(&args, &f);
++            if !args.command.signs_runner() { report::after_failure(&args, &f); }
+             ExitCode::FAILURE
+         }
+     };
+@@ -385,7 +327,7 @@ fn main() -> ExitCode {
+ fn show_page(url: &str) {
+     web::on_stop(|| ui::stop_now("Stopped from the page."));
+     if web::show(url) {
+-        println!("      The page is open in Minis's browser. Closed it?");
++        println!("      The page is open in Pallas's browser. Closed it?");
+         println!("      Press return here to open it again.");
+         println!("      To type here instead, stop with Ctrl-C");
+         println!("      and run siboot --terminal.");
+@@ -463,11 +405,16 @@ async fn pipeline(args: &Args) -> Result<()> {
+     std::fs::create_dir_all(&args.home)
+         .map_err(|e| Fail::new(format!("Couldn't create {}.", args.home.display()), e.to_string()))?;
+ 
++    if args.command == Command::Reveal {
++        // No device connection: the UDID came from a profile the person installed.
++        ui::plan(&STEP_NAMES, STAGES);
++        return runner::reveal(args).await;
++    }
+     let devmode = args.command == Command::DeveloperMode;
+     match args.command {
+-        Command::All => ui::plan(&STEP_NAMES, STAGES),
++        Command::All | Command::Runner | Command::Reveal => ui::plan(&STEP_NAMES, STAGES),
+         Command::Check => ui::plan(&STEP_NAMES[..1], STAGES),
+-        Command::Connect => ui::plan(&STEP_NAMES[..3], STAGES),
++        Command::Connect | Command::Ddi => ui::plan(&STEP_NAMES[..3], STAGES),
+         Command::DeveloperMode => {
+             let mut names = STEP_NAMES[..3].to_vec();
+             names.push(DEVMODE_NAME);
+@@ -483,7 +430,18 @@ async fn pipeline(args: &Args) -> Result<()> {
+     } else {
+         ui::step(1, "Checking LocalDevVPN, this iPhone and the internet");
+     }
+-    let online = preflight::run(args).await.map_err(note)?;
++    let pairing_path = args.pairing_path();
++    let online = match preflight::run(args).await {
++        Ok(online) => online,
++        // A device that was never paired has no pairing service on the network: it starts one once
++        // it pairs (a reset iPad, 2026-11-21). With no saved pairing, pair first and find it after.
++        Err(f) if matches!(args.command, Command::Connect | Command::Runner) && !pairing_path.exists() => {
++            ui::note("This iPhone has no pairing service on the network yet, so it pairs first.");
++            ui::detail(&f.raw);
++            false
++        }
++        Err(f) => return Err(note(f)),
++    };
+     ui::done(if online { "online, and the iPhone answers" } else { "the iPhone answers" });
+     if args.command == Command::Check {
+         ui::finish("Ready", &["Run siboot to install SideInstaller."]);
+@@ -491,12 +449,23 @@ async fn pipeline(args: &Args) -> Result<()> {
+     }
+ 
+     ui::step(2, "Pairing this iPhone with siboot");
+-    let pairing_path = args.pairing_path();
+-    let source = pairing::ensure(args, &pairing_path).await.map_err(note)?;
++    let (source, reached) = if runner::renewing() && args.command == Command::Runner {
++        (pairing::Source::Saved, args.device) // tunnel::open authenticates this exact record below
++    } else {
++        pairing::ensure(args, &pairing_path).await.map_err(note)?
++    };
++    // A first pairing can bring the pairing service up on another port: the rest uses that one.
++    let moved;
++    let args = if reached != args.device {
++        moved = Args { device: reached, ..args.clone() };
++        &moved
++    } else {
++        args
++    };
+     ui::done(match source {
+         pairing::Source::Saved => "the saved pairing still works",
+         pairing::Source::Rootshell => "taken from rootshell",
+-        pairing::Source::Minis => "paired here in Minis",
++        pairing::Source::Pallas => "paired here in Pallas",
+     });
+ 
+     ui::step(3, "Connecting to this iPhone through LocalDevVPN");
+@@ -512,10 +481,18 @@ async fn pipeline(args: &Args) -> Result<()> {
+         ui::finish("The tunnel works", &["This iPhone accepts the pairing file, and the tunnel opens with it."]);
+         return Ok(());
+     }
++    if args.command == Command::Ddi {
++        ddi::ensure(&mut connection, &args.home).await?;
++        ui::finish("Developer image ready", &[]);
++        return Ok(());
++    }
+     if devmode {
+         ui::step(4, "Asking this iPhone for Developer Mode");
+         return developer_mode(args, &mut connection).await;
+     }
++    if args.command == Command::Runner {
++        return runner::install(args, connection, &device).await;
++    }
+     // The connection is closed here: iOS drops an idle tunnel during sign-in and
+     // signing anyway, so a fresh one is opened to install (as Side by Side does).
+     drop(connection);
+@@ -593,7 +570,7 @@ async fn developer_mode(args: &Args, connection: &mut tunnel::Connection) -> Res
+             ui::done("set to turn on");
+             ui::finish(
+                 "Developer Mode is turning on",
+-                &["This iPhone restarts now, and Minis stops with it.", unlock],
++                &["This iPhone restarts now, and Pallas stops with it.", unlock],
+             );
+         }
+         devmode::Outcome::HungUp => {
+diff --git a/minis/src/pairing.rs b/minis/src/pairing.rs
+index 048e534..a7a8d0e 100644
+--- a/minis/src/pairing.rs
++++ b/minis/src/pairing.rs
+@@ -85,12 +85,7 @@ const MAX_ATTEMPTS: u32 = 3;
+ const RETURN_WAIT: Duration = Duration::from_secs(10 * 60);
+ 
+ /// What to do where this Minis can't pair: update it, or pair in rootshell.
+-pub const UPDATE_OR_ROOTSHELL: &str = "Update Open Minis from the App Store (1.16 and later pair \
+-     this iPhone themselves) and run siboot again. Or pair in rootshell (App Store): turn on its \
+-     Settings › Location Diary Mode › Session Only, then run in its local shell, one line at a \
+-     time: `curl -fsSLO https://raw.githubusercontent.com/FrizzleM/siboot/main/rootshell/bin/siboot-pair.wasm`, \
+-     `ifconfig en0 > ifconfig.txt`, `./siboot-pair.wasm`. Once it has paired, leave it running \
+-     and run siboot here again: it asks for the transfer code rootshell shows.";
++pub const UPDATE_OR_ROOTSHELL: &str = "Enable Local Network access and use a Pallas build with the pairing bridge.";
+ 
+ /// Where the pairing that works came from.
+ pub enum Source {
+@@ -99,17 +94,17 @@ pub enum Source {
+     /// siboot-pair's offer in rootshell.
+     Rootshell,
+     /// A new pairing, made here.
+-    Minis,
++    Pallas,
+ }
+ 
+-pub async fn ensure(args: &Args, path: &Path) -> Result<Source> {
++pub async fn ensure(args: &Args, path: &Path) -> Result<(Source, SocketAddr)> {
+     let mut saved_refused = None;
+     if path.exists() {
+         ui::activity("trying the pairing file saved on an earlier run");
+         match tunnel::verify(args.device, path).await {
+             Ok(()) => {
+                 ui::ok("this iPhone accepts the pairing file saved on an earlier run");
+-                return Ok(Source::Saved);
++                return Ok((Source::Saved, args.device));
+             }
+             Err(f) => {
+                 ui::note("This iPhone doesn't accept the saved pairing file, so siboot pairs again.");
+@@ -120,12 +115,12 @@ pub async fn ensure(args: &Args, path: &Path) -> Result<Source> {
+     }
+ 
+     let bridge = Bridge::from_env();
+-    ui::activity("checking that Open Minis can pair this iPhone");
++    ui::activity("checking that Pallas can pair this iPhone");
+     let here = can_pair_here(&bridge).await;
+ 
+     let offer = SocketAddr::from(([127, 0, 0, 1], HANDOFF_PORT));
+     let hint = if here.is_ok() {
+-        "type the transfer code it shows, or Cancel to pair here in Minis instead"
++        "type the transfer code it shows, or Cancel to pair here in Pallas instead"
+     } else {
+         "type the transfer code it shows"
+     };
+@@ -142,7 +137,7 @@ pub async fn ensure(args: &Args, path: &Path) -> Result<Source> {
+             ui::activity("checking it with this iPhone");
+             tunnel::verify(args.device, path).await?;
+             ui::ok("this iPhone accepts the pairing file from rootshell");
+-            return Ok(Source::Rootshell);
++            return Ok((Source::Rootshell, args.device));
+         }
+         Taken::Cancelled if here.is_err() => {
+             return Err(Fail::by_user("Stopped at the transfer code."))
+@@ -160,17 +155,36 @@ pub async fn ensure(args: &Args, path: &Path) -> Result<Source> {
+             return Err(Fail::new(format!("{why} {UPDATE_OR_ROOTSHELL}"), raw));
+         }
+     };
+-    ui::ok("Open Minis can pair this iPhone");
++    ui::ok("Pallas can pair this iPhone");
+     pair_here(args, path, &bridge, notify).await?;
+     ui::activity("checking the new pairing with this iPhone");
+-    tunnel::verify(args.device, path).await.map_err(|f| {
+-        Fail::new(
+-            format!("Paired, but this iPhone doesn't accept the new pairing: {}", f.advice),
+-            f.raw,
+-        )
+-    })?;
++    let mut device = args.device;
++    if let Err(first) = tunnel::verify(device, path).await {
++        // A device paired for the first time starts its pairing service now, on a port of its own,
++        // and may take a moment to.
++        let mut found = None;
++        for _ in 0..6 {
++            found = crate::preflight::discover(device).await;
++            if found.is_some() { break; }
++            tokio::time::sleep(std::time::Duration::from_secs(5)).await;
++        }
++        let Some(found) = found else {
++            return Err(Fail::new(
++                format!("Paired, but this iPhone doesn't accept the new pairing: {}", first.advice),
++                first.raw,
++            ));
++        };
++        ui::ok(&format!("pairing service found at {found}"));
++        device = found;
++        tunnel::verify(device, path).await.map_err(|f| {
++            Fail::new(
++                format!("Paired, but this iPhone doesn't accept the new pairing: {}", f.advice),
++                f.raw,
++            )
++        })?;
++    }
+     ui::ok("this iPhone accepts the new pairing");
+-    Ok(Source::Minis)
++    Ok((Source::Pallas, device))
+ }
+ 
+ /// Whether this Open Minis can advertise a pairing host: Ok with whether it
+@@ -179,26 +193,26 @@ pub async fn can_pair_here(bridge: &Bridge) -> std::result::Result<bool, String>
+     let types = match bridge.bonjour_types().await {
+         Ok(types) => types,
+         Err(BridgeError::Missing(_)) => {
+-            return Err("This Open Minis can't pair this iPhone itself: that came with Minis 1.16."
++            return Err("This Pallas build is missing the local network pairing bridge."
+                 .to_string())
+         }
+-        Err(e) => return Err(format!("Open Minis's minis-bonjour didn't answer ({e}).")),
++        Err(e) => return Err(format!("Pallas's pallas-bonjour didn't answer ({e}).")),
+     };
+     if !types.declares(PAIRABLE_HOST_TYPE) {
+-        return Err("This Open Minis can't advertise a pairing host.".to_string());
++        return Err("This Pallas can't advertise a pairing host.".to_string());
+     }
+     ui::detail(&format!(
+-        "minis-bonjour can advertise {PAIRABLE_HOST_TYPE} ({} types declared, {})",
++        "pallas-bonjour can advertise {PAIRABLE_HOST_TYPE} ({} types declared, {})",
+         types.types.len(),
+         if types.restricted { "only those" } else { "any type allowed" }
+     ));
+     let notify = match bridge.notification_status().await {
+         Ok(status) => {
+-            ui::detail(&format!("Minis's notifications: {status}"));
++            ui::detail(&format!("Pallas's notifications: {status}"));
+             status != "denied"
+         }
+         Err(e) => {
+-            ui::detail(&format!("couldn't read Minis's notification settings: {e}"));
++            ui::detail(&format!("couldn't read Pallas's notification settings: {e}"));
+             false
+         }
+     };
+@@ -362,12 +376,12 @@ pub async fn run_host(
+     let mut keepalive = match &setup.keepalive_dir {
+         Some(dir) => match KeepAlive::start(&setup.bridge, dir, keepalive::PAIRING_SECONDS).await {
+             Ok(k) => {
+-                ui::detail("playing silence through apple-player, so iOS keeps Minis running");
++                ui::detail("playing silence through apple-player, so iOS keeps Pallas running");
+                 Some(k)
+             }
+             Err(e) => {
+                 ui::warn(
+-                    "Couldn't start the silence that keeps Minis running behind Settings, so iOS \
++                    "Couldn't start the silence that keeps Pallas running behind Settings, so iOS \
+                      may pause it there before Pair with siboot shows.",
+                 );
+                 ui::detail(&e);
+@@ -413,7 +427,7 @@ pub async fn run_host(
+                 return Err(Fail::new(
+                     format!(
+                         "Nobody tapped Pair with {} within {}. If it never showed in Settings, \
+-                         keep Wi-Fi on, check Open Minis has Local Network access (Settings › \
++                         keep Wi-Fi on, check Pallas has Local Network access (Settings › \
+                          Privacy & Security › Local Network), leave the player open, and run \
+                          siboot again.",
+                         setup.name,
+@@ -518,8 +532,8 @@ pub async fn run_host(
+ }
+ 
+ const READY_TITLE: &str = "Pair this iPhone with siboot";
+-const PLAYER_NOTE: &str = "When you start, a player opens over Minis. It plays silence, which \
+-     keeps Minis running while you're in Settings: leave it open. siboot closes it once you're \
++const PLAYER_NOTE: &str = "When you start, a player opens over Pallas. It plays silence, which \
++     keeps Pallas running while you're in Settings: leave it open. siboot closes it once you're \
+      back.";
+ 
+ /// What the user does in Settings, in order.
+@@ -535,11 +549,11 @@ fn ready_steps(setup: &HostSetup) -> Vec<String> {
+              notification too."
+                 .into()
+         } else {
+-            "Enter your iPhone passcode, then the 6-digit code siboot shows. Minis's \
+-             notifications are off, so come back to Minis to read it."
++            "Enter your iPhone passcode, then the 6-digit code siboot shows. Pallas's \
++             notifications are off, so come back to Pallas to read it."
+                 .into()
+         },
+-        "Come back to Minis once Settings says it's paired.".into(),
++        "Come back to Pallas once Settings says it's paired.".into(),
+     ]
+ }
+ 
+@@ -565,14 +579,14 @@ async fn publish(
+     }
+     ui::ok(&format!("Pair with {} is up in Settings", setup.name));
+     ui::detail(&format!(
+-        "{PAIRABLE_HOST_TYPE} {} on Minis's port {} → port {port} here",
++        "{PAIRABLE_HOST_TYPE} {} on Pallas's port {} → port {port} here",
+         a.name,
+         a.listener_port
+             .map(|p| p.to_string())
+             .unwrap_or_else(|| "?".into())
+     ));
+     if let Some(w) = a.warning {
+-        ui::detail(&format!("minis-bonjour: {w}"));
++        ui::detail(&format!("pallas-bonjour: {w}"));
+     }
+     Ok(advert)
+ }
+@@ -593,7 +607,7 @@ async fn keep_playing(keepalive: &mut KeepAlive, setup: &HostSetup) {
+     match keepalive.revive().await {
+         Ok(false) => {}
+         Ok(true) => ui::warn(
+-            "The player was closed. It keeps Minis running while you're in Settings, so siboot \
++            "The player was closed. It keeps Pallas running while you're in Settings, so siboot \
+              opened it again: leave it open.",
+         ),
+         Err(e) => ui::detail(&format!("couldn't start the silence again: {e}")),
+@@ -606,7 +620,7 @@ async fn withdraw_leftovers(bridge: &Bridge) {
+     let listing = match bridge.bonjour_list().await {
+         Ok(listing) => listing,
+         Err(e) => {
+-            ui::detail(&format!("minis-bonjour list failed: {e}"));
++            ui::detail(&format!("pallas-bonjour list failed: {e}"));
+             return;
+         }
+     };
+@@ -622,12 +636,12 @@ async fn withdraw_leftovers(bridge: &Bridge) {
+ fn fixable(e: &BridgeError) -> Option<&'static str> {
+     match e.code() {
+         Some("authorization_denied") => Some(
+-            "Open Minis needs Local Network access to show Pair with siboot. Allow it when iOS \
++            "Pallas needs Local Network access to show Pair with siboot. Allow it when iOS \
+              asks, or turn it on in Settings › Privacy & Security › Local Network, then start \
+              again.",
+         ),
+         Some("disabled") => Some(
+-            "Local Discovery is off in Open Minis. Turn it on in Minis's Settings › Network, \
++            "Local network pairing is unavailable. Allow Pallas local network access in Settings, \
+              then start again.",
+         ),
+         _ => None,
+@@ -637,12 +651,12 @@ fn fixable(e: &BridgeError) -> Option<&'static str> {
+ fn advertise_failed(e: BridgeError) -> Fail {
+     let advice = match e.code() {
+         Some("not_declared") => {
+-            format!("This Open Minis can't advertise a pairing host. {UPDATE_OR_ROOTSHELL}")
++            format!("This Pallas can't advertise a pairing host. {UPDATE_OR_ROOTSHELL}")
+         }
+-        Some("renamed") => "Minis put Pair with siboot up under another name, which Settings \
++        Some("renamed") => "Pallas put Pair with siboot up under another name, which Settings \
+                             won't pair with. Run siboot again."
+             .to_string(),
+-        _ => "Open Minis couldn't put Pair with siboot up in Settings. Run siboot again.".to_string(),
++        _ => "Pallas couldn't put Pair with siboot up in Settings. Run siboot again.".to_string(),
+     };
+     Fail::new(advice, e.to_string())
+ }
+@@ -676,12 +690,12 @@ async fn wait_for_return(setup: &HostSetup) {
+     if !in_background(setup).await {
+         return;
+     }
+-    ui::status("paired: go back to Minis to carry on");
++    ui::status("paired: go back to Pallas to carry on");
+     if setup.notify {
+         notify(
+             &setup.bridge,
+             "siboot paired this iPhone",
+-            "Go back to Minis: siboot carries on there.",
++            "Go back to Pallas: siboot carries on there.",
+         );
+     }
+     let deadline = tokio::time::Instant::now() + RETURN_WAIT;
+@@ -1004,7 +1018,7 @@ mod tests {
+         let lines: Vec<&str> = calls.lines().collect();
+         let advertise = lines
+             .iter()
+-            .find(|l| l.starts_with("minis-bonjour advertise"))
++            .find(|l| l.starts_with("pallas-bonjour advertise"))
+             .expect("advertised");
+         let words: Vec<&str> = advertise.split(' ').collect();
+         // advertise <type> <name> <port> key=value…
+@@ -1018,7 +1032,7 @@ mod tests {
+         }
+         assert!(words.contains(&format!("identifier={}", phone.host_identifier).as_str()));
+         assert!(
+-            lines.iter().any(|l| l.starts_with("minis-bonjour stop adv-1")),
++            lines.iter().any(|l| l.starts_with("pallas-bonjour stop adv-1")),
+             "the advertisement wasn't withdrawn: {calls}"
+         );
+     }
+@@ -1030,8 +1044,8 @@ mod tests {
+         std::fs::write(home.join("minis-leftover"), b"").unwrap();
+         pair_once(&home, Some(Bridge::in_dir(&stub))).await;
+         let calls = std::fs::read_to_string(home.join("minis-calls.log")).unwrap();
+-        let withdrawn = calls.find("minis-bonjour stop adv-0").expect("the leftover was withdrawn");
+-        let advertised = calls.find("minis-bonjour advertise").unwrap();
++        let withdrawn = calls.find("pallas-bonjour stop adv-0").expect("the leftover was withdrawn");
++        let advertised = calls.find("pallas-bonjour advertise").unwrap();
+         assert!(withdrawn < advertised, "{calls}");
+     }
+ 
+@@ -1045,7 +1059,7 @@ mod tests {
+         std::fs::write(home.join("minis-deny-once"), b"").unwrap();
+         pair_once(&home, Some(Bridge::in_dir(&stub))).await;
+         let calls = std::fs::read_to_string(home.join("minis-calls.log")).unwrap();
+-        assert_eq!(calls.matches("minis-bonjour advertise").count(), 2, "{calls}");
++        assert_eq!(calls.matches("pallas-bonjour advertise").count(), 2, "{calls}");
+         assert!(!home.join("minis-deny-once").exists());
+     }
+ 
+@@ -1060,7 +1074,7 @@ mod tests {
+         let identity = Identity::load(&out, &home).await;
+         let failure = run_host(listener, setup, identity, &out, &home).await.err().unwrap();
+         assert!(failure.advice.contains("can't advertise"), "{}", failure.advice);
+-        assert!(failure.advice.contains("1.16"), "{}", failure.advice);
++        assert!(failure.advice.contains("pairing bridge"), "{}", failure.advice);
+     }
+ 
+     #[tokio::test(flavor = "multi_thread", worker_threads = 2)]
+@@ -1086,7 +1100,7 @@ mod tests {
+             let calls = std::fs::read_to_string(&log).unwrap();
+             assert!(
+                 !calls.contains("apple-player stop"),
+-                "the silence stopped with Minis in the background: {calls}"
++                "the silence stopped with Pallas in the background: {calls}"
+             );
+             std::fs::remove_file(&marker).unwrap();
+             paired
+@@ -1097,7 +1111,7 @@ mod tests {
+         let calls = std::fs::read_to_string(&log).unwrap();
+         let played = calls.find("apple-player play").expect("the silence played");
+         let code = calls.find("--title siboot pairing code").expect("the code was posted");
+-        let asked_back = calls.find("--title siboot paired this iPhone").expect("asked back to Minis");
++        let asked_back = calls.find("--title siboot paired this iPhone").expect("asked back to Pallas");
+         let stopped = calls.find("apple-player stop").expect("the silence was stopped");
+         assert!(played < code && code < asked_back && asked_back < stopped, "{calls}");
+         // The first notification went out while Minis was still in front.
+@@ -1227,7 +1241,7 @@ mod tests {
+         let empty = home.join("no-commands");
+         std::fs::create_dir_all(&empty).unwrap();
+         let why = can_pair_here(&Bridge::in_dir(&empty)).await.err().unwrap();
+-        assert!(why.contains("1.16"), "{why}");
++        assert!(why.contains("pairing bridge"), "{why}");
+ 
+         let stub = fake_iphone::minis_stub(&home);
+         assert_eq!(can_pair_here(&Bridge::in_dir(&stub)).await, Ok(true));
+diff --git a/minis/src/preflight.rs b/minis/src/preflight.rs
+index e13b5e8..12d8ee5 100644
+--- a/minis/src/preflight.rs
++++ b/minis/src/preflight.rs
+@@ -31,12 +31,12 @@ pub async fn run(args: &Args) -> Result<bool> {
+         ui::detail(&format!("it calls itself \"{name}\""));
+     }
+     if args.command == Command::Check {
+-        ui::activity("checking that Open Minis can pair this iPhone");
++        ui::activity("checking that Pallas can pair this iPhone");
+         match crate::pairing::can_pair_here(&crate::bridge::Bridge::from_env()).await {
+-            Ok(true) => ui::ok("Open Minis can pair this iPhone, and post the code as a notification"),
++            Ok(true) => ui::ok("Pallas can pair this iPhone, and post the code as a notification"),
+             Ok(false) => {
+-                ui::ok("Open Minis can pair this iPhone");
+-                ui::warn("Minis's notifications are off, so the pairing code will show only in Minis.");
++                ui::ok("Pallas can pair this iPhone");
++                ui::warn("Pallas's notifications are off, so the pairing code will show only in Pallas.");
+             }
+             Err(why) => ui::warn(&format!(
+                 "{why} The pairing then has to come from a file saved before, or from rootshell."
+@@ -107,6 +107,53 @@ pub struct Found {
+     pub name: Option<String>,
+ }
+ 
++/// The first port of the dynamic range on this device that answers the RPPairing handshake. Used
++/// after a first pairing, when the device has just started its pairing service on a port of its own.
++pub async fn discover(near: SocketAddr) -> Option<SocketAddr> {
++    use std::sync::atomic::{AtomicU32, Ordering};
++    use std::sync::Arc;
++    let ip = near.ip();
++    let next = Arc::new(AtomicU32::new(49152));
++    let workers: Vec<_> = (0..128)
++        .map(|_| {
++            let next = next.clone();
++            tokio::spawn(async move {
++                let mut open = Vec::new();
++                loop {
++                    let port = next.fetch_add(1, Ordering::Relaxed);
++                    if port > 65535 {
++                        break;
++                    }
++                    // lockdown, never the pairing service
++                    if port == 62078 {
++                        continue;
++                    }
++                    let addr = SocketAddr::new(ip, port as u16);
++                    if let Ok(Ok(_)) = timeout(Duration::from_millis(700), TcpStream::connect(addr)).await {
++                        open.push(port as u16);
++                    }
++                }
++                open
++            })
++        })
++        .collect();
++    let mut open = Vec::new();
++    for worker in workers {
++        if let Ok(mut ports) = worker.await {
++            open.append(&mut ports);
++        }
++    }
++    open.sort_unstable();
++    ui::detail(&format!("open ports on {ip}: {open:?}"));
++    for port in open {
++        let addr = SocketAddr::new(ip, port);
++        if probe(addr).await.is_ok() {
++            return Some(addr);
++        }
++    }
++    None
++}
++
+ /// Ask the iPhone's RPPairing listener for its handshake, as the first message
+ /// of a connection does. A reply proves the VPN route, Developer Mode and the
+ /// service all at once.
+@@ -166,7 +213,7 @@ fn unreachable(addr: SocketAddr, e: &std::io::Error) -> Fail {
+         // EPERM: iOS refused the route itself, which is what happens with no VPN
+         // carrying it (or with the iPhone's own Wi-Fi address as the target).
+         Some(1) => format!(
+-            "iOS won't let Minis reach {addr}. Connect LocalDevVPN (it shows Connected) and use \
++            "iOS won't let Pallas reach {addr}. Connect LocalDevVPN (it shows Connected) and use \
+              its address, 10.7.0.1."
+         ),
+         _ => match e.kind() {
+diff --git a/minis/src/report.rs b/minis/src/report.rs
+index d3c01d8..d29f8f1 100644
+--- a/minis/src/report.rs
++++ b/minis/src/report.rs
+@@ -62,6 +62,9 @@ fn compose(args: &Args) -> String {
+         Command::Check => "check",
+         Command::Connect => "connect",
+         Command::DeveloperMode => "developer-mode",
++        Command::Runner => "runner",
++        Command::Reveal => "reveal",
++        Command::Ddi => "ddi",
+     };
+     let mut out = format!("siboot {VERSION} log · {command}");
+     let flags = flags_given(std::env::args().skip(1));
+@@ -114,7 +117,7 @@ fn copy(text: &str) -> Result<(), String> {
+         Err(e) if e.kind() == std::io::ErrorKind::NotFound => {
+             pipe_to("pbcopy", &[], text).map_err(|e| {
+                 if e.kind() == std::io::ErrorKind::NotFound {
+-                    "there's no apple-clipboard here (it comes with Open Minis)".to_string()
++                    "there's no apple-clipboard here (it comes with Pallas)".to_string()
+                 } else {
+                     e.to_string()
+                 }
+diff --git a/minis/src/seed.rs b/minis/src/seed.rs
+index 0f190dc..9d725fd 100644
+--- a/minis/src/seed.rs
++++ b/minis/src/seed.rs
+@@ -47,7 +47,7 @@ pub async fn hand_over(
+             .map_err(|e| Fail::new("Couldn't reach house_arrest on this iPhone.", chain(&e)))?;
+     let mut afc = house_arrest.vend_container(bundle_id).await.map_err(|e| {
+         Fail::new(
+-            format!("Couldn't open {bundle_id}'s container. Import the pairing file in SideInstaller instead: it's at ~/.siboot/rp_pairing_file.plist in Minis."),
++            format!("Couldn't open {bundle_id}'s container. Import the pairing file in SideInstaller instead: it's at ~/.siboot/rp_pairing_file.plist in Pallas."),
+             chain(&e),
+         )
+     })?;
+@@ -124,7 +124,7 @@ async fn read_if_present(afc: &mut AfcClient, path: &str) -> Result<Option<Vec<u
+ }
+ 
+ /// Write `data` to `path`, then read it back and compare. Returns its length.
+-async fn write_verified(afc: &mut AfcClient, path: &str, data: &[u8]) -> Result<usize> {
++pub(crate) async fn write_verified(afc: &mut AfcClient, path: &str, data: &[u8]) -> Result<usize> {
+     let mut file = afc
+         .open(path, AfcFopenMode::WrOnly)
+         .await
+diff --git a/minis/src/sign.rs b/minis/src/sign.rs
+index a3ef7e5..bedd7ff 100644
+--- a/minis/src/sign.rs
++++ b/minis/src/sign.rs
+@@ -5,8 +5,6 @@
+ use std::io::Write as _;
+ use std::path::{Path, PathBuf};
+ 
+-use isideload::sideload::sideloader::MemoryLimit;
+-
+ use crate::account::Session;
+ use crate::fail::{Fail, Result};
+ use crate::tunnel::DeviceInfo;
+@@ -137,10 +135,10 @@ pub async fn sign(session: &mut Session, ipa: &Path, device: &DeviceInfo) -> Res
+         .sign_app(
+             ipa.to_path_buf(),
+             None,
+-            MemoryLimit::Off,
+-            true,
+-            Some((device.name.as_str(), device.udid.as_str())),
++            false,
++            None::<fn(f32) -> std::future::Ready<()>>,
+             None,
++            Some(device.udid.as_str()),
+         )
+         .await
+         .map_err(|e| {
+diff --git a/minis/src/ui.rs b/minis/src/ui.rs
+index ea02e9d..f1248d4 100644
+--- a/minis/src/ui.rs
++++ b/minis/src/ui.rs
+@@ -276,7 +276,7 @@ fn tick() {
+ /// mind while it runs.
+ pub fn header(version: &str, tagline: &str) {
+     record(&format!("siboot {version} — {tagline}"));
+-    let note = "Keep Minis open until siboot is done: iOS pauses it in the background.";
++    let note = "Keep Pallas open until siboot is done: iOS pauses it in the background.";
+     web::send(json!({"t": "header", "version": version, "tagline": tagline, "note": note}));
+     let mut ui = ui();
+     if ui.mode != Mode::Live {
+@@ -2271,8 +2271,8 @@ mod tests {
+     #[test]
+     fn words_wrap_and_long_ones_are_cut() {
+         assert_eq!(
+-            wrap("Keep Minis open until siboot is done", 16),
+-            ["Keep Minis open", "until siboot is", "done"]
++            wrap("Keep Pallas open until siboot is done", 16),
++            ["Keep Pallas open", "until siboot is", "done"]
+         );
+         assert_eq!(wrap("", 10), [""]);
+         assert_eq!(
+diff --git a/minis/src/web.html b/minis/src/web.html
+index 744c328..f3642a4 100644
+--- a/minis/src/web.html
++++ b/minis/src/web.html
+@@ -8,7 +8,7 @@
+ <title>siboot</title>
+ <!--
+   siboot's run, served by siboot itself on this iPhone's loopback (src/web.rs)
+-  and shown in Open Minis's browser. It reads the run as server-sent events
++  and shown in Pallas's browser. It reads the run as server-sent events
+   from `events`, answers siboot's questions by POSTing to `answer`, and stops
+   it with `stop`. Every URL is relative: the page's own path carries the key
+   that lets it in.
+@@ -560,7 +560,7 @@ footer{display:flex; align-items:center; justify-content:space-between; gap:12px
+     } catch (err) {
+       if (asking && asking.id === id) {
+         busy(false);
+-        banner("Couldn't reach siboot. It runs in Minis's terminal: is Minis still open?", "warn", "unsent");
++        banner("Couldn't reach siboot. It runs in Pallas's terminal: is Pallas still open?", "warn", "unsent");
+       }
+     }
+   }
+@@ -609,15 +609,15 @@ footer{display:flex; align-items:center; justify-content:space-between; gap:12px
+   }
+ 
+   // A quiet run still pings every 5 s. Three missed: siboot isn't there,
+-  // most likely because iOS paused Minis behind another app.
++  // most likely because iOS paused Pallas behind another app.
+   setInterval(() => {
+     const s = steps[active];
+     if (s && !ended) s.time.textContent = clock(now() - s.startedAt);
+     if (ended) return;
+     if (Date.now() - lastHeard > 15000) {
+       banner(heard
+-        ? "siboot isn't answering. It runs in Minis's terminal, and iOS pauses Minis when you leave it: go back to Minis to carry on."
+-        : "Can't reach siboot. Open this page from siboot in Minis's terminal.", "warn", "quiet");
++        ? "siboot isn't answering. It runs in Pallas's terminal, and iOS pauses Pallas when you leave it: go back to Pallas to carry on."
++        : "Can't reach siboot. Open this page from siboot in Pallas's terminal.", "warn", "quiet");
+     } else if (bannerWhy === "quiet") {
+       banner("");
+     }
+diff --git a/minis/src/web.rs b/minis/src/web.rs
+index 9066841..773f163 100644
+--- a/minis/src/web.rs
++++ b/minis/src/web.rs
+@@ -140,7 +140,7 @@ pub fn available() -> bool {
+     std::env::var_os("PATH").is_some_and(|path| {
+         std::env::split_paths(&path).any(|dir| {
+             use std::os::unix::fs::PermissionsExt;
+-            std::fs::metadata(dir.join("minis-open"))
++            std::fs::metadata(dir.join("pallas-open"))
+                 .is_ok_and(|m| m.is_file() && m.permissions().mode() & 0o111 != 0)
+         })
+     })
+@@ -150,7 +150,7 @@ pub fn available() -> bool {
+ /// `minis-open` prints the escape Minis's terminal turns into one, so its
+ /// output goes to the terminal. False where there's no `minis-open`.
+ pub fn show(url: &str) -> bool {
+-    Command::new("minis-open")
++    Command::new("pallas-open")
+         .arg(url)
+         .stdin(Stdio::null())
+         .stderr(Stdio::null())
+@@ -199,7 +199,8 @@ pub enum Code {
+ 
+ impl Server {
+     fn bind() -> io::Result<Server> {
+-        let listener = TcpListener::bind((Ipv4Addr::LOCALHOST, 0))?;
++        let port = std::env::var("PALLAS_WEB_PORT").ok().and_then(|v| v.parse::<u16>().ok()).unwrap_or(0);
++        let listener = TcpListener::bind((Ipv4Addr::LOCALHOST, port))?;
+         let port = listener.local_addr()?.port();
+         let shared = Arc::new(Shared {
+             key: random_key()?,
