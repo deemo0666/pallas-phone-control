@@ -1,33 +1,72 @@
 #!/usr/bin/env python3
 """Adapt upstream's Pallas Bonjour CLI and loopback listener to Pallas's QEMU guest."""
 import asyncio
+import hashlib
+import hmac
+import http.client
 import json
+import secrets
 import os
 from pathlib import Path
 import re
+import stat
 import sys
 import time
 import urllib.error
 import urllib.request
 
-CONFIG_FILE = Path('/root/workspace/.pallasboot-probe.json')
-CONFIG = json.loads(CONFIG_FILE.read_text())
+CONFIG = json.loads(Path(os.environ['PALLASBOOT_CONFIG']).read_text())
 ROOT = Path(os.environ['SIBOOT_PALLAS_BIN'])
+DISCOVERY = Path('/root/workspace/.pallasboot-probe.json')
+
+
+def ports():
+    yield CONFIG['port']
+    # An untrusted hint for rebinding after suspension, never a source of credentials.
+    try:
+        fd = os.open(DISCOVERY, os.O_RDONLY | os.O_NONBLOCK | os.O_NOFOLLOW)
+        with os.fdopen(fd, 'rb') as f:
+            if not stat.S_ISREG(os.fstat(f.fileno()).st_mode):
+                return
+            hint = json.loads(f.read(2048))['port']
+        if type(hint) is int and 1 <= hint <= 65535 and hint != CONFIG['port']:
+            yield hint
+    except (OSError, KeyError, ValueError, TypeError):
+        return
 
 
 def open_bridge(payload, timeout):
-    """POST to the plugin. Its port can move while Pallas is suspended (listen-again.cjs), and it
-    refuses for a moment after a resume, so read the port each time and retry a refusal briefly."""
+    # Port discovery can be stale or hostile. Authenticate the server on the same TCP connection
+    # before sending the job key. Refuse automatic reconnection after verifying the proof.
     for attempt in range(12):
-        port = json.loads(CONFIG_FILE.read_text())['port']
-        request = urllib.request.Request(f"http://10.0.2.2:{port}/", json.dumps(payload).encode(),
-                                         {'Authorization': 'Bearer ' + CONFIG['key']})
-        try:
-            return urllib.request.urlopen(request, timeout=timeout)
-        except urllib.error.URLError as e:
-            if not isinstance(e.reason, ConnectionRefusedError) or attempt == 11:
-                raise
-        time.sleep(1)
+        for port in ports():
+            conn = http.client.HTTPConnection('10.0.2.2', port, timeout=3)
+            try:
+                nonce = secrets.token_hex(32)
+                conn.request('GET', '/proof/' + CONFIG['id'] + '/' + nonce)
+                answer = conn.getresponse()
+                expected = hmac.new(CONFIG['key'].encode(), f'{nonce}:{port}'.encode(), hashlib.sha256).hexdigest().encode()
+                if answer.status != 200 or not hmac.compare_digest(answer.read(65), expected):
+                    continue
+                if conn.sock is None:
+                    continue
+                conn.auto_open = False
+                conn.sock.settimeout(timeout)
+                conn.request('POST', '/', json.dumps(payload), {
+                    'Authorization': 'Bearer ' + CONFIG['key'], 'Content-Type': 'application/json',
+                    'Connection': 'close'})
+                response = conn.getresponse()
+                if response.status != 200:
+                    response.close()
+                    raise RuntimeError('signing job authorization expired')
+                return response
+            except (ConnectionRefusedError, http.client.NotConnected):
+                pass
+            finally:
+                conn.close()
+        if attempt != 11:
+            time.sleep(1)
+    raise RuntimeError('signing service unavailable')
 
 
 def bridge(**args):
@@ -140,7 +179,6 @@ async def run(port, ipa=None):
 
     control = await asyncio.start_unix_server(forward, path=sock)
     bridge(action='stage', value='正在连接')
-    print('配对状态页（在本机浏览器打开）', CONFIG['view'], flush=True)
     proc = await asyncio.create_subprocess_exec(str(ROOT/'pallasboot'), 'connect', '--plain', '--terminal',
         '--home', str(home), '--port', str(port),
         stdout=asyncio.subprocess.PIPE, stderr=asyncio.subprocess.STDOUT)

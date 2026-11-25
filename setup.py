@@ -23,7 +23,7 @@ import urllib.request
 
 BASE = Path(__file__).resolve().parent
 CONFIG = Path('/root/workspace/.pallasboot-probe.json')
-HOME = Path('/root/.pallasboot')
+PAIRED = Path('/run/pallasboot-paired')
 RUN = Path(f'/tmp/pallasboot-{os.getuid()}')
 # Written by the install job the plugin runs (index.cjs runInstall).
 LOG = Path('/root/workspace/.pallasboot-install.log')
@@ -91,32 +91,6 @@ def log_lines():
     return [s.strip() for s in lines if s.strip() and s.strip() != '配对验证仍在运行'][-8:]
 
 
-def sign_home():
-    if not HOME.is_dir():
-        return 'missing'
-    try:
-        probe = HOME / '.writable'
-        probe.touch()
-        return 'writable'
-    except OSError:
-        return 'readonly'
-
-
-def saved():
-    def any_file(pattern):
-        try:
-            return any(p.is_file() for p in HOME.glob(pattern))
-        except OSError:
-            return False
-    receipt = None
-    try:
-        receipt = json.loads((HOME / 'runner-receipt.json').read_text()).get('expires')
-    except (OSError, ValueError):
-        pass
-    return {'pairing': any_file('*pair*'), 'session': any_file('isideload/**/developer_session.json'),
-            'receipt': receipt}
-
-
 def note():
     try:
         return json.loads(NOTE.read_text())
@@ -148,7 +122,7 @@ def system_version(state):
 
 def too_old(state=None):
     """The system version when it cannot pair from the device and has no pairing yet, else None."""
-    if saved()['pairing']:
+    if PAIRED.is_file():
         return None
     if state is None and not note().get('ios'):
         try:
@@ -191,7 +165,7 @@ def classify(reason):
     if not reason:
         return 'failed'
     if '不可写' in reason:
-        return 'full_access'
+        return 'signing_home_unavailable'
     if 'Expected Pallas' in reason:
         return 'host_unsupported'
     # Codes from the signer (login.rs), not text: the agent explains them in the person's language.
@@ -207,16 +181,7 @@ def status(detect=True):
         return 'enable_plugin'
     state = bridge(action='state')
     renewal = bridge(action='renewal', op='status')
-    if not running():
-        # After a reinstall, put back the pairing and sign-in kept in the keychain (vault.py). This
-        # command may not be allowed to write the signer's home; the install job restores it then.
-        from importlib.util import spec_from_file_location, module_from_spec
-        spec = spec_from_file_location('vault', BASE / 'vault.py')
-        vault = module_from_spec(spec)
-        spec.loader.exec_module(vault)
-        if HOME.is_dir() and sign_home() == 'writable':
-            vault.quietly(vault.restore, lambda **args: bridge(**args), HOME)
-    files = saved()
+    files = {'pairing': PAIRED.is_file() or bool(renewal.get('expires')), 'receipt': renewal.get('expires')}
     job = running()
     lines = log_lines()
     expires = renewal.get('expires') or files['receipt']
@@ -224,9 +189,6 @@ def status(detect=True):
     say('page', state['view'])
     say('job', 'running' if job else 'idle')
     say('stage', state['stage'])
-    say('sign_home', sign_home())
-    say('pairing_record', 'saved' if files['pairing'] else 'none')
-    say('apple_session', 'saved' if files['session'] else 'none')
     say('installed_until', until(expires))
     if renewal.get('expires'):
         say('auto_renewal', ('on' if renewal.get('enabled') else 'off') +
@@ -317,7 +279,7 @@ def start(args):
             say('next', 'allow_local_network')
             return
         port = found.get('port')
-        if not port and saved()['pairing']:
+        if not port and (PAIRED.is_file() or bridge(action='renewal', op='status').get('expires')):
             say('port', 'unknown')
             say('next', 'port_unknown')
             return
@@ -328,16 +290,7 @@ def start(args):
             port = 49152
         else:
             say('port', f"{port}（{found['source']}）")
-    env = dict(os.environ)
-    if new_login:
-        env['PALLAS_NEW_LOGIN'] = '1'
-    run = subprocess.run(['sh', str(BASE / 'install.sh'), '--open', str(port)], env=env,
-                         capture_output=True, text=True, timeout=60)
-    out = (run.stdout + run.stderr).strip()
-    if run.returncode != 0:
-        say('error', out.splitlines()[-1] if out else f'install.sh 退出码 {run.returncode}')
-        say('next', classify(out))
-        return
+    bridge(action='install', port=port, newLogin=new_login)
     say('link', bridge(action='state')['view'])
     # Report what the job reaches first: an existing pairing may go straight to the sign-in page.
     follow(25, initial=None)
@@ -350,9 +303,6 @@ def reveal(args):
     old = too_old()
     if old:
         return refuse_old(old)
-    env = dict(os.environ)
-    if '--new-login' in args:
-        env['PALLAS_NEW_LOGIN'] = '1'
     bridge(action='install', mode='reveal', newLogin='--new-login' in args)
     # Report the first step that needs the person: the profile page, once the tunnel is up (the
     # first run also downloads cloudflared). Stage changes before that are not worth a turn.

@@ -19,7 +19,7 @@ async def run(root, home, ipa, port, config, bridge, relay, command=None, stages
             try:
                 reader, writer = await asyncio.open_connection('10.0.2.2', web['reverse'])
                 try:
-                    writer.write(config['key'].encode('ascii'))
+                    writer.write(web['key'].encode('ascii'))
                     await writer.drain()
                     if await reader.readexactly(1) == b'G':
                         await relay(reader, writer, web['port'])

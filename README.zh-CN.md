@@ -51,14 +51,14 @@ Apple 账号的开发证书数量到了上限。签装页可以选择保留现�
 这些命令通常由 agent 执行。路径里的版本号按实际版本替换。
 
 ```sh
-sh /root/workspace/pallasboot-runner-0.7.3/setup.sh status        # 当前状态和下一步
-sh /root/workspace/pallasboot-runner-0.7.3/setup.sh start [--new-login]   # 开始签装；--new-login 换 Apple 账号
-sh /root/workspace/pallasboot-runner-0.7.3/setup.sh wait [秒]
-sh /root/workspace/pallasboot-runner-0.7.3/setup.sh reveal        # 让开发者模式出现
-sh /root/workspace/pallasboot-runner-0.7.3/renew.sh status        # 另有 enable | disable | now
+sh /root/workspace/pallasboot-runner-0.8.0/setup.sh status        # 当前状态和下一步
+sh /root/workspace/pallasboot-runner-0.8.0/setup.sh start [--new-login]   # 开始签装；--new-login 换 Apple 账号
+sh /root/workspace/pallasboot-runner-0.8.0/setup.sh wait [秒]
+sh /root/workspace/pallasboot-runner-0.8.0/setup.sh reveal        # 让开发者模式出现
+sh /root/workspace/pallasboot-runner-0.8.0/renew.sh status        # 另有 enable | disable | now
 ```
 
-`start` 报 `full_access` 时，在「设置 → 权限」为当前对话选「完全权限」后重试，完成后改回。
+`start` 报 `signing_home_unavailable` 时，重新启动 Pallas 后重试。
 
 ## 隐私与安全
 

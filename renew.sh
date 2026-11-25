@@ -1,7 +1,16 @@
 #!/bin/sh
 set -eu
-# Signer home from before the PallasBoot rename (plugin 0.6.x).
-[ -d /root/.pallas-siboot ] && [ ! -e /root/.pallasboot ] && mv /root/.pallas-siboot /root/.pallasboot || true
+# Only a host job can execute a signer. Workspace commands use the setup bridge.
+if [ -z "${PALLASBOOT_CONFIG:-}" ]; then
+    case ${1:-status} in
+        now|ddi)
+            step=start
+            [ "$1" = now ] || step=ddi
+            if [ -n "${2:-}" ]; then set -- --port "$2"; else set --; fi
+            exec sh "$(dirname "$0")/setup.sh" "$step" "$@"
+            ;;
+    esac
+fi
 case ${1:-status} in
     now)
         base=$(CDPATH= cd -- "$(dirname -- "$0")" && pwd)

@@ -15,16 +15,19 @@ import tarfile
 HOME = Path(os.environ.get('PALLAS_SIGN_HOME', '/root/.pallasboot'))
 # The digest of the last copy kept, so an unchanged home is not written again.
 DIGEST = '.vault-digest'
-SKIP_DIRS = {'ddi', '__pycache__'}
+SKIP_DIRS = {'ddi', 'bin', '__pycache__'}
 SKIP_NAMES = {'.writable', DIGEST}
 SKIP_SUFFIXES = ('.log', '.part', '.tmp', '.lock')
 LIMIT = 768 * 1024
+# A previously saved copy may predate the current workspace permission checks.
+RAW_LIMIT = 16 * 1024 * 1024
 
 
 def has_state(home=HOME):
     """A pairing record or an Apple session: what a reinstall would make the person do again."""
     try:
         return any(p.is_file() for p in home.glob('*pair*')) or \
+            any(p.is_file() for p in home.glob('isideload/**/pallas_token.json')) or \
             any(p.is_file() for p in home.glob('isideload/**/developer_session.json'))
     except OSError:
         return False
@@ -45,9 +48,11 @@ def pack(home=HOME):
     with tarfile.open(fileobj=raw, mode='w', format=tarfile.PAX_FORMAT) as tar:
         for path, rel in _files(home):
             info = tarfile.TarInfo(rel.as_posix())
-            data = path.read_bytes()
-            info.size, info.mode, info.mtime = len(data), 0o600, 0
-            tar.addfile(info, io.BytesIO(data))
+            info.size, info.mode, info.mtime = path.stat().st_size, 0o600, 0
+            if raw.tell() + info.size + tarfile.RECORDSIZE > RAW_LIMIT:
+                raise ValueError('signing data exceeds backup limit')
+            with path.open('rb') as data:
+                tar.addfile(info, data)
     return raw.getvalue()
 
 
@@ -88,7 +93,12 @@ def restore(call, home=HOME):
     value = reply.get('value') if reply.get('supported') else ''
     if not value:
         return 'none'
-    raw = gzip.decompress(base64.b64decode(value))
+    if len(value) > LIMIT:
+        raise ValueError('oversized keychain copy')
+    with gzip.GzipFile(fileobj=io.BytesIO(base64.b64decode(value, validate=True))) as archive:
+        raw = archive.read(RAW_LIMIT + 1)
+    if len(raw) > RAW_LIMIT:
+        raise ValueError('oversized keychain archive')
     home.mkdir(mode=0o700, parents=True, exist_ok=True)
     with tarfile.open(fileobj=io.BytesIO(raw), mode='r:') as tar:
         members = list(_members(tar))

@@ -94,7 +94,7 @@ async fn read_key(conn: &mut Connection, host: &str) -> Result<Option<String>> {
         Ok(_) => {
             let data = docs.open(KEYFILE, AfcFopenMode::RdOnly).await.at("Cannot read existing link")?
                 .read_entire().await.at("Cannot read existing link")?;
-            let key = String::from_utf8(data).at("Invalid existing link")?;
+            let key = String::from_utf8(data).at("Invalid existing link")?.trim().to_string();
             if key.len() != 64 || !key.bytes().all(|c| c.is_ascii_hexdigit()) {
                 return Err(Fail::new("Invalid existing link", host.to_string()));
             }
