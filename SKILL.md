@@ -34,7 +34,7 @@ sh /root/workspace/{{DIR}}/setup.sh reset       # 清除配对、Apple 登录和
 - `turn_on_developer_mode`：请用户打开「设置 → 隐私与安全性 → 开发者模式」，打开开关，按提示重启，重启后确认打开。告诉用户重启后回到 Pallas 说「继续开通手机操控」。用户回来后先跑 `status`，按新的 `next` 继续（通常是 `start`）。重启会结束正在跑的签装任务，这是正常的，重新 `start` 即可，已有配对和登录会复用。如果用户说开关还是没出现，请用户等一两分钟再看一次；仍没有就把 `last_result` 告诉用户。
 - `wait`：任务在跑但还没到需要用户的步骤。执行 `setup.sh wait`，最多连续两次，然后按结果处理。
 - `signing_home_unavailable`：签装服务无法写入签装目录。请重新启动 Pallas 后重试。
-- `host_unsupported`：当前 Pallas 版本缺少所需接口，或这版插件不支持当前 Pallas 版本（`last_result` 含 `Expected Pallas`）。告诉用户需要更新 Pallas 或换用匹配的插件包，不要反复重试。
+- `host_unsupported`：当前 Pallas 缺少开通所需的局域网接口，这台设备上开通不了。如实告诉用户，不要反复重试。
 - `paid_account`：`last_result` 含 `paid_team` 是付费开发者账号（个人或公司），含 `multiple_teams` 是这个账号属于不止一个开发团队。这两种情况签装器在动账号之前就停下了：没有登记设备、没建 App ID，也没申请或撤销证书，可以这样告诉用户。含 `paid_team_profile` 时是签名后才发现，设备已登记进那个团队，不要说账号没动过。手机操控只能用只有免费个人团队的 Apple 账号。告诉用户：可以另外注册一个免费 Apple 账号，专门用来签手机操控，不需要是平时登录 iCloud 的账号，也不用付费；准备好后说一声，你再执行 `setup.sh start --new-login`。不要把 `paid_team`、`multiple_teams` 这些代码念给用户。
 - `failed`：用一两句话说明 `last_result` 的原因和对应做法，然后问用户是否重试；重试就执行 `setup.sh start`。常见原因：`won't let Pallas reach` 是 VPN 没连；网络错误是访问 Apple 失败，检查网络后重试；页面里取消或超时直接重试。要换 Apple 账号时执行 `setup.sh start --new-login`（开关被隐藏、正在跑 reveal 时是 `setup.sh reveal --new-login`）。
 - 用户要求清除手机操控的数据、从头开通，或彻底换一个 Apple 账号时，先确认用户知道之后要重新配对和登录，再执行 `setup.sh reset`，然后按输出的 `next` 继续。它不会删掉已装的组件，也不会关闭开发者模式。

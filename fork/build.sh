@@ -11,7 +11,7 @@ git clone --quiet --no-checkout https://github.com/FrizzleM/siboot "$build/siboo
 cd "$build/siboot"
 git checkout --quiet 4ae7ef873490ee6ca7b9111e5ad2cf4fc0cb664d
 git apply "$here/runner.patch"
-cp "$here/runner.rs" "$here/ddi.rs" "$here/host_version.rs" "$here/login.rs" "$here/error_text.rs" minis/src/
+cp "$here/runner.rs" "$here/ddi.rs" "$here/login.rs" "$here/error_text.rs" minis/src/
 cd minis
 PALLAS_RUNNER_SHA256=$(sha256sum "$base/ScreenRunner.ipa" | cut -d' ' -f1)
 export PALLAS_RUNNER_SHA256

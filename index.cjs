@@ -159,9 +159,8 @@ function writeResult(file, value) {
 }
 
 async function nativeApproval(kind) {
-  const ask = globalThis[Symbol.for('dsh.ios.authorizePallasBoot')];
-  if (!ask) throw Error('请更新 Pallas 后再签装');
-  await ask(kind);
+  // Pallas versions without the confirmation hook sign without it.
+  await globalThis[Symbol.for('dsh.ios.authorizePallasBoot')]?.(kind);
 }
 const hostHook = (name, old) => globalThis[Symbol.for('dsh.ios.' + name)] ?? globalThis[Symbol.for('dsh.ios.' + old)];
 // Workspace files from before the PallasBoot rename (plugin 0.6.x).

@@ -38,4 +38,4 @@
     SOFTWARE.
 
 - apple-codesign-quick 0.1.0（crates.io，LGPL-2.1-or-later），许可全文见 LGPL-2.1.txt。按 LGPL，fork/ 中的源码与构建脚本可用于替换该库后重新链接。
-- fork/login.rs、fork/error_text.rs、fork/runner.rs、fork/host_version.rs 为本插件自写代码（MIT）。
+- fork/login.rs、fork/error_text.rs、fork/runner.rs 为本插件自写代码（MIT）。
