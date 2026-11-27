@@ -4015,7 +4015,7 @@ index ea02e9d..a41ae5c 100644
          assert_eq!(wrap("", 10), [""]);
          assert_eq!(
 diff --git a/minis/src/web.html b/minis/src/web.html
-index 744c328..c1ff8a8 100644
+index 744c328..ac4ce29 100644
 --- a/minis/src/web.html
 +++ b/minis/src/web.html
 @@ -5,16 +5,16 @@
@@ -4053,7 +4053,208 @@ index 744c328..c1ff8a8 100644
    <p class="keep" id="keep" hidden></p>
    <p class="banner" id="banner" role="status" hidden></p>
    <ol class="steps" id="steps" aria-live="polite"></ol>
-@@ -194,7 +194,7 @@ footer{display:flex; align-items:center; justify-content:space-between; gap:12px
+@@ -188,13 +188,208 @@ footer{display:flex; align-items:center; justify-content:space-between; gap:12px
+     return node;
+   };
+ 
++  // The page in the viewer's language. Each row: what PallasBoot sends (English, or the Chinese
++  // lines runner.rs writes for the certificate limit), then zh-Hans, zh-Hant, ja, ko, es, fr, de,
++  // pt-BR, it, ru, and en for a Chinese source. {0} {1} stand for parts copied over as they are.
++  // Anything not here shows as sent.
++  const L10N = [
++    // the page itself
++    ["Connecting to PallasBoot…", "正在连接 PallasBoot…", "正在連接 PallasBoot…", "PallasBoot に接続しています…", "PallasBoot에 연결하는 중…", "Conectando con PallasBoot…", "Connexion à PallasBoot…", "Verbindung mit PallasBoot…", "Conectando ao PallasBoot…", "Connessione a PallasBoot…", "Подключение к PallasBoot…"],
++    ["Stop", "停止", "停止", "停止", "중지", "Detener", "Arrêter", "Stoppen", "Parar", "Interrompi", "Остановить"],
++    ["Tap again to stop", "再点一次停止", "再點一次停止", "もう一度タップで停止", "한 번 더 탭하면 중지", "Toca otra vez para detener", "Touchez à nouveau pour arrêter", "Zum Stoppen erneut tippen", "Toque de novo para parar", "Tocca di nuovo per interrompere", "Нажмите ещё раз, чтобы остановить"],
++    ["Stopping…", "正在停止…", "正在停止…", "停止しています…", "중지하는 중…", "Deteniendo…", "Arrêt…", "Wird gestoppt…", "Parando…", "Interruzione…", "Остановка…"],
++    ["Show details", "显示详情", "顯示詳細資料", "詳細を表示", "세부 정보 보기", "Mostrar detalles", "Afficher les détails", "Details anzeigen", "Mostrar detalhes", "Mostra dettagli", "Показать подробности"],
++    ["Details", "详情", "詳細資料", "詳細", "세부 정보", "Detalles", "Détails", "Details", "Detalhes", "Dettagli", "Подробности"],
++    ["Stopped", "已停止", "已停止", "停止しました", "중지됨", "Detenido", "Arrêté", "Gestoppt", "Parado", "Interrotto", "Остановлено"],
++    ["stopped after {0}", "用时 {0} 后停止", "用時 {0} 後停止", "{0} 後に停止", "{0} 후 중지됨", "detenido tras {0}", "arrêté après {0}", "nach {0} gestoppt", "parado após {0}", "interrotto dopo {0}", "остановлено через {0}"],
++    ["PallasBoot is done. You can close this page.", "PallasBoot 已完成，可以关掉这个页面。", "PallasBoot 已完成，可以關閉這個頁面。", "PallasBoot が完了しました。このページは閉じてかまいません。", "PallasBoot가 완료되었습니다. 이 페이지를 닫아도 됩니다.", "PallasBoot ha terminado. Puedes cerrar esta página.", "PallasBoot a terminé. Vous pouvez fermer cette page.", "PallasBoot ist fertig. Du kannst diese Seite schließen.", "O PallasBoot terminou. Você pode fechar esta página.", "PallasBoot ha finito. Puoi chiudere questa pagina.", "PallasBoot завершил работу. Эту страницу можно закрыть."],
++    ["Continue", "继续", "繼續", "続ける", "계속", "Continuar", "Continuer", "Weiter", "Continuar", "Continua", "Продолжить"],
++    ["Cancel", "取消", "取消", "キャンセル", "취소", "Cancelar", "Annuler", "Abbrechen", "Cancelar", "Annulla", "Отменить"],
++    ["Other ways", "其他方式", "其他方式", "ほかの方法", "다른 방법", "Otras formas", "Autres moyens", "Andere Wege", "Outras formas", "Altri modi", "Другие способы"],
++    ["Start", "开始", "開始", "開始", "시작", "Empezar", "Commencer", "Starten", "Começar", "Inizia", "Начать"],
++    ["Yes", "是", "是", "はい", "예", "Sí", "Oui", "Ja", "Sim", "Sì", "Да"],
++    ["No", "否", "否", "いいえ", "아니요", "No", "Non", "Nein", "Não", "No", "Нет"],
++    ["Back", "返回", "返回", "戻る", "뒤로", "Atrás", "Retour", "Zurück", "Voltar", "Indietro", "Назад"],
++    ["Code", "验证码", "驗證碼", "コード", "코드", "Código", "Code", "Code", "Código", "Codice", "Код"],
++    ["Pairing code", "配对码", "配對碼", "ペアリングコード", "페어링 코드", "Código de emparejamiento", "Code d’association", "Kopplungscode", "Código de pareamento", "Codice di abbinamento", "Код связывания"],
++    ["{0} of {1} MB", "{0} / {1} MB", "{0} / {1} MB", "{0} / {1} MB", "{0} / {1}MB", "{0} de {1} MB", "{0} sur {1} Mo", "{0} von {1} MB", "{0} de {1} MB", "{0} di {1} MB", "{0} из {1} МБ"],
++    ["{0} left", "还剩 {0}", "還剩 {0}", "残り {0}", "{0} 남음", "quedan {0}", "encore {0}", "noch {0}", "faltam {0}", "mancano {0}", "осталось {0}"],
++    ["Couldn't reach PallasBoot. It runs in Pallas's terminal: is Pallas still open?", "连不上 PallasBoot。它在 Pallas 里运行：Pallas 还开着吗？", "連不上 PallasBoot。它在 Pallas 裡執行：Pallas 還開著嗎？", "PallasBoot に接続できません。PallasBoot は Pallas の中で動いています。Pallas は開いたままですか？", "PallasBoot에 연결할 수 없습니다. PallasBoot는 Pallas 안에서 실행됩니다. Pallas가 아직 열려 있나요?", "No se puede contactar con PallasBoot. Se ejecuta dentro de Pallas: ¿sigue abierto Pallas?", "Impossible de joindre PallasBoot. Il fonctionne dans Pallas : Pallas est-il toujours ouvert ?", "PallasBoot ist nicht erreichbar. Es läuft in Pallas: Ist Pallas noch geöffnet?", "Não foi possível acessar o PallasBoot. Ele roda dentro do Pallas: o Pallas ainda está aberto?", "Impossibile raggiungere PallasBoot. Funziona dentro Pallas: Pallas è ancora aperto?", "Не удаётся связаться с PallasBoot. Он работает внутри Pallas: Pallas всё ещё открыт?"],
++    ["PallasBoot isn't answering. It runs in Pallas's terminal, and iOS pauses Pallas when you leave it: go back to Pallas to carry on.", "PallasBoot 没有回应。它在 Pallas 里运行，离开 Pallas 时 iOS 会把它暂停：回到 Pallas 就能继续。", "PallasBoot 沒有回應。它在 Pallas 裡執行，離開 Pallas 時 iOS 會將它暫停：回到 Pallas 就能繼續。", "PallasBoot が応答しません。PallasBoot は Pallas の中で動いていて、Pallas を離れると iOS が一時停止します。Pallas に戻ると続きます。", "PallasBoot가 응답하지 않습니다. PallasBoot는 Pallas 안에서 실행되며, Pallas를 벗어나면 iOS가 일시 정지합니다. Pallas로 돌아가면 계속됩니다.", "PallasBoot no responde. Se ejecuta dentro de Pallas y iOS pausa Pallas cuando sales de él: vuelve a Pallas para continuar.", "PallasBoot ne répond pas. Il fonctionne dans Pallas, et iOS met Pallas en pause quand vous le quittez : revenez dans Pallas pour continuer.", "PallasBoot antwortet nicht. Es läuft in Pallas, und iOS pausiert Pallas, wenn du es verlässt: Kehre zu Pallas zurück, um fortzufahren.", "O PallasBoot não está respondendo. Ele roda dentro do Pallas, e o iOS pausa o Pallas quando você sai dele: volte ao Pallas para continuar.", "PallasBoot non risponde. Funziona dentro Pallas e iOS mette in pausa Pallas quando lo lasci: torna su Pallas per continuare.", "PallasBoot не отвечает. Он работает внутри Pallas, а iOS приостанавливает Pallas, когда вы из него выходите: вернитесь в Pallas, чтобы продолжить."],
++    ["Can't reach PallasBoot. Open this page from PallasBoot in Pallas's terminal.", "连不上 PallasBoot。请从 Pallas 里打开这个页面。", "連不上 PallasBoot。請從 Pallas 裡開啟這個頁面。", "PallasBoot に接続できません。このページは Pallas から開いてください。", "PallasBoot에 연결할 수 없습니다. 이 페이지는 Pallas에서 여세요.", "No se puede contactar con PallasBoot. Abre esta página desde Pallas.", "Impossible de joindre PallasBoot. Ouvrez cette page depuis Pallas.", "PallasBoot ist nicht erreichbar. Öffne diese Seite aus Pallas.", "Não foi possível acessar o PallasBoot. Abra esta página pelo Pallas.", "Impossibile raggiungere PallasBoot. Apri questa pagina da Pallas.", "Не удаётся связаться с PallasBoot. Откройте эту страницу из Pallas."],
++    // what each run is for (main.rs)
++    ["Sign and install Pallas Phone Control", "签名并安装 Pallas 手机操控", "簽名並安裝 Pallas 手機操控", "Pallas スマホ操作に署名してインストール", "Pallas 휴대폰 제어 서명 및 설치", "Firmar e instalar Pallas Control del teléfono", "Signer et installer Pallas Contrôle du téléphone", "Pallas Telefonsteuerung signieren und installieren", "Assinar e instalar o Pallas Controle do celular", "Firma e installa Pallas Controllo del telefono", "Подписать и установить Pallas Управление телефоном"],
++    ["Sign Pallas Phone Control to show Developer Mode", "为显示开发者模式签名 Pallas 手机操控", "為顯示開發者模式簽名 Pallas 手機操控", "デベロッパモードを表示するため Pallas スマホ操作に署名", "개발자 모드를 표시하도록 Pallas 휴대폰 제어 서명", "Firmar Pallas Control del teléfono para mostrar el Modo de desarrollador", "Signer Pallas Contrôle du téléphone pour afficher le Mode développeur", "Pallas Telefonsteuerung signieren, damit der Entwicklermodus erscheint", "Assinar o Pallas Controle do celular para mostrar o Modo de Desenvolvedor", "Firma Pallas Controllo del telefono per mostrare la Modalità sviluppatore", "Подписать Pallas Управление телефоном, чтобы появился режим разработчика"],
++    ["Mount the developer image Pallas Phone Control needs", "挂载 Pallas 手机操控需要的开发者运行环境", "掛載 Pallas 手機操控需要的開發者執行環境", "Pallas スマホ操作に必要なデベロッパイメージをマウント", "Pallas 휴대폰 제어에 필요한 개발자 이미지 마운트", "Montar la imagen de desarrollador que necesita Pallas Control del teléfono", "Monter l’image développeur nécessaire à Pallas Contrôle du téléphone", "Das Entwickler-Image für Pallas Telefonsteuerung einbinden", "Montar a imagem de desenvolvedor de que o Pallas Controle do celular precisa", "Monta l’immagine sviluppatore che serve a Pallas Controllo del telefono", "Подключить образ разработчика для Pallas Управление телефоном"],
++    ["Connect to this device through Pallas.", "通过 Pallas 连接这台设备。", "透過 Pallas 連接這台裝置。", "Pallas を通じてこのデバイスに接続します。", "Pallas를 통해 이 기기에 연결합니다.", "Conectar con este dispositivo a través de Pallas.", "Se connecter à cet appareil via Pallas.", "Über Pallas mit diesem Gerät verbinden.", "Conectar a este dispositivo pelo Pallas.", "Connettiti a questo dispositivo tramite Pallas.", "Подключиться к этому устройству через Pallas."],
++    ["Shows Developer Mode, or turns it on.", "让开发者模式出现，或把它打开。", "讓開發者模式出現，或將它開啟。", "デベロッパモードを表示するか、オンにします。", "개발자 모드를 표시하거나 켭니다.", "Muestra el Modo de desarrollador o lo activa.", "Affiche le Mode développeur ou l’active.", "Zeigt den Entwicklermodus an oder schaltet ihn ein.", "Mostra o Modo de Desenvolvedor ou o ativa.", "Mostra la Modalità sviluppatore o la attiva.", "Показывает режим разработчика или включает его."],
++    // the plan
++    ["Check", "检查", "檢查", "確認", "확인", "Comprobar", "Vérifier", "Prüfen", "Verificar", "Verifica", "Проверка"],
++    ["Pairing", "配对", "配對", "ペアリング", "페어링", "Emparejar", "Association", "Koppeln", "Pareamento", "Abbinamento", "Связывание"],
++    ["Connect", "连接", "連接", "接続", "연결", "Conectar", "Connexion", "Verbinden", "Conectar", "Connessione", "Подключение"],
++    ["Apple ID", "Apple 账号", "Apple 帳號", "Apple アカウント", "Apple 계정", "Cuenta de Apple", "Compte Apple", "Apple-Account", "Conta Apple", "Account Apple", "Учётная запись Apple"],
++    ["Sign", "签名", "簽名", "署名", "서명", "Firmar", "Signature", "Signieren", "Assinar", "Firma", "Подпись"],
++    ["Install", "安装", "安裝", "インストール", "설치", "Instalar", "Installation", "Installieren", "Instalar", "Installa", "Установка"],
++    ["Handover", "交接", "交接", "引き継ぎ", "연결 마무리", "Traspaso", "Transfert", "Übergabe", "Entrega", "Passaggio", "Передача"],
++    ["Dev Mode", "开发者模式", "開發者模式", "デベロッパモード", "개발자 모드", "Modo desarrollador", "Mode développeur", "Entwicklermodus", "Modo Desenvolvedor", "Modalità sviluppatore", "Режим разработчика"],
++    // the steps
++    ["Checking LocalDevVPN, this iPhone and the internet", "检查本机连接、这台设备和网络", "檢查本機連線、這台裝置和網路", "本機の接続、このデバイス、インターネットを確認しています", "로컬 연결, 이 기기, 인터넷을 확인하는 중", "Comprobando la conexión local, este dispositivo e internet", "Vérification de la connexion locale, de cet appareil et d’Internet", "Lokale Verbindung, dieses Gerät und Internet werden geprüft", "Verificando a conexão local, este dispositivo e a internet", "Verifica della connessione locale, di questo dispositivo e di internet", "Проверка локального подключения, устройства и интернета"],
++    ["Checking LocalDevVPN and this iPhone", "检查本机连接和这台设备", "檢查本機連線和這台裝置", "本機の接続とこのデバイスを確認しています", "로컬 연결과 이 기기를 확인하는 중", "Comprobando la conexión local y este dispositivo", "Vérification de la connexion locale et de cet appareil", "Lokale Verbindung und dieses Gerät werden geprüft", "Verificando a conexão local e este dispositivo", "Verifica della connessione locale e di questo dispositivo", "Проверка локального подключения и устройства"],
++    ["Pairing this iPhone with PallasBoot", "让这台设备和 PallasBoot 配对", "讓這台裝置和 PallasBoot 配對", "このデバイスを PallasBoot とペアリングしています", "이 기기를 PallasBoot와 페어링하는 중", "Emparejando este dispositivo con PallasBoot", "Association de cet appareil à PallasBoot", "Dieses Gerät wird mit PallasBoot gekoppelt", "Pareando este dispositivo com o PallasBoot", "Abbinamento di questo dispositivo con PallasBoot", "Связывание этого устройства с PallasBoot"],
++    ["Connecting to this iPhone through LocalDevVPN", "通过本机连接连上这台设备", "透過本機連線連上這台裝置", "本機の接続でこのデバイスに接続しています", "로컬 연결로 이 기기에 연결하는 중", "Conectando con este dispositivo por la conexión local", "Connexion à cet appareil via la connexion locale", "Verbindung mit diesem Gerät über die lokale Verbindung", "Conectando a este dispositivo pela conexão local", "Connessione a questo dispositivo tramite la connessione locale", "Подключение к устройству через локальное подключение"],
++    ["Sign in with your free Apple Account", "登录你的免费 Apple 账号", "登入你的免費 Apple 帳號", "無料の Apple アカウントでサインイン", "무료 Apple 계정으로 로그인", "Inicia sesión con tu Cuenta de Apple gratuita", "Connectez-vous avec votre Compte Apple gratuit", "Mit deinem kostenlosen Apple-Account anmelden", "Entre com sua Conta Apple gratuita", "Accedi con il tuo Account Apple gratuito", "Войдите с бесплатной учётной записью Apple"],
++    ["Sign the Pallas runner", "为操控组件签名", "為操控元件簽名", "操作コンポーネントに署名", "제어 구성 요소 서명", "Firmar el componente de control", "Signature du composant de contrôle", "Steuerungskomponente signieren", "Assinar o componente de controle", "Firma del componente di controllo", "Подпись компонента управления"],
++    ["Install the runner on this device", "把操控组件装到这台设备", "將操控元件安裝到這台裝置", "操作コンポーネントをこのデバイスにインストール", "이 기기에 제어 구성 요소 설치", "Instalar el componente de control en este dispositivo", "Installation du composant de contrôle sur cet appareil", "Steuerungskomponente auf diesem Gerät installieren", "Instalar o componente de controle neste dispositivo", "Installazione del componente di controllo su questo dispositivo", "Установка компонента управления на это устройство"],
++    ["Connect Pallas to the runner", "把 Pallas 和操控组件连起来", "將 Pallas 與操控元件連接", "Pallas と操作コンポーネントを接続", "Pallas와 제어 구성 요소 연결", "Conectar Pallas con el componente de control", "Connexion de Pallas au composant de contrôle", "Pallas mit der Steuerungskomponente verbinden", "Conectar o Pallas ao componente de controle", "Collegamento di Pallas al componente di controllo", "Подключение Pallas к компоненту управления"],
++    ["Asking this iPhone for Developer Mode", "向这台设备请求开发者模式", "向這台裝置請求開發者模式", "このデバイスにデベロッパモードを要求しています", "이 기기에 개발자 모드를 요청하는 중", "Pidiendo el Modo de desarrollador a este dispositivo", "Demande du Mode développeur à cet appareil", "Entwicklermodus wird bei diesem Gerät angefragt", "Pedindo o Modo de Desenvolvedor a este dispositivo", "Richiesta della Modalità sviluppatore a questo dispositivo", "Запрос режима разработчика у устройства"],
++    // how steps ended
++    ["online, and the iPhone answers", "已联网，设备有回应", "已連網，裝置有回應", "オンラインで、デバイスが応答しています", "온라인이며 기기가 응답함", "en línea, y el dispositivo responde", "en ligne, et l’appareil répond", "online, und das Gerät antwortet", "online, e o dispositivo responde", "online, e il dispositivo risponde", "в сети, устройство отвечает"],
++    ["the iPhone answers", "设备有回应", "裝置有回應", "デバイスが応答しています", "기기가 응답함", "el dispositivo responde", "l’appareil répond", "das Gerät antwortet", "o dispositivo responde", "il dispositivo risponde", "устройство отвечает"],
++    ["the saved pairing still works", "保存的配对仍然有效", "儲存的配對仍然有效", "保存したペアリングは有効です", "저장된 페어링이 계속 작동함", "el emparejamiento guardado sigue funcionando", "l’association enregistrée fonctionne toujours", "die gespeicherte Kopplung funktioniert noch", "o pareamento salvo ainda funciona", "l’abbinamento salvato funziona ancora", "сохранённая связь работает"],
++    ["paired here in Pallas", "已在 Pallas 里配对", "已在 Pallas 裡配對", "Pallas でペアリングしました", "Pallas에서 페어링됨", "emparejado aquí en Pallas", "associé ici dans Pallas", "hier in Pallas gekoppelt", "pareado aqui no Pallas", "abbinato qui in Pallas", "связано здесь, в Pallas"],
++    // notes along the way
++    ["This iPhone has no pairing service on the network yet, so it pairs first.", "这台设备在网络上还没有配对服务，所以先配对。", "這台裝置在網路上還沒有配對服務，所以先配對。", "このデバイスにはまだネットワーク上のペアリングサービスがないため、先にペアリングします。", "이 기기에는 아직 네트워크 페어링 서비스가 없어 먼저 페어링합니다.", "Este dispositivo aún no tiene servicio de emparejamiento en la red, así que primero se empareja.", "Cet appareil n’a pas encore de service d’association sur le réseau : il s’associe d’abord.", "Dieses Gerät hat noch keinen Kopplungsdienst im Netzwerk, daher wird zuerst gekoppelt.", "Este dispositivo ainda não tem serviço de pareamento na rede, então ele pareia primeiro.", "Questo dispositivo non ha ancora un servizio di abbinamento in rete, quindi si abbina prima.", "У устройства ещё нет службы связывания в сети, поэтому сначала выполняется связывание."],
++    ["Existing Apple session verified", "已沿用之前的 Apple 登录", "已沿用之前的 Apple 登入", "既存の Apple サインインを確認しました", "기존 Apple 로그인을 확인함", "Sesión de Apple existente verificada", "Session Apple existante vérifiée", "Bestehende Apple-Anmeldung bestätigt", "Sessão Apple existente verificada", "Sessione Apple esistente verificata", "Существующий вход в Apple подтверждён"],
++    ["Runner signed for this device", "已为这台设备签好操控组件", "已為這台裝置簽好操控元件", "このデバイス用に操作コンポーネントに署名しました", "이 기기용 제어 구성 요소에 서명함", "Componente de control firmado para este dispositivo", "Composant de contrôle signé pour cet appareil", "Steuerungskomponente für dieses Gerät signiert", "Componente de controle assinado para este dispositivo", "Componente di controllo firmato per questo dispositivo", "Компонент управления подписан для этого устройства"],
++    ["Personal Team profile verified and runner signed", "已确认个人团队描述文件，操控组件已签名", "已確認個人團隊描述檔，操控元件已簽名", "個人チームのプロファイルを確認し、操作コンポーネントに署名しました", "개인 팀 프로파일을 확인하고 제어 구성 요소에 서명함", "Perfil del equipo personal verificado y componente de control firmado", "Profil d’équipe personnelle vérifié et composant de contrôle signé", "Profil des persönlichen Teams geprüft und Steuerungskomponente signiert", "Perfil da equipe pessoal verificado e componente de controle assinado", "Profilo del team personale verificato e componente di controllo firmato", "Профиль личной команды проверен, компонент управления подписан"],
++    ["Runner installation confirmed", "已确认操控组件装好", "已確認操控元件裝好", "操作コンポーネントのインストールを確認しました", "제어 구성 요소 설치를 확인함", "Instalación del componente de control confirmada", "Installation du composant de contrôle confirmée", "Installation der Steuerungskomponente bestätigt", "Instalação do componente de controle confirmada", "Installazione del componente di controllo confermata", "Установка компонента управления подтверждена"],
++    ["Developer image already mounted", "开发者运行环境已经挂载", "開發者執行環境已經掛載", "デベロッパイメージはマウント済みです", "개발자 이미지가 이미 마운트됨", "La imagen de desarrollador ya está montada", "L’image développeur est déjà montée", "Entwickler-Image ist bereits eingebunden", "A imagem de desenvolvedor já está montada", "L’immagine sviluppatore è già montata", "Образ разработчика уже подключён"],
++    ["Developer image mounted", "开发者运行环境已挂载", "開發者執行環境已掛載", "デベロッパイメージをマウントしました", "개발자 이미지를 마운트함", "Imagen de desarrollador montada", "Image développeur montée", "Entwickler-Image eingebunden", "Imagem de desenvolvedor montada", "Immagine sviluppatore montata", "Образ разработчика подключён"],
++    ["this iPhone accepts the pairing file saved on an earlier run", "这台设备接受之前保存的配对", "這台裝置接受之前儲存的配對", "このデバイスは以前保存したペアリングを受け入れています", "이 기기가 이전에 저장한 페어링을 받아들임", "este dispositivo acepta el emparejamiento guardado antes", "cet appareil accepte l’association enregistrée auparavant", "dieses Gerät akzeptiert die früher gespeicherte Kopplung", "este dispositivo aceita o pareamento salvo antes", "questo dispositivo accetta l’abbinamento salvato in precedenza", "устройство принимает ранее сохранённую связь"],
++    ["This iPhone doesn't accept the saved pairing file, so PallasBoot pairs again.", "这台设备不再接受保存的配对，PallasBoot 会重新配对。", "這台裝置不再接受儲存的配對，PallasBoot 會重新配對。", "このデバイスは保存したペアリングを受け入れないため、PallasBoot がもう一度ペアリングします。", "이 기기가 저장된 페어링을 받아들이지 않아 PallasBoot가 다시 페어링합니다.", "Este dispositivo no acepta el emparejamiento guardado, así que PallasBoot vuelve a emparejar.", "Cet appareil n’accepte plus l’association enregistrée : PallasBoot l’associe à nouveau.", "Dieses Gerät akzeptiert die gespeicherte Kopplung nicht, daher koppelt PallasBoot erneut.", "Este dispositivo não aceita o pareamento salvo, então o PallasBoot pareia de novo.", "Questo dispositivo non accetta l’abbinamento salvato, quindi PallasBoot lo abbina di nuovo.", "Устройство не принимает сохранённую связь, поэтому PallasBoot связывает его заново."],
++    ["Pallas can pair this iPhone", "Pallas 可以为这台设备配对", "Pallas 可以為這台裝置配對", "Pallas でこのデバイスをペアリングできます", "Pallas에서 이 기기를 페어링할 수 있음", "Pallas puede emparejar este dispositivo", "Pallas peut associer cet appareil", "Pallas kann dieses Gerät koppeln", "O Pallas pode parear este dispositivo", "Pallas può abbinare questo dispositivo", "Pallas может связать это устройство"],
++    ["this iPhone accepts the new pairing", "这台设备接受了新的配对", "這台裝置接受了新的配對", "このデバイスは新しいペアリングを受け入れました", "이 기기가 새 페어링을 받아들임", "este dispositivo acepta el nuevo emparejamiento", "cet appareil accepte la nouvelle association", "dieses Gerät akzeptiert die neue Kopplung", "este dispositivo aceita o novo pareamento", "questo dispositivo accetta il nuovo abbinamento", "устройство принимает новую связь"],
++    ["Pallas can pair this iPhone, and post the code as a notification", "Pallas 可以为这台设备配对，并用通知发送配对码", "Pallas 可以為這台裝置配對，並用通知傳送配對碼", "Pallas でこのデバイスをペアリングでき、コードを通知で送れます", "Pallas에서 이 기기를 페어링하고 코드를 알림으로 보낼 수 있음", "Pallas puede emparejar este dispositivo y enviar el código como notificación", "Pallas peut associer cet appareil et envoyer le code en notification", "Pallas kann dieses Gerät koppeln und den Code als Mitteilung senden", "O Pallas pode parear este dispositivo e enviar o código como notificação", "Pallas può abbinare questo dispositivo e inviare il codice come notifica", "Pallas может связать устройство и прислать код уведомлением"],
++    ["Pallas's notifications are off, so the pairing code will show only in Pallas.", "Pallas 的通知关着，配对码只会显示在 Pallas 里。", "Pallas 的通知關閉，配對碼只會顯示在 Pallas 裡。", "Pallas の通知がオフのため、ペアリングコードは Pallas の中にだけ表示されます。", "Pallas 알림이 꺼져 있어 페어링 코드는 Pallas에만 표시됩니다.", "Las notificaciones de Pallas están desactivadas, así que el código de emparejamiento solo aparecerá en Pallas.", "Les notifications de Pallas sont désactivées : le code d’association ne s’affichera que dans Pallas.", "Die Mitteilungen von Pallas sind aus, daher erscheint der Kopplungscode nur in Pallas.", "As notificações do Pallas estão desativadas, então o código de pareamento só aparecerá no Pallas.", "Le notifiche di Pallas sono disattivate, quindi il codice di abbinamento comparirà solo in Pallas.", "Уведомления Pallas выключены, поэтому код связывания будет только в Pallas."],
++    ["Apple's sign-in server answers", "Apple 登录服务器有回应", "Apple 登入伺服器有回應", "Apple のサインインサーバが応答しています", "Apple 로그인 서버가 응답함", "El servidor de inicio de sesión de Apple responde", "Le serveur de connexion d’Apple répond", "Apples Anmeldeserver antwortet", "O servidor de login da Apple responde", "Il server di accesso di Apple risponde", "Сервер входа Apple отвечает"],
++    ["checking every file arrived whole", "正在检查每个文件都完整传到", "正在檢查每個檔案都完整傳到", "すべてのファイルが欠けずに届いたか確認しています", "모든 파일이 온전히 전송됐는지 확인하는 중", "comprobando que cada archivo llegó completo", "vérification que chaque fichier est arrivé entier", "prüfe, ob jede Datei vollständig angekommen ist", "verificando se cada arquivo chegou inteiro", "verifica che ogni file sia arrivato intero", "проверка целостности каждого файла"],
++    ["upload checked: every file arrived whole", "上传已检查：每个文件都完整传到", "上傳已檢查：每個檔案都完整傳到", "アップロードを確認しました：すべてのファイルが欠けずに届きました", "업로드 확인됨: 모든 파일이 온전히 전송됨", "carga comprobada: cada archivo llegó completo", "envoi vérifié : chaque fichier est arrivé entier", "Upload geprüft: jede Datei ist vollständig angekommen", "envio verificado: cada arquivo chegou inteiro", "caricamento verificato: ogni file è arrivato intero", "загрузка проверена: все файлы целы"],
++    ["installing", "正在安装", "正在安裝", "インストールしています", "설치하는 중", "instalando", "installation", "wird installiert", "instalando", "installazione", "установка"],
++    ["uploading {0} files ({1} MB)", "正在上传 {0} 个文件（{1} MB）", "正在上傳 {0} 個檔案（{1} MB）", "{0} 個のファイルをアップロードしています（{1} MB）", "파일 {0}개 업로드하는 중({1}MB)", "subiendo {0} archivos ({1} MB)", "envoi de {0} fichiers ({1} Mo)", "{0} Dateien werden hochgeladen ({1} MB)", "enviando {0} arquivos ({1} MB)", "caricamento di {0} file ({1} MB)", "загрузка файлов: {0} ({1} МБ)"],
++    // signing in (account.rs)
++    ["sign in to your Apple Account", "登录你的 Apple 账号", "登入你的 Apple 帳號", "Apple アカウントにサインイン", "Apple 계정에 로그인", "Inicia sesión en tu Cuenta de Apple", "Connectez-vous à votre Compte Apple", "Bei deinem Apple-Account anmelden", "Entre na sua Conta Apple", "Accedi al tuo Account Apple", "Войдите в учётную запись Apple"],
++    ["Email", "邮箱", "電子郵件", "メール", "이메일", "Correo", "E-mail", "E-Mail", "E-mail", "Email", "Почта"],
++    ["your Apple Account", "你的 Apple 账号", "你的 Apple 帳號", "Apple アカウント", "Apple 계정", "tu Cuenta de Apple", "votre Compte Apple", "dein Apple-Account", "sua Conta Apple", "il tuo Account Apple", "ваша учётная запись Apple"],
++    ["Password", "密码", "密碼", "パスワード", "암호", "Contraseña", "Mot de passe", "Passwort", "Senha", "Password", "Пароль"],
++    ["it goes only to Apple", "只会发给 Apple", "只會傳給 Apple", "Apple にだけ送られます", "Apple에만 전송됩니다", "solo se envía a Apple", "envoyé uniquement à Apple", "geht nur an Apple", "vai só para a Apple", "va solo ad Apple", "передаётся только Apple"],
++    ["enter the code Apple sent", "输入 Apple 发来的验证码", "輸入 Apple 傳來的驗證碼", "Apple から届いたコードを入力", "Apple이 보낸 코드 입력", "introduce el código que envió Apple", "saisissez le code envoyé par Apple", "gib den Code ein, den Apple gesendet hat", "digite o código que a Apple enviou", "inserisci il codice inviato da Apple", "введите код, присланный Apple"],
++    ["how should Apple send the code?", "Apple 用什么方式发验证码？", "Apple 用什麼方式傳送驗證碼？", "Apple からコードをどう受け取りますか？", "Apple이 코드를 어떻게 보낼까요?", "¿cómo debe enviar Apple el código?", "comment Apple doit-il envoyer le code ?", "wie soll Apple den Code senden?", "como a Apple deve enviar o código?", "come deve inviare il codice Apple?", "как Apple отправить код?"],
++    ["Send it to your Apple devices", "发到你的 Apple 设备", "傳送到你的 Apple 裝置", "Apple デバイスに送る", "Apple 기기로 보내기", "Enviarlo a tus dispositivos Apple", "L’envoyer sur vos appareils Apple", "An deine Apple-Geräte senden", "Enviar para seus dispositivos Apple", "Invialo ai tuoi dispositivi Apple", "Отправить на устройства Apple"],
++    ["Send the same again", "再发一次", "再傳一次", "もう一度送る", "다시 보내기", "Enviarlo otra vez", "Renvoyer", "Erneut senden", "Enviar de novo", "Invia di nuovo", "Отправить ещё раз"],
++    ["Cancel the sign-in", "取消登录", "取消登入", "サインインをキャンセル", "로그인 취소", "Cancelar el inicio de sesión", "Annuler la connexion", "Anmeldung abbrechen", "Cancelar o login", "Annulla l’accesso", "Отменить вход"],
++    ["Text {0}", "发短信到 {0}", "傳簡訊到 {0}", "{0} にテキストメッセージ", "{0}(으)로 문자 보내기", "Enviar SMS a {0}", "SMS au {0}", "SMS an {0}", "SMS para {0}", "SMS a {0}", "SMS на {0}"],
++    ["Apple sent a verification code to your other Apple devices.", "Apple 已把验证码发到你的其他 Apple 设备。", "Apple 已將驗證碼傳到你的其他 Apple 裝置。", "Apple がほかの Apple デバイスに確認コードを送りました。", "Apple이 다른 Apple 기기로 확인 코드를 보냈습니다.", "Apple envió un código de verificación a tus otros dispositivos Apple.", "Apple a envoyé un code de vérification sur vos autres appareils Apple.", "Apple hat einen Bestätigungscode an deine anderen Apple-Geräte gesendet.", "A Apple enviou um código de verificação para seus outros dispositivos Apple.", "Apple ha inviato un codice di verifica agli altri tuoi dispositivi Apple.", "Apple отправила код проверки на ваши другие устройства Apple."],
++    ["Apple texted a verification code to {0}.", "Apple 已用短信把验证码发到 {0}。", "Apple 已用簡訊將驗證碼傳到 {0}。", "Apple が {0} に確認コードをテキストメッセージで送りました。", "Apple이 {0}(으)로 확인 코드를 문자로 보냈습니다.", "Apple envió un código de verificación por SMS a {0}.", "Apple a envoyé un code de vérification par SMS au {0}.", "Apple hat einen Bestätigungscode per SMS an {0} gesendet.", "A Apple enviou um código de verificação por SMS para {0}.", "Apple ha inviato un codice di verifica via SMS a {0}.", "Apple отправила код проверки в SMS на {0}."],
++    ["Apple is calling {0} with a verification code.", "Apple 正在拨打 {0} 告知验证码。", "Apple 正在撥打 {0} 告知驗證碼。", "Apple が {0} に電話で確認コードを伝えています。", "Apple이 {0}(으)로 전화해 확인 코드를 알려 줍니다.", "Apple está llamando a {0} con un código de verificación.", "Apple appelle le {0} avec un code de vérification.", "Apple ruft {0} mit einem Bestätigungscode an.", "A Apple está ligando para {0} com um código de verificação.", "Apple sta chiamando il {0} con un codice di verifica.", "Apple звонит на {0} с кодом проверки."],
++    ["Choose how Apple should send the verification code.", "选择 Apple 发送验证码的方式。", "選擇 Apple 傳送驗證碼的方式。", "Apple から確認コードを受け取る方法を選んでください。", "Apple이 확인 코드를 보낼 방법을 고르세요.", "Elige cómo debe enviar Apple el código de verificación.", "Choisissez comment Apple doit envoyer le code de vérification.", "Wähle, wie Apple den Bestätigungscode senden soll.", "Escolha como a Apple deve enviar o código de verificação.", "Scegli come Apple deve inviare il codice di verifica.", "Выберите, как Apple отправит код проверки."],
++    ["signed in — team {0}", "已登录，团队 {0}", "已登入，團隊 {0}", "サインインしました — チーム {0}", "로그인됨 — 팀 {0}", "sesión iniciada — equipo {0}", "connecté — équipe {0}", "angemeldet — Team {0}", "conectado — equipe {0}", "accesso eseguito — team {0}", "вход выполнен — команда {0}"],
++    ["signing in through {0}", "正在通过 {0} 登录", "正在透過 {0} 登入", "{0} 経由でサインインしています", "{0}을(를) 통해 로그인하는 중", "iniciando sesión a través de {0}", "connexion via {0}", "Anmeldung über {0}", "entrando por {0}", "accesso tramite {0}", "вход через {0}"],
++    ["revoke which certificate?", "撤销哪一张证书？", "撤銷哪一張憑證？", "どの証明書を取り消しますか？", "어떤 인증서를 취소할까요?", "¿qué certificado revocar?", "quel certificat révoquer ?", "welches Zertifikat widerrufen?", "qual certificado revogar?", "quale certificato revocare?", "какой сертификат отозвать?"],
++    ["revoke it? this can't be undone", "确认撤销？此操作不可撤销", "確認撤銷？此操作無法復原", "取り消しますか？元に戻せません", "취소할까요? 되돌릴 수 없습니다", "¿revocarlo? no se puede deshacer", "le révoquer ? action irréversible", "widerrufen? Das lässt sich nicht rückgängig machen", "revogar? não é possível desfazer", "revocarlo? non si può annullare", "отозвать? это нельзя отменить"],
++    ["None: stop here", "都不撤销，到此为止", "都不撤銷，到此為止", "どれも取り消さずに終了", "취소하지 않고 여기서 중지", "Ninguno: parar aquí", "Aucun : arrêter ici", "Keins: hier aufhören", "Nenhum: parar aqui", "Nessuno: fermati qui", "Ни одного: остановиться"],
++    // the certificate limit, written in Chinese by runner.rs
++    ["Apple 开发证书名额已满（Apple 7460）", "Apple 开发证书名额已满（Apple 7460）", "Apple 開發憑證名額已滿（Apple 7460）", "開発証明書の上限に達しています（Apple 7460）", "개발 인증서 한도에 도달했습니다(Apple 7460)", "Se alcanzó el límite de certificados de desarrollo (Apple 7460)", "Limite de certificats de développement atteinte (Apple 7460)", "Limit für Entwicklungszertifikate erreicht (Apple 7460)", "Limite de certificados de desenvolvimento atingido (Apple 7460)", "Limite di certificati di sviluppo raggiunto (Apple 7460)", "Достигнут лимит сертификатов разработки (Apple 7460)", "Development certificate limit reached (Apple 7460)"],
++    ["保留证书，或选择一张要撤销的开发证书", "保留证书，或选择一张要撤销的开发证书", "保留憑證，或選擇一張要撤銷的開發憑證", "証明書を残すか、取り消す開発証明書を1つ選んでください", "인증서를 유지하거나 취소할 개발 인증서를 하나 고르세요", "Conserva tus certificados o elige un certificado de desarrollo para revocar", "Gardez vos certificats ou choisissez un certificat de développement à révoquer", "Behalte deine Zertifikate oder wähle ein Entwicklungszertifikat zum Widerrufen", "Mantenha seus certificados ou escolha um certificado de desenvolvimento para revogar", "Mantieni i certificati o scegline uno di sviluppo da revocare", "Сохраните сертификаты или выберите сертификат разработки для отзыва", "Keep your certificates, or choose a development certificate to revoke"],
++    ["保留现有证书，结束本次安装", "保留现有证书，结束本次安装", "保留現有憑證，結束本次安裝", "既存の証明書を残してインストールを終了", "기존 인증서를 유지하고 이번 설치 종료", "Conservar los certificados actuales y terminar esta instalación", "Garder les certificats existants et arrêter cette installation", "Vorhandene Zertifikate behalten und diese Installation beenden", "Manter os certificados atuais e encerrar esta instalação", "Mantieni i certificati esistenti e termina questa installazione", "Сохранить текущие сертификаты и завершить установку", "Keep the existing certificates and end this install"],
++    ["开发证书 · {0}", "开发证书 · {0}", "開發憑證 · {0}", "開発証明書 · {0}", "개발 인증서 · {0}", "Certificado de desarrollo · {0}", "Certificat de développement · {0}", "Entwicklungszertifikat · {0}", "Certificado de desenvolvimento · {0}", "Certificato di sviluppo · {0}", "Сертификат разработки · {0}", "Development certificate · {0}"],
++    ["确认撤销 {0}？所有设备上用这张证书签名的 App 都可能需要重新签装。此操作不可撤销。", "确认撤销 {0}？所有设备上用这张证书签名的 App 都可能需要重新签装。此操作不可撤销。", "確認撤銷 {0}？所有裝置上用這張憑證簽名的 App 都可能需要重新簽裝。此操作無法復原。", "{0} を取り消しますか？この証明書で署名された App は、すべてのデバイスで署名し直しが必要になることがあります。この操作は取り消せません。", "{0}을(를) 취소할까요? 이 인증서로 서명한 모든 기기의 앱을 다시 서명해야 할 수 있습니다. 이 작업은 되돌릴 수 없습니다.", "¿Revocar {0}? Las apps firmadas con este certificado, en cualquier dispositivo, pueden tener que firmarse de nuevo. No se puede deshacer.", "Révoquer {0} ? Les apps signées avec ce certificat, sur tous les appareils, devront peut-être être signées à nouveau. Action irréversible.", "{0} widerrufen? Apps, die mit diesem Zertifikat signiert sind, müssen auf allen Geräten eventuell neu signiert werden. Das lässt sich nicht rückgängig machen.", "Revogar {0}? Apps assinados com este certificado, em qualquer dispositivo, podem precisar ser assinados de novo. Não é possível desfazer.", "Revocare {0}? Le app firmate con questo certificato, su ogni dispositivo, potrebbero dover essere firmate di nuovo. L’operazione non si può annullare.", "Отозвать {0}? Приложения, подписанные этим сертификатом, на всех устройствах может потребоваться подписать заново. Это нельзя отменить.", "Revoke {0}? Apps signed with this certificate, on every device, may need to be signed again. This can't be undone."],
++    ["Apple 开发证书名额已满", "Apple 开发证书名额已满", "Apple 開發憑證名額已滿", "開発証明書の上限に達しています", "개발 인증서 한도에 도달했습니다", "Se alcanzó el límite de certificados de desarrollo", "Limite de certificats de développement atteinte", "Limit für Entwicklungszertifikate erreicht", "Limite de certificados de desenvolvimento atingido", "Limite di certificati di sviluppo raggiunto", "Достигнут лимит сертификатов разработки", "Development certificate limit reached"],
++    ["Apple 拒绝了开发证书请求", "Apple 拒绝了开发证书请求", "Apple 拒絕了開發憑證請求", "Apple に開発証明書の要求を拒否されました", "Apple이 개발 인증서 요청을 거부했습니다", "Apple rechazó la solicitud de certificado de desarrollo", "Apple a refusé la demande de certificat de développement", "Apple hat die Anfrage für das Entwicklungszertifikat abgelehnt", "A Apple recusou o pedido de certificado de desenvolvimento", "Apple ha rifiutato la richiesta di certificato di sviluppo", "Apple отклонила запрос сертификата разработки", "Apple refused the development certificate request"],
++    ["无法创建 CSR", "无法创建 CSR", "無法建立 CSR", "CSR を作成できませんでした", "CSR을 만들 수 없습니다", "No se pudo crear la CSR", "Impossible de créer la CSR", "CSR konnte nicht erstellt werden", "Não foi possível criar a CSR", "Impossibile creare la CSR", "Не удалось создать CSR", "Couldn't create the CSR"],
++    ["Apple 尚未列出新证书", "Apple 尚未列出新证书", "Apple 尚未列出新憑證", "Apple がまだ新しい証明書を返していません", "Apple이 아직 새 인증서를 보여 주지 않습니다", "Apple aún no muestra el nuevo certificado", "Apple n’affiche pas encore le nouveau certificat", "Apple führt das neue Zertifikat noch nicht auf", "A Apple ainda não listou o novo certificado", "Apple non mostra ancora il nuovo certificato", "Apple ещё не показала новый сертификат", "Apple hasn't listed the new certificate yet"],
++    // pairing in Settings (pairing.rs)
++    ["Pair this iPhone with PallasBoot", "让这台设备和 PallasBoot 配对", "讓這台裝置和 PallasBoot 配對", "このデバイスを PallasBoot とペアリング", "이 기기를 PallasBoot와 페어링", "Empareja este dispositivo con PallasBoot", "Associez cet appareil à PallasBoot", "Dieses Gerät mit PallasBoot koppeln", "Pareie este dispositivo com o PallasBoot", "Abbina questo dispositivo a PallasBoot", "Свяжите это устройство с PallasBoot"],
++    ["Open Settings › Privacy & Security › Developer Mode, and scroll to the bottom.", "打开「设置 › 隐私与安全性 › 开发者模式」，划到最下面。", "開啟「設定 › 隱私權與安全性 › 開發者模式」，滑到最下面。", "「設定 › プライバシーとセキュリティ › デベロッパモード」を開き、一番下までスクロールします。", "“설정 › 개인정보 보호 및 보안 › 개발자 모드”를 열고 맨 아래로 스크롤하세요.", "Abre Ajustes › Privacidad y seguridad › Modo de desarrollador y desplázate hasta abajo.", "Ouvrez Réglages › Confidentialité et sécurité › Mode développeur, puis faites défiler jusqu’en bas.", "Öffne „Einstellungen › Datenschutz & Sicherheit › Entwicklermodus“ und scrolle ganz nach unten.", "Abra Ajustes › Privacidade e Segurança › Modo de Desenvolvedor e role até o fim.", "Apri Impostazioni › Privacy e sicurezza › Modalità sviluppatore e scorri fino in fondo.", "Откройте «Настройки › Конфиденциальность и безопасность › Режим разработчика» и прокрутите вниз."],
++    ["Tap Pair with {0}. It can take a few seconds to show.", "点「Pair with {0}」，可能要几秒才出现。", "點「Pair with {0}」，可能要幾秒才出現。", "「Pair with {0}」をタップします。表示まで数秒かかることがあります。", "“Pair with {0}”을 탭하세요. 표시되기까지 몇 초 걸릴 수 있습니다.", "Toca “Pair with {0}”. Puede tardar unos segundos en aparecer.", "Touchez « Pair with {0} ». L’option peut mettre quelques secondes à apparaître.", "Tippe auf „Pair with {0}“. Es kann ein paar Sekunden dauern, bis es erscheint.", "Toque em “Pair with {0}”. Pode levar alguns segundos para aparecer.", "Tocca “Pair with {0}”. Può volerci qualche secondo perché compaia.", "Нажмите «Pair with {0}». Пункт может появиться через несколько секунд."],
++    ["Enter your iPhone passcode, then the 6-digit code PallasBoot shows. It comes as a notification too.", "输入锁屏密码，再输入 PallasBoot 显示的 6 位配对码，通知里也会有。", "輸入鎖定密碼，再輸入 PallasBoot 顯示的 6 位數配對碼，通知裡也會有。", "パスコードを入力し、PallasBoot に表示される6桁のコードを入力します。コードは通知でも届きます。", "암호를 입력한 다음 PallasBoot에 표시되는 6자리 코드를 입력하세요. 알림으로도 옵니다.", "Introduce tu código y luego el código de 6 dígitos que muestra PallasBoot. También llega como notificación.", "Saisissez votre code, puis le code à 6 chiffres affiché par PallasBoot. Il arrive aussi en notification.", "Gib deinen Code ein und dann den 6-stelligen Code, den PallasBoot anzeigt. Er kommt auch als Mitteilung.", "Digite seu código e depois o código de 6 dígitos que o PallasBoot mostra. Ele também chega como notificação.", "Inserisci il codice del dispositivo, poi il codice di 6 cifre mostrato da PallasBoot. Arriva anche come notifica.", "Введите код-пароль, затем 6-значный код из PallasBoot. Он также придёт уведомлением."],
++    ["Enter your iPhone passcode, then the 6-digit code PallasBoot shows. Pallas's notifications are off, so come back to Pallas to read it.", "输入锁屏密码，再输入 PallasBoot 显示的 6 位配对码。Pallas 的通知关着，要回到 Pallas 看配对码。", "輸入鎖定密碼，再輸入 PallasBoot 顯示的 6 位數配對碼。Pallas 的通知關閉，要回到 Pallas 看配對碼。", "パスコードを入力し、PallasBoot に表示される6桁のコードを入力します。Pallas の通知がオフなので、コードは Pallas に戻って確認してください。", "암호를 입력한 다음 PallasBoot에 표시되는 6자리 코드를 입력하세요. Pallas 알림이 꺼져 있으니 Pallas로 돌아와 확인하세요.", "Introduce tu código y luego el código de 6 dígitos que muestra PallasBoot. Las notificaciones de Pallas están desactivadas: vuelve a Pallas para verlo.", "Saisissez votre code, puis le code à 6 chiffres affiché par PallasBoot. Les notifications de Pallas sont désactivées : revenez dans Pallas pour le lire.", "Gib deinen Code ein und dann den 6-stelligen Code, den PallasBoot anzeigt. Die Mitteilungen von Pallas sind aus, also lies ihn in Pallas nach.", "Digite seu código e depois o código de 6 dígitos que o PallasBoot mostra. As notificações do Pallas estão desativadas: volte ao Pallas para ver o código.", "Inserisci il codice del dispositivo, poi il codice di 6 cifre mostrato da PallasBoot. Le notifiche di Pallas sono disattivate: torna su Pallas per leggerlo.", "Введите код-пароль, затем 6-значный код из PallasBoot. Уведомления Pallas выключены, поэтому вернитесь в Pallas, чтобы его увидеть."],
++    ["Come back to Pallas once Settings says it's paired.", "「设置」显示已配对后，回到 Pallas。", "「設定」顯示已配對後，回到 Pallas。", "「設定」にペアリング済みと表示されたら Pallas に戻ります。", "“설정”에 페어링됨이 표시되면 Pallas로 돌아오세요.", "Vuelve a Pallas cuando Ajustes diga que está emparejado.", "Revenez dans Pallas quand Réglages indique que l’association est faite.", "Kehre zu Pallas zurück, sobald die Einstellungen „gekoppelt“ anzeigen.", "Volte ao Pallas quando Ajustes mostrar que está pareado.", "Torna su Pallas quando Impostazioni indica che è abbinato.", "Вернитесь в Pallas, когда в Настройках появится, что связь создана."],
++    ["Start pairing", "开始配对", "開始配對", "ペアリングを開始", "페어링 시작", "Empezar a emparejar", "Commencer l’association", "Koppeln starten", "Começar a parear", "Avvia abbinamento", "Начать связывание"],
++    ["start pairing when you're ready", "准备好就开始配对", "準備好就開始配對", "準備ができたらペアリングを開始", "준비되면 페어링을 시작하세요", "empieza a emparejar cuando estés listo", "commencez l’association quand vous êtes prêt", "starte das Koppeln, wenn du bereit bist", "comece a parear quando estiver pronto", "avvia l’abbinamento quando sei pronto", "начните связывание, когда будете готовы"],
++    ["Settings connected: waiting for it to ask for a code", "「设置」已连上，等它要配对码", "「設定」已連上，等它要配對碼", "「設定」が接続しました。コードを求めるのを待っています", "“설정”이 연결됨: 코드를 요청하기를 기다리는 중", "Ajustes conectado: esperando a que pida un código", "Réglages connecté : en attente de la demande de code", "Einstellungen verbunden: warte, bis nach einem Code gefragt wird", "Ajustes conectado: aguardando o pedido do código", "Impostazioni connesse: in attesa che chieda un codice", "Настройки подключены: ожидание запроса кода"],
++    ["waiting for the code to be typed into Settings", "等你在「设置」里输入配对码", "等你在「設定」裡輸入配對碼", "「設定」にコードが入力されるのを待っています", "“설정”에 코드가 입력되기를 기다리는 중", "esperando a que se escriba el código en Ajustes", "en attente de la saisie du code dans Réglages", "warte, bis der Code in den Einstellungen eingegeben wird", "aguardando o código ser digitado em Ajustes", "in attesa che il codice venga inserito in Impostazioni", "ожидание ввода кода в Настройках"],
++    ["paired: go back to Pallas to carry on", "已配对：回到 Pallas 继续", "已配對：回到 Pallas 繼續", "ペアリングしました：Pallas に戻って続けてください", "페어링됨: Pallas로 돌아가 계속하세요", "emparejado: vuelve a Pallas para continuar", "associé : revenez dans Pallas pour continuer", "gekoppelt: kehre zu Pallas zurück, um fortzufahren", "pareado: volte ao Pallas para continuar", "abbinato: torna su Pallas per continuare", "связь создана: вернитесь в Pallas, чтобы продолжить"],
++    ["Type it into Settings. It came as a notification too.", "在「设置」里输入，通知里也有。", "在「設定」裡輸入，通知裡也有。", "「設定」に入力してください。通知でも届いています。", "“설정”에 입력하세요. 알림으로도 왔습니다.", "Escríbelo en Ajustes. También llegó como notificación.", "Saisissez-le dans Réglages. Il est aussi arrivé en notification.", "Gib ihn in den Einstellungen ein. Er kam auch als Mitteilung.", "Digite em Ajustes. Ele também chegou como notificação.", "Inseriscilo in Impostazioni. È arrivato anche come notifica.", "Введите его в Настройках. Он также пришёл уведомлением."],
++    ["Type it into Settings.", "在「设置」里输入。", "在「設定」裡輸入。", "「設定」に入力してください。", "“설정”에 입력하세요.", "Escríbelo en Ajustes.", "Saisissez-le dans Réglages.", "Gib ihn in den Einstellungen ein.", "Digite em Ajustes.", "Inseriscilo in Impostazioni.", "Введите его в Настройках."],
++    ["Pair with {0} is up in Settings", "「设置」里已出现 Pair with {0}", "「設定」裡已出現 Pair with {0}", "「設定」に Pair with {0} が表示されました", "“설정”에 Pair with {0}이(가) 표시됨", "Pair with {0} ya aparece en Ajustes", "Pair with {0} est visible dans Réglages", "Pair with {0} ist in den Einstellungen sichtbar", "Pair with {0} já aparece em Ajustes", "Pair with {0} è visibile in Impostazioni", "Pair with {0} появился в Настройках"],
++    // how a run ends
++    ["Pallas runner installed and linked", "操控组件已装好，并已和 Pallas 连上", "操控元件已裝好，並已與 Pallas 連接", "操作コンポーネントをインストールし、Pallas と接続しました", "제어 구성 요소를 설치하고 Pallas와 연결했습니다", "Componente de control instalado y conectado con Pallas", "Composant de contrôle installé et relié à Pallas", "Steuerungskomponente installiert und mit Pallas verbunden", "Componente de controle instalado e conectado ao Pallas", "Componente di controllo installato e collegato a Pallas", "Компонент управления установлен и подключён к Pallas"],
++    ["Developer image ready", "开发者运行环境已就绪", "開發者執行環境已就緒", "デベロッパイメージの準備ができました", "개발자 이미지 준비됨", "Imagen de desarrollador lista", "Image développeur prête", "Entwickler-Image bereit", "Imagem de desenvolvedor pronta", "Immagine sviluppatore pronta", "Образ разработчика готов"],
++    ["The tunnel works", "连接正常", "連線正常", "接続は正常です", "연결이 작동합니다", "La conexión funciona", "La connexion fonctionne", "Die Verbindung funktioniert", "A conexão funciona", "La connessione funziona", "Подключение работает"],
++    ["This iPhone accepts the pairing file, and the tunnel opens with it.", "这台设备接受配对，连接也能用它建立。", "這台裝置接受配對，連線也能用它建立。", "このデバイスはペアリングを受け入れ、それで接続できます。", "이 기기가 페어링을 받아들이고 그것으로 연결됩니다.", "Este dispositivo acepta el emparejamiento y la conexión se abre con él.", "Cet appareil accepte l’association, et la connexion s’ouvre avec elle.", "Dieses Gerät akzeptiert die Kopplung, und die Verbindung öffnet sich damit.", "Este dispositivo aceita o pareamento, e a conexão abre com ele.", "Questo dispositivo accetta l’abbinamento e la connessione si apre con esso.", "Устройство принимает связь, и подключение с ней открывается."],
++    ["Signed {0} for {1}", "已为 {1} 签好 {0}", "已為 {1} 簽好 {0}", "{1} 用に {0} に署名しました", "{1}용으로 {0}에 서명함", "{0} firmado para {1}", "{0} signé pour {1}", "{0} für {1} signiert", "{0} assinado para {1}", "{0} firmato per {1}", "{0} подписан для {1}"],
++    // why a sign-in stopped
++    ["Apple rejected the Apple Account or password. Check them and run PallasBoot again. If you're sure they're right, Apple may be limiting sign-ins: wait a while first.", "Apple 拒绝了这个 Apple 账号或密码。请检查后再试一次。如果确定没错，可能是 Apple 暂时限制了登录，先等一会儿。", "Apple 拒絕了這個 Apple 帳號或密碼。請檢查後再試一次。如果確定沒錯，可能是 Apple 暫時限制了登入，先等一會兒。", "Apple にアカウントまたはパスワードを拒否されました。確認してもう一度お試しください。正しいはずなら、Apple がサインインを制限している可能性があるので、しばらく待ってください。", "Apple이 Apple 계정 또는 암호를 거부했습니다. 확인한 후 다시 시도하세요. 맞는데도 그렇다면 Apple이 로그인을 제한하는 중일 수 있으니 잠시 기다리세요.", "Apple rechazó la Cuenta de Apple o la contraseña. Revísalas y vuelve a intentarlo. Si estás seguro de que son correctas, puede que Apple esté limitando los inicios de sesión: espera un rato.", "Apple a refusé le Compte Apple ou le mot de passe. Vérifiez-les et réessayez. Si vous êtes sûr qu’ils sont corrects, Apple limite peut-être les connexions : patientez un moment.", "Apple hat Apple-Account oder Passwort abgelehnt. Prüfe beides und versuche es erneut. Wenn du sicher bist, dass sie stimmen, begrenzt Apple vielleicht die Anmeldungen: Warte eine Weile.", "A Apple recusou a Conta Apple ou a senha. Verifique e tente de novo. Se tiver certeza de que estão corretas, a Apple pode estar limitando os logins: espere um pouco.", "Apple ha rifiutato l’Account Apple o la password. Controllali e riprova. Se sei sicuro che siano giusti, Apple potrebbe limitare gli accessi: aspetta un po’.", "Apple отклонила учётную запись или пароль. Проверьте их и попробуйте снова. Если всё верно, возможно, Apple временно ограничивает вход: подождите немного."],
++    ["Apple is limiting sign-in attempts for now. Wait a while, then run PallasBoot again.", "Apple 暂时限制了登录次数。等一会儿再试。", "Apple 暫時限制了登入次數。等一會兒再試。", "Apple が一時的にサインインを制限しています。しばらく待ってからもう一度お試しください。", "Apple이 일시적으로 로그인 시도를 제한하고 있습니다. 잠시 후 다시 시도하세요.", "Apple está limitando los inicios de sesión por ahora. Espera un rato y vuelve a intentarlo.", "Apple limite les tentatives de connexion pour le moment. Patientez, puis réessayez.", "Apple begrenzt Anmeldeversuche gerade. Warte eine Weile und versuche es dann erneut.", "A Apple está limitando os logins por enquanto. Espere um pouco e tente de novo.", "Apple sta limitando gli accessi per ora. Aspetta un po’ e riprova.", "Apple временно ограничивает попытки входа. Подождите и попробуйте снова."],
++    ["Sign-in cancelled.", "已取消登录。", "已取消登入。", "サインインをキャンセルしました。", "로그인을 취소했습니다.", "Inicio de sesión cancelado.", "Connexion annulée.", "Anmeldung abgebrochen.", "Login cancelado.", "Accesso annullato.", "Вход отменён."],
++    ["No Apple Account given.", "没有填 Apple 账号。", "沒有填 Apple 帳號。", "Apple アカウントが入力されていません。", "Apple 계정을 입력하지 않았습니다.", "No se indicó ninguna Cuenta de Apple.", "Aucun Compte Apple saisi.", "Kein Apple-Account angegeben.", "Nenhuma Conta Apple informada.", "Nessun Account Apple inserito.", "Учётная запись Apple не указана."],
++    ["No password given.", "没有填密码。", "沒有填密碼。", "パスワードが入力されていません。", "암호를 입력하지 않았습니다.", "No se indicó ninguna contraseña.", "Aucun mot de passe saisi.", "Kein Passwort angegeben.", "Nenhuma senha informada.", "Nessuna password inserita.", "Пароль не указан."],
++    ["Signed in, but Apple didn't list a developer team.", "已登录，但 Apple 没有列出开发团队。", "已登入，但 Apple 沒有列出開發團隊。", "サインインしましたが、Apple がデベロッパチームを返しませんでした。", "로그인했지만 Apple이 개발자 팀을 보여 주지 않았습니다.", "Sesión iniciada, pero Apple no mostró ningún equipo de desarrollo.", "Connecté, mais Apple n’a indiqué aucune équipe de développement.", "Angemeldet, aber Apple hat kein Entwicklerteam aufgeführt.", "Login feito, mas a Apple não listou uma equipe de desenvolvedores.", "Accesso eseguito, ma Apple non ha indicato un team di sviluppo.", "Вход выполнен, но Apple не указала команду разработчиков."],
++    ["Couldn't sign in through any of {0} anisette servers. Try again later.", "通过 {0} 个 anisette 服务器都没能登录。请稍后再试。", "透過 {0} 個 anisette 伺服器都沒能登入。請稍後再試。", "{0} 台の anisette サーバのどれでもサインインできませんでした。あとでもう一度お試しください。", "anisette 서버 {0}개 모두에서 로그인하지 못했습니다. 나중에 다시 시도하세요.", "No se pudo iniciar sesión con ninguno de los {0} servidores anisette. Inténtalo más tarde.", "Connexion impossible via les {0} serveurs anisette. Réessayez plus tard.", "Anmeldung über keinen der {0} anisette-Server möglich. Versuche es später erneut.", "Não foi possível entrar por nenhum dos {0} servidores anisette. Tente mais tarde.", "Impossibile accedere tramite i {0} server anisette. Riprova più tardi.", "Не удалось войти ни через один из {0} серверов anisette. Попробуйте позже."],
++    ["Stopped before pairing.", "在配对前停止了。", "在配對前停止了。", "ペアリングの前に停止しました。", "페어링 전에 중지했습니다.", "Se detuvo antes de emparejar.", "Arrêté avant l’association.", "Vor dem Koppeln gestoppt.", "Parado antes do pareamento.", "Interrotto prima dell’abbinamento.", "Остановлено до связывания."],
++    ["That code didn't match. Tap the entry in Settings again for a new one.", "配对码不对。在「设置」里再点一次那一项，换一个新的码。", "配對碼不對。在「設定」裡再點一次那一項，換一個新的碼。", "コードが一致しませんでした。「設定」の項目をもう一度タップして新しいコードを表示してください。", "코드가 일치하지 않습니다. “설정”의 항목을 다시 탭해 새 코드를 받으세요.", "Ese código no coincide. Vuelve a tocar la opción en Ajustes para obtener otro.", "Ce code ne correspond pas. Touchez à nouveau l’option dans Réglages pour en obtenir un nouveau.", "Der Code stimmt nicht. Tippe in den Einstellungen erneut auf den Eintrag, um einen neuen zu bekommen.", "Esse código não confere. Toque de novo na opção em Ajustes para obter outro.", "Il codice non corrisponde. Tocca di nuovo la voce in Impostazioni per averne uno nuovo.", "Код не совпал. Снова нажмите пункт в Настройках, чтобы получить новый."],
++    ["Pairing stopped before it finished. Tap the entry in Settings again.", "配对没完成就停了。在「设置」里再点一次那一项。", "配對沒完成就停了。在「設定」裡再點一次那一項。", "ペアリングが途中で止まりました。「設定」の項目をもう一度タップしてください。", "페어링이 끝나기 전에 멈췄습니다. “설정”의 항목을 다시 탭하세요.", "El emparejamiento se detuvo antes de terminar. Vuelve a tocar la opción en Ajustes.", "L’association s’est arrêtée avant la fin. Touchez à nouveau l’option dans Réglages.", "Das Koppeln wurde vorzeitig beendet. Tippe in den Einstellungen erneut auf den Eintrag.", "O pareamento parou antes de terminar. Toque de novo na opção em Ajustes.", "L’abbinamento si è interrotto prima della fine. Tocca di nuovo la voce in Impostazioni.", "Связывание прервалось. Снова нажмите пункт в Настройках."],
++    ["That connection went quiet before asking for a code.", "那次连接还没要配对码就没了动静。", "那次連線還沒要配對碼就沒了動靜。", "コードを求める前に接続が途絶えました。", "코드를 요청하기 전에 연결이 응답하지 않았습니다.", "Esa conexión dejó de responder antes de pedir un código.", "Cette connexion s’est tue avant de demander un code.", "Die Verbindung wurde still, bevor nach einem Code gefragt wurde.", "Essa conexão parou de responder antes de pedir um código.", "La connessione si è interrotta prima di chiedere un codice.", "Подключение замолчало до запроса кода."],
++    ["That connection closed before asking for a code.", "那次连接还没要配对码就关了。", "那次連線還沒要配對碼就關了。", "コードを求める前に接続が閉じられました。", "코드를 요청하기 전에 연결이 닫혔습니다.", "Esa conexión se cerró antes de pedir un código.", "Cette connexion s’est fermée avant de demander un code.", "Die Verbindung wurde geschlossen, bevor nach einem Code gefragt wurde.", "Essa conexão fechou antes de pedir um código.", "La connessione si è chiusa prima di chiedere un codice.", "Подключение закрылось до запроса кода."],
++    ["The code wasn't entered within {0}. Run PallasBoot again for a new one.", "{0}内没有输入配对码。重新开始以获取新的码。", "{0}內沒有輸入配對碼。重新開始以取得新的碼。", "{0}以内にコードが入力されませんでした。もう一度始めて新しいコードを表示してください。", "{0} 안에 코드를 입력하지 않았습니다. 다시 시작해 새 코드를 받으세요.", "No se escribió el código en {0}. Vuelve a empezar para obtener otro.", "Le code n’a pas été saisi dans les {0}. Recommencez pour en obtenir un nouveau.", "Der Code wurde nicht innerhalb von {0} eingegeben. Starte erneut für einen neuen.", "O código não foi digitado em {0}. Comece de novo para obter outro.", "Il codice non è stato inserito entro {0}. Ricomincia per averne uno nuovo.", "Код не введён за {0}. Начните заново, чтобы получить новый."],
++  ];
++  const LANGS = ["zh-Hans", "zh-Hant", "ja", "ko", "es", "fr", "de", "pt-BR", "it", "ru", "en"];
++
++  function viewerLanguage() {
++    for (const raw of navigator.languages || [navigator.language || ""]) {
++      const tag = String(raw).toLowerCase();
++      if (tag.startsWith("zh")) return /hant|-tw|-hk|-mo/.test(tag) ? "zh-Hant" : "zh-Hans";
++      if (tag.startsWith("pt")) return "pt-BR";
++      if (LANGS.includes(tag.split("-")[0])) return tag.split("-")[0];
++    }
++    return "en";
++  }
++  const LANG = viewerLanguage();
++  document.documentElement.lang = LANG;
++
++  // Exact rows by what PallasBoot sends; rows with {0} as patterns that copy their parts over.
++  const EXACT = new Map(), PATTERNS = [];
++  {
++    const column = LANGS.indexOf(LANG) + 1;
++    const escape = (s) => s.replace(/[.*+?^$()|[\]\\]/g, "\\$&");
++    for (const row of L10N) {
++      // An English source needs no English column; a Chinese one has it last.
++      const shown = row[column] || row[0];
++      if (!/\{\d\}/.test(row[0])) { EXACT.set(row[0], shown); continue; }
++      const order = [...row[0].matchAll(/\{(\d)\}/g)].map((m) => Number(m[1]));
++      const source = new RegExp("^" + escape(row[0]).replace(/\\?\{\d\\?\}/g, "(.+?)") + "$");
++      PATTERNS.push({ source, order, shown });
++    }
++  }
++
++  // `text` in the viewer's language, or as it came when the page has no row for it. PallasBoot
++  // writes some lines in lower case to go after a name, so the other case is tried too.
++  function tr(text) {
++    if (text == null || text === "") return text;
++    const s = String(text);
++    const other = s.charAt(0) === s.charAt(0).toLowerCase() ? s.charAt(0).toUpperCase() + s.slice(1) : s.charAt(0).toLowerCase() + s.slice(1);
++    for (const key of [s, other]) {
++      if (EXACT.has(key)) return EXACT.get(key);
++      for (const p of PATTERNS) {
++        const m = p.source.exec(key);
++        if (m) return p.shown.replace(/\{(\d)\}/g, (_, i) => m[p.order.indexOf(Number(i)) + 1]);
++      }
++    }
++    return s;
++  }
++
++  // A row with {0} {1} filled in, in the viewer's language.
++  function fill(row, ...parts) {
++    return tr(row.replace(/\{(\d)\}/g, (_, i) => parts[Number(i)]));
++  }
++
+   const stepsEl = $("steps"), askEl = $("ask"), outcomeEl = $("outcome"),
+         afterEl = $("after"), bannerEl = $("banner"), stopEl = $("stop");
+ 
    let steps = [];        // one per step of the plan
    let active = -1;       // index of the running step
    let status = "";       // what it's doing now
@@ -4062,7 +4263,7 @@ index 744c328..c1ff8a8 100644
    let lastHeard = Date.now();
    let heard = false, ended = false;
    let asking = null;     // the question on screen
-@@ -207,10 +207,10 @@ footer{display:flex; align-items:center; justify-content:space-between; gap:12px
+@@ -207,10 +402,10 @@ footer{display:flex; align-items:center; justify-content:space-between; gap:12px
      const s = Math.max(0, Math.floor(ms / 1000));
      return Math.floor(s / 60) + ":" + String(s % 60).padStart(2, "0");
    };
@@ -4076,7 +4277,7 @@ index 744c328..c1ff8a8 100644
    const mb = (bytes) => (bytes / 1048576).toFixed(1);
  
    function heardAt(at) {
-@@ -220,7 +220,7 @@ footer{display:flex; align-items:center; justify-content:space-between; gap:12px
+@@ -220,7 +415,7 @@ footer{display:flex; align-items:center; justify-content:space-between; gap:12px
    }
  
    // One line over the steps, and why it's there: "quiet" (no word from
@@ -4085,10 +4286,113 @@ index 744c328..c1ff8a8 100644
    // when what put it there does.
    let bannerWhy = "";
    function banner(text, tone, why) {
-@@ -390,13 +390,59 @@ footer{display:flex; align-items:center; justify-content:space-between; gap:12px
-     outcome("good", "✓ " + e.title, e.took || "", e.paragraphs || [], "");
+@@ -241,7 +436,7 @@ footer{display:flex; align-items:center; justify-content:space-between; gap:12px
+       const mark = make("span", "mark");
+       mark.setAttribute("aria-hidden", "true");
+       const time = make("span", "time");
+-      row.append(mark, make("span", "name", name), time);
++      row.append(mark, make("span", "name", tr(name)), time);
+       const line = make("p", "line");
+       const progress = make("div", "progress");
+       progress.hidden = true;
+@@ -266,7 +461,7 @@ footer{display:flex; align-items:center; justify-content:space-between; gap:12px
+     if (!s) return;
+     s.li.dataset.state = state;
+     s.mark.textContent = state === "done" ? "✓" : "✕";
+-    s.line.textContent = text ? cap(text) : "";
++    s.line.textContent = text ? cap(tr(text)) : "";
+     s.time.textContent = "";
+     s.progress.hidden = true;
+     active = -1;
+@@ -282,7 +477,7 @@ footer{display:flex; align-items:center; justify-content:space-between; gap:12px
+     status = title;
+     s.li.dataset.state = "active";
+     s.mark.textContent = "";
+-    s.line.textContent = cap(title);
++    s.line.textContent = cap(tr(title));
+     s.startedAt = at;
+     s.time.textContent = "0:00";
+     place();
+@@ -291,7 +486,7 @@ footer{display:flex; align-items:center; justify-content:space-between; gap:12px
+   function setStatus(text) {
+     status = text;
+     const s = steps[active];
+-    if (s) s.line.textContent = cap(text);
++    if (s) s.line.textContent = cap(tr(text));
+     else item("note", text);
    }
  
+@@ -299,7 +494,7 @@ footer{display:flex; align-items:center; justify-content:space-between; gap:12px
+     const li = make("li", "item " + kind);
+     const mark = make("span", "item-mark", kind === "ok" ? "✓" : kind === "warn" ? "▲" : "·");
+     mark.setAttribute("aria-hidden", "true");
+-    li.append(mark, make("span", "item-text", cap(text)));
++    li.append(mark, make("span", "item-text", cap(tr(text))));
+     (steps[active] ? steps[active].items : afterEl).append(li);
+   }
+ 
+@@ -312,11 +507,11 @@ footer{display:flex; align-items:center; justify-content:space-between; gap:12px
+     s.fill.style.width = percent + "%";
+     s.track.setAttribute("aria-valuenow", String(percent));
+     let text = e.bytes
+-      ? cap(e.label) + " " + mb(e.done) + " of " + mb(e.total) + " MB"
+-      : cap(e.label) + " " + percent + "%";
++      ? cap(tr(e.label)) + " " + fill("{0} of {1} MB", mb(e.done), mb(e.total))
++      : cap(tr(e.label)) + " " + percent + "%";
+     const took = e.at - bar.at, moved = e.done - bar.done;
+     if (e.bytes && took > 2000 && moved > 0 && e.done < e.total) {
+-      text += " · " + clock(((e.total - e.done) * took) / moved) + " left";
++      text += " · " + fill("{0} left", clock(((e.total - e.done) * took) / moved));
+     }
+     s.ptext.textContent = text;
+   }
+@@ -337,7 +532,7 @@ footer{display:flex; align-items:center; justify-content:space-between; gap:12px
+     const code = String(e.code || "");
+     pinEl = make("section", "pin");
+     pinEl.setAttribute("role", "status");
+-    pinEl.append(make("h2", "pin-title", e.title || "Code"));
++    pinEl.append(make("h2", "pin-title", tr(e.title || "Code")));
+     const digits = make("div", "pin-digits");
+     digits.setAttribute("aria-label", code.split("").join(" "));
+     for (const d of code) {
+@@ -346,7 +541,7 @@ footer{display:flex; align-items:center; justify-content:space-between; gap:12px
+       digits.append(box);
+     }
+     pinEl.append(digits);
+-    if (e.note) pinEl.append(make("p", "pin-note", e.note));
++    if (e.note) pinEl.append(make("p", "pin-note", tr(e.note)));
+     const s = steps[active];
+     if (s) s.items.after(pinEl);
+     else afterEl.after(pinEl);
+@@ -367,17 +562,17 @@ footer{display:flex; align-items:center; justify-content:space-between; gap:12px
+     head.append(make("h2", "outcome-title", title));
+     if (took) head.append(make("span", "outcome-took", took));
+     outcomeEl.append(head);
+-    for (const p of paragraphs) outcomeEl.append(make("p", null, p));
++    for (const p of paragraphs) outcomeEl.append(make("p", null, tr(p)));
+     if (tone === "good") {
+       for (const link of links) {
+-        const a = make("a", "button primary", link.label);
++        const a = make("a", "button primary", tr(link.label));
+         a.href = link.url;
+         outcomeEl.append(a);
+       }
+     }
+     if (cause) {
+       const more = make("details", "cause");
+-      more.append(make("summary", null, "Details"), make("p", null, cause));
++      more.append(make("summary", null, tr("Details")), make("p", null, cause));
+       outcomeEl.append(more);
+     }
+     outcomeEl.hidden = false;
+@@ -387,7 +582,42 @@ footer{display:flex; align-items:center; justify-content:space-between; gap:12px
+ 
+   function finish(e) {
+     if (active >= 0) settle("done", status);
+-    outcome("good", "✓ " + e.title, e.took || "", e.paragraphs || [], "");
++    outcome("good", "✓ " + tr(e.title), e.took || "", e.paragraphs || [], "");
++  }
++
 +  // Account problems the signer reports as codes (login.rs), in the viewer's language.
 +  const NOTICES = {
 +    multiple_teams: {
@@ -4119,52 +4423,148 @@ index 744c328..c1ff8a8 100644
 +    },
 +  };
 +
-+  function viewerLanguage() {
-+    const known = Object.keys(NOTICES.paid_team);
-+    for (const raw of navigator.languages || [navigator.language || ""]) {
-+      const tag = String(raw).toLowerCase();
-+      if (tag.startsWith("zh")) return /hant|-tw|-hk|-mo/.test(tag) ? "zh-Hant" : "zh-Hans";
-+      if (tag.startsWith("pt")) return "pt-BR";
-+      if (known.includes(tag.split("-")[0])) return tag.split("-")[0];
-+    }
-+    return "en";
-+  }
-+
 +  function advice(text) {
 +    const code = Object.keys(NOTICES).find((c) => String(text).includes(c));
-+    return code ? NOTICES[code][viewerLanguage()] : text;
-+  }
-+
++    return code ? NOTICES[code][LANG] : text;
+   }
+ 
    function failure(e) {
-     // A question it was waiting on when it stopped won't be answered now; one
+@@ -395,8 +625,8 @@ footer{display:flex; align-items:center; justify-content:space-between; gap:12px
      // it asks after (the log) comes as a new one.
      if (asking) answered(asking.id);
      pinEnd();
-     if (active >= 0) settle("failed", "stopped after " + clock(now() - steps[active].startedAt));
+-    if (active >= 0) settle("failed", "stopped after " + clock(now() - steps[active].startedAt));
 -    outcome("bad", "✕ Stopped", e.took || "", [e.advice], e.cause || "");
-+    outcome("bad", "✕ Stopped", e.took || "", [advice(e.advice)], e.cause || "");
++    if (active >= 0) settle("failed", fill("stopped after {0}", clock(now() - steps[active].startedAt)));
++    outcome("bad", "✕ " + tr("Stopped"), e.took || "", [advice(e.advice)], e.cause || "");
    }
  
    function end() {
-@@ -405,7 +451,7 @@ footer{display:flex; align-items:center; justify-content:space-between; gap:12px
+@@ -405,7 +635,7 @@ footer{display:flex; align-items:center; justify-content:space-between; gap:12px
      pinEnd();
      stopEl.hidden = true;
      if (source) source.close();
 -    banner("siboot is done. You can close this page.", "", "done");
-+    banner("PallasBoot is done. You can close this page.", "", "done");
++    banner(tr("PallasBoot is done. You can close this page."), "", "done");
    }
  
    // ---------------------------------------------------------- questions
-@@ -560,7 +606,7 @@ footer{display:flex; align-items:center; justify-content:space-between; gap:12px
+@@ -430,13 +660,13 @@ footer{display:flex; align-items:center; justify-content:space-between; gap:12px
+     askEl.removeAttribute("aria-busy");
+     askEl.dataset.kind = e.kind;
+     askEl.onsubmit = (ev) => ev.preventDefault();
+-    askEl.append(make("h2", "ask-title", cap(e.question)));
++    askEl.append(make("h2", "ask-title", cap(tr(e.question))));
+     const actions = make("div", "actions");
+     let focus = null;
+ 
+     if (e.kind === "text" || e.kind === "secret" || e.kind === "line") {
+       const field = make("label", "field");
+-      if (e.label) field.append(make("span", "field-label", e.label));
++      if (e.label) field.append(make("span", "field-label", tr(e.label)));
+       const input = make("input", "input");
+       if (e.kind === "secret") {
+         input.type = "password";
+@@ -452,7 +682,7 @@ footer{display:flex; align-items:center; justify-content:space-between; gap:12px
+       input.setAttribute("autocorrect", "off");
+       input.spellcheck = false;
+       input.enterKeyHint = "send";
+-      input.placeholder = e.placeholder || "";
++      input.placeholder = tr(e.placeholder || "");
+       field.append(input);
+       askEl.append(field);
+       focus = input;
+@@ -461,8 +691,8 @@ footer{display:flex; align-items:center; justify-content:space-between; gap:12px
+         if (!input.value.trim() && e.kind !== "line") return input.focus();
+         send({ value: input.value });
+       };
+-      actions.append(button("Continue", "primary", "submit"));
+-      actions.append(button("Cancel", "quiet", "button", () => send({ cancel: true })));
++      actions.append(button(tr("Continue"), "primary", "submit"));
++      actions.append(button(tr("Cancel"), "quiet", "button", () => send({ cancel: true })));
+     } else if (e.kind === "code") {
+       const code = make("label", "code");
+       const boxes = make("span", "boxes");
+@@ -471,7 +701,7 @@ footer{display:flex; align-items:center; justify-content:space-between; gap:12px
+       const input = make("input", "code-input");
+       input.inputMode = "numeric";
+       input.autocomplete = "one-time-code";
+-      input.setAttribute("aria-label", e.label || "Code");
++      input.setAttribute("aria-label", tr(e.label || "Code"));
+       const draw = () => {
+         const typed = input.value;
+         [...boxes.children].forEach((box, i) => {
+@@ -489,38 +719,38 @@ footer{display:flex; align-items:center; justify-content:space-between; gap:12px
+       code.append(boxes, input);
+       askEl.append(code);
+       const hints = make("ul", "hints");
+-      for (const hint of e.hints || []) hints.append(make("li", hint.warning ? "hint warn" : "hint", cap(hint.text)));
++      for (const hint of e.hints || []) hints.append(make("li", hint.warning ? "hint warn" : "hint", cap(tr(hint.text))));
+       if (hints.children.length) askEl.append(hints);
+       askEl.onsubmit = (ev) => {
+         ev.preventDefault();
+         if (input.value.length === 6) send({ value: input.value });
+       };
+-      if (e.more) actions.append(button("Other ways", "secondary", "button", () => send({ more: true })));
+-      actions.append(button("Cancel", "quiet", "button", () => send({ cancel: true })));
++      if (e.more) actions.append(button(tr("Other ways"), "secondary", "button", () => send({ more: true })));
++      actions.append(button(tr("Cancel"), "quiet", "button", () => send({ cancel: true })));
+       focus = input;
+     } else if (e.kind === "ready") {
+       const list = make("ol", "ready-steps");
+-      for (const step of e.steps || []) list.append(make("li", "ready-step", step));
++      for (const step of e.steps || []) list.append(make("li", "ready-step", tr(step)));
+       askEl.append(list);
+       if ((e.notes || []).length) {
+         const notes = make("ul", "ready-notes");
+-        for (const note of e.notes) notes.append(make("li", "ready-note", note));
++        for (const note of e.notes) notes.append(make("li", "ready-note", tr(note)));
+         askEl.append(notes);
+       }
+-      actions.append(button(e.button || "Start", "primary", "button", () => send({ go: true })));
+-      actions.append(button("Cancel", "quiet", "button", () => send({ cancel: true })));
++      actions.append(button(tr(e.button || "Start"), "primary", "button", () => send({ go: true })));
++      actions.append(button(tr("Cancel"), "quiet", "button", () => send({ cancel: true })));
+     } else if (e.kind === "confirm") {
+-      actions.append(button("Yes", e.default ? "primary" : "secondary", "button", () => send({ yes: true })));
+-      actions.append(button("No", e.default ? "secondary" : "primary", "button", () => send({ yes: false })));
++      actions.append(button(tr("Yes"), e.default ? "primary" : "secondary", "button", () => send({ yes: true })));
++      actions.append(button(tr("No"), e.default ? "secondary" : "primary", "button", () => send({ yes: false })));
+     } else if (e.kind === "choose") {
+       const list = make("ol", "choices");
+       e.options.forEach((option, i) => {
+         const li = make("li");
+-        li.append(button(option, "choice", "button", () => send({ index: i })));
++        li.append(button(tr(option), "choice", "button", () => send({ index: i })));
+         list.append(li);
+       });
+       askEl.append(list);
+-      actions.append(button("Back", "quiet", "button", () => send({ cancel: true })));
++      actions.append(button(tr("Back"), "quiet", "button", () => send({ cancel: true })));
+     }
+ 
+     askEl.append(actions);
+@@ -560,7 +790,7 @@ footer{display:flex; align-items:center; justify-content:space-between; gap:12px
      } catch (err) {
        if (asking && asking.id === id) {
          busy(false);
 -        banner("Couldn't reach siboot. It runs in Minis's terminal: is Minis still open?", "warn", "unsent");
-+        banner("Couldn't reach PallasBoot. It runs in Pallas's terminal: is Pallas still open?", "warn", "unsent");
++        banner(tr("Couldn't reach PallasBoot. It runs in Pallas's terminal: is Pallas still open?"), "warn", "unsent");
        }
      }
    }
-@@ -608,16 +654,16 @@ footer{display:flex; align-items:center; justify-content:space-between; gap:12px
+@@ -572,8 +802,8 @@ footer{display:flex; align-items:center; justify-content:space-between; gap:12px
+     switch (e.t) {
+       case "header":
+         $("version").textContent = e.version;
+-        $("tagline").textContent = e.tagline;
+-        $("keep").textContent = e.note;
++        $("tagline").textContent = tr(e.tagline);
++        $("keep").textContent = tr(e.note);
+         $("keep").hidden = !e.note;
+         stopEl.hidden = ended;
+         break;
+@@ -608,16 +838,16 @@ footer{display:flex; align-items:center; justify-content:space-between; gap:12px
      };
    }
  
@@ -4177,14 +4577,49 @@ index 744c328..c1ff8a8 100644
      if (s && !ended) s.time.textContent = clock(now() - s.startedAt);
      if (ended) return;
      if (Date.now() - lastHeard > 15000) {
-       banner(heard
+-      banner(heard
 -        ? "siboot isn't answering. It runs in Minis's terminal, and iOS pauses Minis when you leave it: go back to Minis to carry on."
 -        : "Can't reach siboot. Open this page from siboot in Minis's terminal.", "warn", "quiet");
++      banner(tr(heard
 +        ? "PallasBoot isn't answering. It runs in Pallas's terminal, and iOS pauses Pallas when you leave it: go back to Pallas to carry on."
-+        : "Can't reach PallasBoot. Open this page from PallasBoot in Pallas's terminal.", "warn", "quiet");
++        : "Can't reach PallasBoot. Open this page from PallasBoot in Pallas's terminal."), "warn", "quiet");
      } else if (bannerWhy === "quiet") {
        banner("");
      }
+@@ -628,18 +858,18 @@ footer{display:flex; align-items:center; justify-content:space-between; gap:12px
+   stopEl.addEventListener("click", async () => {
+     if (Date.now() - armed > 3000) {
+       armed = Date.now();
+-      stopEl.textContent = "Tap again to stop";
++      stopEl.textContent = tr("Tap again to stop");
+       stopEl.classList.add("armed");
+       setTimeout(() => {
+         if (Date.now() - armed >= 3000 && !stopEl.disabled) {
+-          stopEl.textContent = "Stop";
++          stopEl.textContent = tr("Stop");
+           stopEl.classList.remove("armed");
+         }
+       }, 3100);
+       return;
+     }
+     stopEl.disabled = true;
+-    stopEl.textContent = "Stopping…";
++    stopEl.textContent = tr("Stopping…");
+     try {
+       await fetch("stop", { method: "POST", headers: { "Content-Type": "application/json" }, body: "{}" });
+     } catch (err) {}
+@@ -649,6 +879,11 @@ footer{display:flex; align-items:center; justify-content:space-between; gap:12px
+     document.body.classList.toggle("details", ev.target.checked);
+   });
+ 
++  // The page's own words, before PallasBoot sends any.
++  stopEl.textContent = tr("Stop");
++  $("tagline").textContent = tr("Connecting to PallasBoot…");
++  $("details").nextSibling.textContent = tr("Show details");
++
+   connect();
+ })();
+ </script>
 diff --git a/minis/src/web.rs b/minis/src/web.rs
 index 9066841..108fcaf 100644
 --- a/minis/src/web.rs

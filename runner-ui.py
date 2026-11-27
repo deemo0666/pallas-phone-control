@@ -5,6 +5,8 @@ import re
 
 
 DONE = '手机操控已安装并已连接 Pallas'
+# The stage while the job finishes after the runner is in (PhoneSetupWatch.trustStage in the app).
+TRUST = '组件已装好，等待信任'
 INSTALL_STAGES = {'OK Personal Team profile verified and runner signed', 'OK Runner installation confirmed',
                   'OK Pallas runner installed and linked'}
 
@@ -43,6 +45,10 @@ async def run(root, home, ipa, port, config, bridge, relay, command=None, stages
             if line in stages:
                 seen.add(line)
                 print(line, flush=True)
+                if line == 'OK Runner installation confirmed' and success == DONE:
+                    # The runner is on the device: its developer can be trusted while the job mounts the
+                    # developer image and links it (Pallas puts the trust step on its card from here).
+                    bridge(action='stage', value=TRUST)
             elif match := re.fullmatch(r'http://127\.0\.0\.1:(\d+)(/[a-f0-9]{32}/)', line):
                 if int(match[1]) != web['port'] or not bridge(action='signer-page', path=match[2])['ok']:
                     raise RuntimeError('无法打开本机签装页面')
@@ -54,9 +60,9 @@ async def run(root, home, ipa, port, config, bridge, relay, command=None, stages
             elif line == 'OK Existing Apple session verified':
                 print('已复用本机 Apple 登录', flush=True)
             elif 'Apple 7460' in line and not line.startswith('Stopped:'):
-                print('Apple 开发证书名额已满（Apple 7460），等待在 iPad 上选择', flush=True)
+                print('Apple 开发证书名额已满（Apple 7460），等待在登录页上选择', flush=True)
             elif line.startswith('[4/7]'):
-                print('等待在 iPad 上登录免费 Apple 账号', flush=True)
+                print('等待在登录页上登录免费 Apple 账号', flush=True)
             elif line.startswith('Stopped:'):
                 # Detailed upstream messages stay in the on-device page.
                 outcome = '签装失败：' + line.removeprefix('Stopped:').strip()[:120]

@@ -23,7 +23,7 @@ sh /root/workspace/{{DIR}}/setup.sh reset       # 清除配对、Apple 登录和
 ## 按 next 处理
 
 - `start`、`renew`：直接执行 `setup.sh start`，再按新的 `next` 处理。`renew` 表示组件快到期或已过期，同样重新签装；已有配对和登录会自动复用，通常不需要用户操作。
-- `tunnel_unavailable`：请用户在 Pallas 前台再试一次，首次启动时允许 iOS 添加 VPN 配置。
+- `tunnel_unavailable`：请用户在 Pallas 前台再试一次。第一次连接时 Pallas 会先说明，接着系统问能否添加 VPN 配置，要点「允许」并输入锁屏密码；这个连接只连这台设备本身，不经过外网。
 - `connect_vpn`（旧版 Pallas）：请用户打开 LocalDevVPN，点连接，看到 Connected 后回到 Pallas。
 - `allow_local_network`：请用户到「设置 → 隐私与安全性 → 本地网络」打开 Pallas Agent，再回来。
 - `port_unknown`：VPN 通了，但设备没有应答配对端口。最常见原因是开发者模式没开。请用户确认「设置 → 隐私与安全性 → 开发者模式」已打开（打开后系统会要求重启并确认）。如果已开，在 Pallas 前台重试 `setup.sh start`。如果设置里根本没有「开发者模式」，执行 `setup.sh reveal`，按它的 `next` 处理（不用电脑就能让开关出现）。
@@ -43,7 +43,7 @@ sh /root/workspace/{{DIR}}/setup.sh reset       # 清除配对、Apple 登录和
 - `enable_plugin`：插件没有启用，请用户在插件列表里启用它。
 - 用户明确要求用新版插件更新 ScreenRunner 时，运行一次 `setup.sh start` 安装随包执行器，即使首次 `status` 因旧组件签名仍有效而返回 `verify`。本轮安装完成后按正常流程验证。
 - 验证或使用时若报 `runner_launch_refused`（「系统没有让手机操控启动」）：先跑 `status`。`installed_until` 显示已过期，或 `next` 是 `renew`，就是组件过期了：直接执行 `setup.sh start` 重新签装，不要挂运行环境，也不要让用户去信任。没过期时，先执行 `setup.sh ddi`（重启后要重新挂载组件需要的开发者运行环境，约半分钟），看到 `next: verify` 再验证一次。仍被拒，或用户说屏幕上弹出了「未受信任的开发者」，就是还没信任开发者：按 `trust_developer` 带用户去信任，再验证。不要让用户自己去设置里试手机操控。
-- `trust_developer`：组件刚装好，iOS 要用户先信任它的开发者才让它启动，否则会弹「未受信任的开发者」。请用户打开「设置 → 通用 → VPN 与设备管理」，在「开发者 App」下点以「Apple Development」开头、后面是自己 Apple 账号的那一行，点「信任“Apple Development: …”」，弹窗里再点「信任」，然后回到 Pallas 点卡片上的「信任好了，验证」或说「好了」。说完就结束这一轮。用户说已经信任后，先执行 `setup.sh trusted`，再按 `verify` 验证。页面上只剩「删除 App」说明早就信任过，同样执行 `setup.sh trusted`。
+- `trust_developer`：组件刚装好，iOS 要用户先信任它的开发者才让它启动，否则会弹「未受信任的开发者」。请用户打开「设置 → 通用 → VPN 与设备管理」，在「开发者 App」下点以「Apple Development」开头、后面是自己 Apple 账号的那一行，点「信任“Apple Development: …”」，弹窗里再点「信任」，然后回到 Pallas 点卡片上的「信任好了，验证」或说「好了」。这一步可能在任务还在收尾时就出现（`job: running`），照样这样说。说完就结束这一轮。用户说已经信任后，先执行 `setup.sh trusted`（它会等任务收完尾），再按 `verify` 验证。页面上只剩「删除 App」说明早就信任过，同样执行 `setup.sh trusted`。
 - 状态里有 `runner: missing`，或验证时报 `runner_not_installed`（「手机操控还没有开通」），或用户说把手机操控组件删了：组件已不在这台设备上，直接执行 `setup.sh start` 重新签装，已有配对和登录会复用，装好后照常带用户信任开发者、再验证。
 - `verify`：组件已安装并已信任。如果你有 `iphone_screen` 工具，自己验证：打开计算器（`{"bundleParts":["com","apple","calculator"],"action":"open"}`），按 3、7、×、1、9、=，观察结果是 703。如果没有 `iphone_screen` 工具，请用户打开「设置 → 手机操控」把开关打开（若已打开，切到别的 App 再回来），然后说「继续」，你再验证。用户也可以在「设置 → 手机操控」点「试一下手机操控」，看到「试过了，手机操控可以用。」即成功。验证时若报 `runner_group_unavailable`（「手机操控和这个版本的 Pallas Agent 对不上」），说明组件还没连上当前这个 Pallas：不要让用户更新 Pallas，直接执行 `setup.sh start` 重新签装，组件会加上当前这个 Pallas，原来连着的也保留，已有配对和登录会复用；装好后再验证一次。
 

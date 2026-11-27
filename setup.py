@@ -30,12 +30,16 @@ LOG = Path('/root/workspace/.pallasboot-install.log')
 WINDOW = 48 * 3600
 BRIDGE = '10.0.2.2'
 DONE = '手机操控已安装并已连接 Pallas'
+# The stage while an install job finishes after the runner is in (runner-ui.py TRUST).
+TRUSTING = '组件已装好，等待信任'
 # The stage a reveal job ends on (reveal.py REVEALED).
 REVEALED = '请打开开发者模式'
 REVEAL_NEXT = {'identify': 'identify_device', 'install': 'install_in_safari', 'enable': 'turn_on_developer_mode'}
 IDLE_STAGES = {'waiting'}
 # Written by Pallas (PhoneControl.noteRunner): whether the runner is on this iPhone, and the system version.
 NOTE = Path('/root/workspace/.phone-control.json')
+# Written by index.cjs when an install ends with the runner in; newer than NOTE means NOTE is stale.
+TRUST_PENDING = Path('/root/workspace/.pallasboot-trust-pending')
 # Pairing from the device itself (Developer Mode › Other devices) came with iOS 27.
 PAIRING_IOS = 27
 
@@ -195,11 +199,18 @@ def status(detect=True):
         say('auto_renewal', 'none')
     # Pallas 0.5.5+ writes whether the runner is on this iPhone; the receipt stays when it is deleted.
     missing = note().get('runner') == 'missing'
+    if missing and state.get('trustPending'):
+        # Pallas writes the note when it comes to the front; an install that ended since then put the runner back.
+        try:
+            missing = NOTE.stat().st_mtime > TRUST_PENDING.stat().st_mtime
+        except OSError:
+            pass
     if missing:
         say('runner', 'missing')
     if job:
         step = ('enter_code' if state['code'] else 'pair_in_settings' if state['stage'] == '等待系统配对'
-                else 'sign_in' if state['signerPage'] else REVEAL_NEXT.get(state.get('reveal'), 'wait'))
+                else 'sign_in' if state['signerPage'] else 'trust_developer' if state['stage'] == TRUSTING
+                else REVEAL_NEXT.get(state.get('reveal'), 'wait'))
         if state.get('link') and step in ('identify_device', 'install_in_safari'):
             say('link', state['link'])
         say('next', step)
@@ -346,6 +357,10 @@ if __name__ == '__main__':
                 say('developer_image', result['detail'])
             say('next', 'verify' if result.get('ok') else 'failed')
         elif cmd == 'trusted':
+            # Trust can come while the job still finishes; its end would mark trust pending again.
+            deadline = time.time() + 100
+            while running() and time.time() < deadline:
+                time.sleep(2)
             bridge(action='trusted')
             status(detect=False)
         elif cmd == 'reset':

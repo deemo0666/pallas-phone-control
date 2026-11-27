@@ -339,7 +339,7 @@ exports.start = function start(workspace, call, scheduler, perform, authorize = 
         stage = typeof args.outcome === 'string' ? args.outcome.slice(0, 180) : '签装已结束';
       } else if (args.action === 'pin' && /^\d{6}$/.test(args.code)) {
         pin = args.code; expires = Date.now() + 300000; stage = '请输入配对码';
-      } else if (args.action === 'stage' && ['等待系统配对','配对隧道已验证','验证未完成','正在连接'].includes(args.value)) {
+      } else if (args.action === 'stage' && ['等待系统配对','配对隧道已验证','验证未完成','正在连接','组件已装好，等待信任'].includes(args.value)) {
         stage = args.value; pin = ''; expires = 0;
       } else if (args.action === 'advertise' && args.type === TYPE && !owned && !advertising &&
                  Number.isInteger(args.port) && /^[a-f0-9-]{36}$/i.test(args.name) &&

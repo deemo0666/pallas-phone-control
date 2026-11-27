@@ -41,6 +41,272 @@ WAIT = 15 * 60
 # The stage the app reads as "turn the switch on now" (PhoneSetupWatch.revealedStage).
 REVEALED = '请打开开发者模式'
 
+# Text on the Safari pages and in the profile and install prompt, in the language of the app's
+# own setup card (App/Localizable.xcstrings); English when the viewer's language is not here.
+PAGE_TEXT = {
+    "zh-Hans": {
+        "identify_title": "识别本机",
+        "download": "下载「Pallas 识别本机」",
+        "identify_steps": [
+            "Safari 问能不能下载时，点「允许」。",
+            "打开「设置」，点最上面的「已下载描述文件」",
+            "点右上角「安装」，输入锁屏密码，再点「安装」"
+        ],
+        "done_title": "已识别本机",
+        "back": "回到 Pallas 继续。",
+        "wait": "请稍候",
+        "install_title": "在 Safari 安装",
+        "install": "安装「Pallas 手机操控」",
+        "install_steps": [
+            "系统问要不要安装，点「安装」",
+            "提示「无法安装」是正常的，点「完成」",
+            "打开「设置 › 隐私与安全性」，划到最下面，点「开发者模式」"
+        ],
+        "profile_name": "Pallas 识别本机",
+        "profile_note": "只读取设备标识，用来让「开发者模式」出现。不会安装任何设置。",
+        "app_name": "Pallas 手机操控"
+    },
+    "zh-Hant": {
+        "identify_title": "識別本機",
+        "download": "下載「Pallas 識別本機」",
+        "identify_steps": [
+            "Safari 詢問能否下載時，點「允許」。",
+            "開啟「設定」，點最上方的「已下載描述檔」",
+            "點右上角「安裝」，輸入鎖定密碼，再點「安裝」"
+        ],
+        "done_title": "已識別本機",
+        "back": "回到 Pallas 繼續。",
+        "wait": "請稍候",
+        "install_title": "在 Safari 安裝",
+        "install": "安裝「Pallas 手機操控」",
+        "install_steps": [
+            "系統詢問是否安裝，點「安裝」",
+            "顯示「無法安裝」是正常的，點「完成」",
+            "開啟「設定 › 隱私權與安全性」，滑到最下面，點「開發者模式」"
+        ],
+        "profile_name": "Pallas 識別本機",
+        "profile_note": "只讀取裝置識別碼，用來讓「開發者模式」出現。不會安裝任何設定。",
+        "app_name": "Pallas 手機操控"
+    },
+    "en": {
+        "identify_title": "Identify This Device",
+        "download": "Download “Pallas Device ID”",
+        "identify_steps": [
+            "When Safari asks, tap “Allow”.",
+            "Open Settings and tap “Profile Downloaded” at the top",
+            "Tap “Install” at the top right, enter your passcode, then tap “Install”"
+        ],
+        "done_title": "Device identified",
+        "back": "Go back to Pallas to continue.",
+        "wait": "Please wait",
+        "install_title": "Install in Safari",
+        "install": "Install “Pallas Phone Control”",
+        "install_steps": [
+            "When asked to install, tap “Install”",
+            "“Unable to Install” is expected; tap “Done”",
+            "Open Settings › Privacy & Security, scroll to the bottom, and tap “Developer Mode”"
+        ],
+        "profile_name": "Pallas Device ID",
+        "profile_note": "Reads this device’s identifier only, so that Developer Mode can appear. Nothing is installed.",
+        "app_name": "Pallas Phone Control"
+    },
+    "ja": {
+        "identify_title": "このデバイスを識別",
+        "download": "「Pallas デバイス識別」をダウンロード",
+        "identify_steps": [
+            "Safari に聞かれたら「許可」をタップします。",
+            "「設定」を開き、一番上の「プロファイルがダウンロードされました」をタップ",
+            "右上の「インストール」をタップし、パスコードを入力して、もう一度「インストール」をタップ"
+        ],
+        "done_title": "このデバイスを識別しました",
+        "back": "Pallas に戻って続けてください。",
+        "wait": "しばらくお待ちください",
+        "install_title": "Safari でインストール",
+        "install": "「Pallas スマホ操作」をインストール",
+        "install_steps": [
+            "インストールするか聞かれたら「インストール」をタップ",
+            "「インストールできません」と表示されても問題ありません。「完了」をタップ",
+            "「設定 › プライバシーとセキュリティ」を開き、一番下までスクロールして「デベロッパモード」をタップ"
+        ],
+        "profile_name": "Pallas デバイス識別",
+        "profile_note": "デバイスの識別子だけを読み取り、デベロッパモードを表示できるようにします。設定は何もインストールされません。",
+        "app_name": "Pallas スマホ操作"
+    },
+    "ko": {
+        "identify_title": "이 기기 식별",
+        "download": "“Pallas 기기 식별” 다운로드",
+        "identify_steps": [
+            "Safari가 물으면 “허용”을 탭하세요.",
+            "“설정”을 열고 맨 위의 “프로파일이 다운로드됨” 탭",
+            "오른쪽 위의 “설치”를 탭하고 암호를 입력한 다음 다시 “설치” 탭"
+        ],
+        "done_title": "기기를 식별했습니다",
+        "back": "Pallas로 돌아가 계속하세요.",
+        "wait": "잠시 기다려 주세요",
+        "install_title": "Safari에서 설치",
+        "install": "“Pallas 휴대폰 제어” 설치",
+        "install_steps": [
+            "설치할지 물으면 “설치” 탭",
+            "“설치할 수 없음”이 표시되는 것은 정상이니 “완료” 탭",
+            "“설정 › 개인정보 보호 및 보안”을 열고 맨 아래로 스크롤해 “개발자 모드” 탭"
+        ],
+        "profile_name": "Pallas 기기 식별",
+        "profile_note": "개발자 모드가 나타나도록 이 기기의 식별자만 읽습니다. 아무것도 설치되지 않습니다.",
+        "app_name": "Pallas 휴대폰 제어"
+    },
+    "es": {
+        "identify_title": "Identificar este dispositivo",
+        "download": "Descargar “Pallas Identificación del dispositivo”",
+        "identify_steps": [
+            "Cuando Safari pregunte, toca “Permitir”.",
+            "Abre Ajustes y toca “Perfil descargado” arriba del todo",
+            "Toca “Instalar” arriba a la derecha, introduce tu código y vuelve a tocar “Instalar”"
+        ],
+        "done_title": "Dispositivo identificado",
+        "back": "Vuelve a Pallas para continuar.",
+        "wait": "Espera un momento",
+        "install_title": "Instalar en Safari",
+        "install": "Instalar “Pallas Control del teléfono”",
+        "install_steps": [
+            "Cuando pregunte si quieres instalar, toca “Instalar”",
+            "Es normal que diga “No se puede instalar”; toca “OK”",
+            "Abre Ajustes › Privacidad y seguridad, desplázate hasta abajo y toca “Modo de desarrollador”"
+        ],
+        "profile_name": "Pallas Identificación del dispositivo",
+        "profile_note": "Solo lee el identificador de este dispositivo para que aparezca el Modo de desarrollador. No se instala nada.",
+        "app_name": "Pallas Control del teléfono"
+    },
+    "fr": {
+        "identify_title": "Identifier cet appareil",
+        "download": "Télécharger « Pallas Identification de l’appareil »",
+        "identify_steps": [
+            "Quand Safari le demande, touchez « Autoriser ».",
+            "Ouvrez Réglages et touchez « Profil téléchargé » tout en haut",
+            "Touchez « Installer » en haut à droite, saisissez votre code, puis touchez à nouveau « Installer »"
+        ],
+        "done_title": "Appareil identifié",
+        "back": "Revenez dans Pallas pour continuer.",
+        "wait": "Veuillez patienter",
+        "install_title": "Installer dans Safari",
+        "install": "Installer « Pallas Contrôle du téléphone »",
+        "install_steps": [
+            "Quand le système demande s’il faut installer, touchez « Installer »",
+            "Le message « Impossible d’installer » est normal ; touchez « OK »",
+            "Ouvrez Réglages › Confidentialité et sécurité, faites défiler jusqu’en bas et touchez « Mode développeur »"
+        ],
+        "profile_name": "Pallas Identification de l’appareil",
+        "profile_note": "Lit uniquement l’identifiant de cet appareil, pour que le Mode développeur puisse apparaître. Rien n’est installé.",
+        "app_name": "Pallas Contrôle du téléphone"
+    },
+    "de": {
+        "identify_title": "Dieses Gerät erkennen",
+        "download": "„Pallas Geräteerkennung“ laden",
+        "identify_steps": [
+            "Wenn Safari fragt, tippe auf „Erlauben“.",
+            "Öffne die Einstellungen und tippe ganz oben auf „Profil geladen“",
+            "Tippe oben rechts auf „Installieren“, gib deinen Code ein und tippe erneut auf „Installieren“"
+        ],
+        "done_title": "Gerät erkannt",
+        "back": "Kehre zu Pallas zurück, um fortzufahren.",
+        "wait": "Bitte warten",
+        "install_title": "In Safari installieren",
+        "install": "„Pallas Telefonsteuerung“ installieren",
+        "install_steps": [
+            "Wenn gefragt wird, ob installiert werden soll, tippe auf „Installieren“",
+            "Die Meldung „… kann nicht installiert werden“ ist normal – tippe auf „Fertig“",
+            "Öffne „Einstellungen › Datenschutz & Sicherheit“, scrolle ganz nach unten und tippe auf „Entwicklermodus“"
+        ],
+        "profile_name": "Pallas Geräteerkennung",
+        "profile_note": "Liest nur die Kennung dieses Geräts, damit der Entwicklermodus erscheinen kann. Es wird nichts installiert.",
+        "app_name": "Pallas Telefonsteuerung"
+    },
+    "pt-BR": {
+        "identify_title": "Identificar este dispositivo",
+        "download": "Baixar “Pallas Identificação do dispositivo”",
+        "identify_steps": [
+            "Quando o Safari perguntar, toque em “Permitir”.",
+            "Abra Ajustes e toque em “Perfil Baixado”, no topo",
+            "Toque em “Instalar” no canto superior direito, digite seu código e toque em “Instalar” de novo"
+        ],
+        "done_title": "Dispositivo identificado",
+        "back": "Volte ao Pallas para continuar.",
+        "wait": "Aguarde",
+        "install_title": "Instalar no Safari",
+        "install": "Instalar “Pallas Controle do celular”",
+        "install_steps": [
+            "Quando perguntar se deseja instalar, toque em “Instalar”",
+            "A mensagem “Não é Possível Instalar” é normal; toque em “OK”",
+            "Abra Ajustes › Privacidade e Segurança, role até o fim e toque em “Modo de Desenvolvedor”"
+        ],
+        "profile_name": "Pallas Identificação do dispositivo",
+        "profile_note": "Só lê o identificador deste dispositivo, para que o Modo de Desenvolvedor possa aparecer. Nada é instalado.",
+        "app_name": "Pallas Controle do celular"
+    },
+    "it": {
+        "identify_title": "Identifica questo dispositivo",
+        "download": "Scarica “Pallas Identificazione dispositivo”",
+        "identify_steps": [
+            "Quando Safari lo chiede, tocca “Consenti”.",
+            "Apri Impostazioni e tocca “Profilo scaricato” in cima",
+            "Tocca “Installa” in alto a destra, inserisci il codice, poi tocca di nuovo “Installa”"
+        ],
+        "done_title": "Dispositivo identificato",
+        "back": "Torna su Pallas per continuare.",
+        "wait": "Attendi",
+        "install_title": "Installa in Safari",
+        "install": "Installa “Pallas Controllo del telefono”",
+        "install_steps": [
+            "Quando chiede se installare, tocca “Installa”",
+            "Il messaggio “Impossibile installare” è normale; tocca “Fine”",
+            "Apri Impostazioni › Privacy e sicurezza, scorri fino in fondo e tocca “Modalità sviluppatore”"
+        ],
+        "profile_name": "Pallas Identificazione dispositivo",
+        "profile_note": "Legge solo l’identificativo di questo dispositivo, perché possa comparire la Modalità sviluppatore. Non viene installato nulla.",
+        "app_name": "Pallas Controllo del telefono"
+    },
+    "ru": {
+        "identify_title": "Определить устройство",
+        "download": "Загрузить «Pallas Определение устройства»",
+        "identify_steps": [
+            "Когда Safari спросит, нажмите «Разрешить».",
+            "Откройте Настройки и нажмите «Профиль загружен» в самом верху",
+            "Нажмите «Установить» в правом верхнем углу, введите код-пароль и снова нажмите «Установить»"
+        ],
+        "done_title": "Устройство определено",
+        "back": "Вернитесь в Pallas, чтобы продолжить.",
+        "wait": "Подождите",
+        "install_title": "Установить в Safari",
+        "install": "Установить «Pallas Управление телефоном»",
+        "install_steps": [
+            "На вопрос об установке нажмите «Установить»",
+            "Сообщение «Не удается установить» — это нормально, нажмите «Готово»",
+            "Откройте «Настройки › Конфиденциальность и безопасность», прокрутите вниз и нажмите «Режим разработчика»"
+        ],
+        "profile_name": "Pallas Определение устройства",
+        "profile_note": "Считывает только идентификатор устройства, чтобы появился режим разработчика. Ничего не устанавливается.",
+        "app_name": "Pallas Управление телефоном"
+    }
+}
+
+
+def pick_language(header):
+    """The first of the viewer's languages PAGE_TEXT has (Accept-Language); English when none is."""
+    for part in str(header or '').split(','):
+        tag = part.split(';')[0].strip().lower()
+        if not tag:
+            continue
+        if tag.startswith('zh'):
+            return 'zh-Hant' if re.search(r'hant|-tw|-hk|-mo', tag) else 'zh-Hans'
+        if tag.startswith('pt'):
+            return 'pt-BR'
+        if tag.split('-')[0] in PAGE_TEXT:
+            return tag.split('-')[0]
+    return 'en'
+
+
+def steps_html(lines):
+    return '<ol>' + ''.join(f'<li>{html.escape(line)}</li>' for line in lines) + '</ol>'
+
 
 def load(name, file):
     spec = spec_from_file_location(name, BASE / file)
@@ -98,6 +364,8 @@ class Site:
         self.udid = None
         self.identified = threading.Event()
         self.app = None  # (ipa bytes, bundle id, version)
+        # The language Safari asked in; the system's own fetches (manifest) use the same.
+        self.lang = 'en'
         self.fetched = threading.Event()
         self.manifest_fetched = threading.Event()
         site = self
@@ -129,27 +397,27 @@ class Site:
                 path = self.route()
                 if path == 'ping':
                     return self.reply(200, 'text/plain', site.challenge.encode())
+                if path in ('', 'udid.mobileconfig', 'identified', 'install'):
+                    site.lang = pick_language(self.headers.get('Accept-Language'))
+                t = PAGE_TEXT[site.lang]
                 if path == '':
                     return self.reply(200, 'text/html; charset=utf-8', page(
-                        '识别本机 · Identify this device',
-                        '<p><a class=b href="udid.mobileconfig">下载「Pallas 识别本机」<br>Download the profile</a></p>'
-                        '<p>下载后打开「设置」，点顶部的「已下载描述文件」安装。<br>'
-                        'Then open Settings and install it from “Profile Downloaded”.</p>'))
+                        site.lang, t['identify_title'],
+                        f'<p><a class=b href="udid.mobileconfig">{html.escape(t["download"])}</a></p>'
+                        + steps_html(t['identify_steps'])))
                 if path == 'udid.mobileconfig':
                     return self.reply(200, 'application/x-apple-aspen-config', site.profile())
                 if path == 'identified':
                     return self.reply(200, 'text/html; charset=utf-8', page(
-                        '已识别 · Done', '<p>回到 Pallas。<br>Go back to Pallas.</p>'))
+                        site.lang, t['done_title'], f'<p>{html.escape(t["back"])}</p>'))
                 if path == 'install':
                     if not site.app:
-                        return self.reply(200, 'text/html; charset=utf-8', page('请稍候 · Not ready', '<p>…</p>'))
+                        return self.reply(200, 'text/html; charset=utf-8', page(site.lang, t['wait'], '<p>…</p>'))
                     link = 'itms-services://?action=download-manifest&url=' + quote(site.base + 'manifest.plist', safe='')
                     return self.reply(200, 'text/html; charset=utf-8', page(
-                        '安装 · Install',
-                        f'<p><a class=b href="{html.escape(link)}">安装「Pallas 手机操控」<br>Install</a></p>'
-                        '<p>系统再问时也点「安装」。提示「无法安装」是正常的，接着打开「设置 › 隐私与安全性 › 开发者模式」。<br>'
-                        'Tap Install again when asked. “Unable to Install” is expected: then open Settings › '
-                        'Privacy &amp; Security › Developer Mode.</p>'))
+                        site.lang, t['install_title'],
+                        f'<p><a class=b href="{html.escape(link)}">{html.escape(t["install"])}</a></p>'
+                        + steps_html(t['install_steps'])))
                 if path == 'manifest.plist' and site.app:
                     site.manifest_fetched.set()
                     return self.reply(200, 'application/xml', site.manifest())
@@ -188,9 +456,8 @@ class Site:
         return plistlib.dumps({
             'PayloadContent': {'URL': self.base + 'udid', 'DeviceAttributes': ['UDID', 'PRODUCT', 'VERSION'],
                                'Challenge': self.challenge},
-            'PayloadOrganization': 'Pallas', 'PayloadDisplayName': 'Pallas 识别本机',
-            'PayloadDescription': '只读取设备标识，用来让「开发者模式」出现。不会安装任何设置。'
-                                  ' Reads this device’s identifier only. Nothing is installed.',
+            'PayloadOrganization': 'Pallas', 'PayloadDisplayName': PAGE_TEXT[self.lang]['profile_name'],
+            'PayloadDescription': PAGE_TEXT[self.lang]['profile_note'],
             'PayloadVersion': 1, 'PayloadUUID': str(uuid.uuid4()).upper(),
             'PayloadIdentifier': 'io.pallas.identify.' + self.challenge[:8], 'PayloadType': 'Profile Service'})
 
@@ -199,14 +466,15 @@ class Site:
         return plistlib.dumps({'items': [{
             'assets': [{'kind': 'software-package', 'url': self.base + 'app.ipa'}],
             'metadata': {'bundle-identifier': bundle, 'bundle-version': version, 'kind': 'software',
-                         'title': 'Pallas 手机操控'}}]})
+                         'title': PAGE_TEXT[self.lang]['app_name']}}]})
 
 
-def page(title, body):
-    return ('<!doctype html><meta charset=utf-8><meta name=viewport content="width=device-width,initial-scale=1">'
+def page(lang, title, body):
+    return (f'<!doctype html><html lang="{lang}"><meta charset=utf-8>'
+            '<meta name=viewport content="width=device-width,initial-scale=1">'
             f'<title>{html.escape(title)}</title><style>body{{font:17px -apple-system,system-ui;margin:32px 20px;'
             'line-height:1.5}a.b{display:block;text-align:center;padding:14px;border-radius:12px;background:#0a84ff;'
-            'color:#fff;text-decoration:none;font-weight:600}</style>'
+            'color:#fff;text-decoration:none;font-weight:600}ol{padding-left:22px}li{margin:6px 0}</style>'
             f'<h2>{html.escape(title)}</h2>{body}').encode()
 
 
