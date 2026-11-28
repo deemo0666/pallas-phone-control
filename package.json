@@ -1,6 +1,6 @@
 {
   "name": "pallas-phone-control",
-  "version": "0.8.2",
+  "version": "0.8.3",
   "description": "手机操控 Phone Control：让 Pallas Agent 操作这台设备上的其他 App。安装后在本机对话里说「开通手机操控」。",
   "keywords": [
     "dsh-plugin",
